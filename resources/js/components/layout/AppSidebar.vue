@@ -9,10 +9,7 @@
         '-translate-x-full': !isMobileOpen,
         'lg:translate-x-0': true,
       },
-    ]"
-    @mouseenter="!isExpanded && (isHovered = true)"
-    @mouseleave="isHovered = false"
-  >
+    ]">
     <div
       :class="[
         'py-8 flex',
@@ -206,7 +203,6 @@
           </div>
         </div>
       </nav>
-      <SidebarWidget v-if="isExpanded || isHovered || isMobileOpen" />
     </div>
   </aside>
 </template>
@@ -230,7 +226,6 @@ import {
   ListIcon,
   PlugInIcon,
 } from "../../icons";
-import SidebarWidget from "./SidebarWidget.vue";
 import BoxCubeIcon from "@/icons/BoxCubeIcon.vue";
 import { useSidebar } from "@/composables/useSidebar";
 
@@ -301,14 +296,6 @@ const menuGroups = [
           { name: "Buttons", path: "/buttons", pro: false },
           { name: "Images", path: "/images", pro: false },
           { name: "Videos", path: "/videos", pro: false },
-        ],
-      },
-      {
-        icon: PlugInIcon,
-        name: "Authentication",
-        subItems: [
-          { name: "Signin", path: "/signin", pro: false },
-          { name: "Signup", path: "/signup", pro: false },
         ],
       },
       // ... Add other menu items here

@@ -117,7 +117,7 @@ const notifications = ref([
   {
     id: 1,
     userName: 'Terry Franci',
-    userImage: '/images/user/user-02.jpg',
+    userImage: new URL('@/images/user/default.jpg', import.meta.url).href,
     action: 'requests permission to change',
     project: 'Project - Nganter App',
     type: 'Project',
@@ -127,7 +127,7 @@ const notifications = ref([
   {
     id: 2,
     userName: 'Terry Franci',
-    userImage: '/images/user/user-03.jpg',
+    userImage: new URL('@/images/user/default.jpg', import.meta.url).href,
     action: 'requests permission to change',
     project: 'Project - Nganter App',
     type: 'Project',
@@ -137,7 +137,7 @@ const notifications = ref([
   {
     id: 3,
     userName: 'Terry Franci',
-    userImage: '/images/user/user-04.jpg',
+    userImage: new URL('@/images/user/default.jpg', import.meta.url).href,
     action: 'requests permission to change',
     project: 'Project - Nganter App',
     type: 'Project',
@@ -147,7 +147,7 @@ const notifications = ref([
   {
     id: 4,
     userName: 'Terry Franci',
-    userImage: '/images/user/user-05.jpg',
+    userImage: new URL('@/images/user/default.jpg', import.meta.url).href,
     action: 'requests permission to change',
     project: 'Project - Nganter App',
     type: 'Project',
@@ -157,7 +157,7 @@ const notifications = ref([
   {
     id: 5,
     userName: 'Terry Franci',
-    userImage: '/images/user/user-06.jpg',
+    userImage: new URL('@/images/user/default.jpg', import.meta.url).href,
     action: 'requests permission to change',
     project: 'Project - Nganter App',
     type: 'Project',
@@ -167,7 +167,7 @@ const notifications = ref([
   {
     id: 6,
     userName: 'Terry Franci',
-    userImage: '/images/user/user-07.jpg',
+    userImage: new URL('@/images/user/default.jpg', import.meta.url).href,
     action: 'requests permission to change',
     project: 'Project - Nganter App',
     type: 'Project',
@@ -177,7 +177,7 @@ const notifications = ref([
   {
     id: 7,
     userName: 'Terry Franci',
-    userImage: '/images/user/user-08.jpg',
+    userImage: new URL('@/images/user/default.jpg', import.meta.url).href,
     action: 'requests permission to change',
     project: 'Project - Nganter App',
     type: 'Project',
@@ -187,7 +187,7 @@ const notifications = ref([
   {
     id: 7,
     userName: 'Terry Franci',
-    userImage: '/images/user/user-09.jpg',
+    userImage: new URL('@/images/user/default.jpg', import.meta.url).href,
     action: 'requests permission to change',
     project: 'Project - Nganter App',
     type: 'Project',

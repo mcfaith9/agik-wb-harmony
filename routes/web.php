@@ -11,6 +11,7 @@ Route::post('/signup', [AuthController::class, 'signup']);
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/login-user', [AuthController::class, 'profile']);
 });
 
 Route::get('/{any}', function () {
