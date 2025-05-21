@@ -1,3 +1,55 @@
+<script setup lang="ts">
+  import { ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import axios from 'axios'
+  import CommonGridShape from '@/components/common/CommonGridShape.vue'
+  import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+
+  const router = useRouter()
+  const email = ref('')
+  const password = ref('')
+  const showPassword = ref(false)
+  const keepLoggedIn = ref(false)
+
+  const errorMessage = ref('')
+  const loading = ref(false)
+
+  const togglePasswordVisibility = () => {
+    showPassword.value = !showPassword.value
+  }
+
+  const handleSubmit = async () => {
+    errorMessage.value = ''
+    loading.value = true
+
+    if (!email.value || !password.value) {
+      errorMessage.value = 'Email and password are required.'
+      loading.value = false
+      return
+    }
+
+    try {
+      const response = await axios.post('/signin', {
+        email: email.value,
+        password: password.value,
+      })
+
+      // Store token or user info if needed
+      localStorage.setItem('token', response.data.token)
+
+      router.push('/')
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage.value = error.response.data.message
+      } else {
+        errorMessage.value = 'Something went wrong. Please try again.'
+      }
+    } finally {
+      loading.value = false
+    }
+  }
+</script>
+
 <template>
   <FullScreenLayout>
     <div class="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
@@ -73,16 +125,14 @@
                     Sign in with Google
                   </button>
                   <button
-                    class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
-                  >
+                    class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
                     <svg
                       width="21"
                       class="fill-current"
                       height="20"
                       viewBox="0 0 21 20"
                       fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
+                      xmlns="http://www.w3.org/2000/svg">
                       <path
                         d="M15.6705 1.875H18.4272L12.4047 8.75833L19.4897 18.125H13.9422L9.59717 12.4442L4.62554 18.125H1.86721L8.30887 10.7625L1.51221 1.875H7.20054L11.128 7.0675L15.6705 1.875ZM14.703 16.475H16.2305L6.37054 3.43833H4.73137L14.703 16.475Z"
                       />
@@ -96,19 +146,18 @@
                     <div class="w-full border-t border-gray-200 dark:border-gray-800"></div>
                   </div>
                   <div class="relative flex justify-center text-sm">
-                    <span class="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2"
-                      >Or</span
-                    >
+                    <span class="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">Or</span>
                   </div>
                 </div>
                 <form @submit.prevent="handleSubmit">
                   <div class="space-y-5">
-                    <!-- Email -->
+                    <div v-if="errorMessage" class="text-sm text-center text-red-500">
+                      {{ errorMessage }}
+                    </div>
                     <div>
                       <label
                         for="email"
-                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                      >
+                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                         Email<span class="text-error-500">*</span>
                       </label>
                       <input
@@ -117,15 +166,13 @@
                         id="email"
                         name="email"
                         placeholder="info@gmail.com"
-                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                      />
+                        class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"/>
                     </div>
                     <!-- Password -->
                     <div>
                       <label
                         for="password"
-                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
-                      >
+                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                         Password<span class="text-error-500">*</span>
                       </label>
                       <div class="relative">
@@ -134,12 +181,10 @@
                           :type="showPassword ? 'text' : 'password'"
                           id="password"
                           placeholder="Enter your password"
-                          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                        />
+                          class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"/>
                         <span
                           @click="togglePasswordVisibility"
-                          class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400"
-                        >
+                          class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400">
                           <svg
                             v-if="!showPassword"
                             class="fill-current"
@@ -147,14 +192,12 @@
                             height="20"
                             viewBox="0 0 20 20"
                             fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
+                            xmlns="http://www.w3.org/2000/svg">
                             <path
                               fill-rule="evenodd"
                               clip-rule="evenodd"
                               d="M10.0002 13.8619C7.23361 13.8619 4.86803 12.1372 3.92328 9.70241C4.86804 7.26761 7.23361 5.54297 10.0002 5.54297C12.7667 5.54297 15.1323 7.26762 16.0771 9.70243C15.1323 12.1372 12.7667 13.8619 10.0002 13.8619ZM10.0002 4.04297C6.48191 4.04297 3.49489 6.30917 2.4155 9.4593C2.3615 9.61687 2.3615 9.78794 2.41549 9.94552C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619C13.5184 15.3619 16.5055 13.0957 17.5849 9.94555C17.6389 9.78797 17.6389 9.6169 17.5849 9.45932C16.5055 6.30919 13.5184 4.04297 10.0002 4.04297ZM9.99151 7.84413C8.96527 7.84413 8.13333 8.67606 8.13333 9.70231C8.13333 10.7286 8.96527 11.5605 9.99151 11.5605H10.0064C11.0326 11.5605 11.8646 10.7286 11.8646 9.70231C11.8646 8.67606 11.0326 7.84413 10.0064 7.84413H9.99151Z"
-                              fill="#98A2B3"
-                            />
+                              fill="#98A2B3"/>
                           </svg>
                           <svg
                             v-else
@@ -163,8 +206,7 @@
                             height="20"
                             viewBox="0 0 20 20"
                             fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
+                            xmlns="http://www.w3.org/2000/svg">
                             <path
                               fill-rule="evenodd"
                               clip-rule="evenodd"
@@ -180,23 +222,20 @@
                       <div>
                         <label
                           for="keepLoggedIn"
-                          class="flex items-center text-sm font-normal text-gray-700 cursor-pointer select-none dark:text-gray-400"
-                        >
+                          class="flex items-center text-sm font-normal text-gray-700 cursor-pointer select-none dark:text-gray-400">
                           <div class="relative">
                             <input
                               v-model="keepLoggedIn"
                               type="checkbox"
                               id="keepLoggedIn"
-                              class="sr-only"
-                            />
+                              class="sr-only"/>
                             <div
                               :class="
                                 keepLoggedIn
                                   ? 'border-brand-500 bg-brand-500'
                                   : 'bg-transparent border-gray-300 dark:border-gray-700'
                               "
-                              class="mr-3 flex h-5 w-5 items-center justify-center rounded-md border-[1.25px]"
-                            >
+                              class="mr-3 flex h-5 w-5 items-center justify-center rounded-md border-[1.25px]">
                               <span :class="keepLoggedIn ? '' : 'opacity-0'">
                                 <svg
                                   width="14"
@@ -229,32 +268,26 @@
                     <div>
                       <button
                         type="submit"
-                        class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-                      >
-                        Sign In
+                        :disabled="loading"
+                        class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
+                        {{ loading ? 'Signing in...' : 'Sign In' }}
                       </button>
                     </div>
                   </div>
                 </form>
                 <div class="mt-5">
-                  <p
-                    class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start"
-                  >
+                  <p class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                     Don't have an account?
-                    <router-link
-                      to="/signup"
-                      class="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                      >Sign Up</router-link
-                    >
+                    <router-link to="/signup" class="text-brand-500 hover:text-brand-600 dark:text-brand-400">
+                      Sign Up
+                    </router-link>
                   </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div
-          class="relative items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid"
-        >
+        <div class="relative items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid">
           <div class="flex items-center justify-center z-1">
             <common-grid-shape />
             <div class="flex flex-col items-center max-w-xs">
@@ -271,26 +304,3 @@
     </div>
   </FullScreenLayout>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import CommonGridShape from '@/components/common/CommonGridShape.vue'
-import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
-const email = ref('')
-const password = ref('')
-const showPassword = ref(false)
-const keepLoggedIn = ref(false)
-
-const togglePasswordVisibility = () => {
-  showPassword.value = !showPassword.value
-}
-
-const handleSubmit = () => {
-  // Handle form submission
-  console.log('Form submitted', {
-    email: email.value,
-    password: password.value,
-    keepLoggedIn: keepLoggedIn.value,
-  })
-}
-</script>

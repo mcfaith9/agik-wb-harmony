@@ -3,8 +3,14 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('web')->group(function () {
-    Route::post('/signup', [AuthController::class, 'signup']);
+// Public routes
+Route::post('/signin', [AuthController::class, 'signin']);
+Route::post('/signup', [AuthController::class, 'signup']);
+
+// Protected routes (only logged in users)
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
 });
 
 Route::get('/{any}', function () {
