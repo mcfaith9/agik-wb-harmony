@@ -36,15 +36,14 @@
         <img
           v-else
           src="@/images/logo/logo-icon.svg"
+          class="rounded-full"
           alt="Logo"
           width="32"
           height="32"
         />
       </router-link>
     </div>
-    <div
-      class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar"
-    >
+    <div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
       <nav class="mb-6">
         <div class="flex flex-col gap-4">
           <div v-for="(menuGroup, groupIndex) in menuGroups" :key="groupIndex">
@@ -84,7 +83,7 @@
                         : 'menu-item-icon-inactive',
                     ]"
                   >
-                    <component :is="item.icon" />
+                    <component :is="item.icon" class="w-5 h-5" />
                   </span>
                   <span
                     v-if="isExpanded || isHovered || isMobileOpen"
@@ -122,7 +121,7 @@
                         : 'menu-item-icon-inactive',
                     ]"
                   >
-                    <component :is="item.icon" />
+                    <component :is="item.icon" class="w-5 h-5" />
                   </span>
                   <span
                     v-if="isExpanded || isHovered || isMobileOpen"
