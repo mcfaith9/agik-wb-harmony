@@ -238,20 +238,17 @@ const menuGroups = [
     items: [
       {
         icon: GridIcon,
-        name: "Dashboard",
-        subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+        name: "Projects",
+        subItems: [
+          { name: "Ecommerce", path: "/", pro: false },
+          { name: "Task", path: "/task-list", pro: false },
+        ],
       },
       {
         icon: CalenderIcon,
         name: "Calendar",
         path: "/calendar",
       },
-      {
-        icon: UserCircleIcon,
-        name: "User Profile",
-        path: "/profile",
-      },
-
       {
         name: "Forms",
         icon: ListIcon,
@@ -263,14 +260,6 @@ const menuGroups = [
         name: "Tables",
         icon: TableIcon,
         subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-      },
-      {
-        name: "Pages",
-        icon: PageIcon,
-        subItems: [
-          { name: "Black Page", path: "/blank", pro: false },
-          { name: "404 Page", path: "/error-404", pro: false },
-        ],
       },
     ],
   },
@@ -287,15 +276,8 @@ const menuGroups = [
       },
       {
         icon: BoxCubeIcon,
-        name: "Ui Elements",
-        subItems: [
-          { name: "Alerts", path: "/alerts", pro: false },
-          { name: "Avatars", path: "/avatars", pro: false },
-          { name: "Badge", path: "/badge", pro: false },
-          { name: "Buttons", path: "/buttons", pro: false },
-          { name: "Images", path: "/images", pro: false },
-          { name: "Videos", path: "/videos", pro: false },
-        ],
+        name: "Settings",
+        path: "/#",
       },
       // ... Add other menu items here
     ],

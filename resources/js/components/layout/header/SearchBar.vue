@@ -1,6 +1,44 @@
+<script setup>
+  import { ref, computed } from 'vue'
+  import { useRouter } from 'vue-router'
+
+  // 1️⃣ grab your router
+  const router = useRouter()
+
+  // 2️⃣ expose all routes you want to search
+  //    (you can filter out routes you don’t want indexed here)
+  const allRoutes = router
+    .getRoutes()
+    .filter(r => r.name && !r.meta.guestOnly) // example: hide guest pages
+
+  // 3️⃣ reactive search query
+  const query = ref('')
+
+  // 4️⃣ compute filtered list
+  const filteredRoutes = computed(() => {
+    const q = query.value.trim().toLowerCase()
+    if (!q) return []
+
+    return allRoutes.filter(r => {
+      const title = (r.meta.title || r.name).toLowerCase()
+      return title.includes(q)
+    })
+  })
+
+  // helper to get first match
+  const firstMatch = computed(() => filteredRoutes.value[0] || null)
+
+  // 5️⃣ navigate
+  function goTo(route) {
+    if (!route) return
+    router.push({ name: route.name })
+    query.value = ''
+  }
+</script>
+
 <template>
   <div class="hidden lg:block">
-    <form>
+    <form @submit.prevent="goTo(firstMatch)">
       <div class="relative">
         <button class="absolute -translate-y-1/2 left-4 top-1/2">
           <svg
@@ -21,17 +59,30 @@
         </button>
         <input
           type="text"
+          v-model="query"
+          @keydown.enter.prevent="goTo(firstMatch)"
           placeholder="Search or type command..."
           class="dark:bg-dark-900 h-11 w-full rounded-full border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
         />
 
         <button
-          class="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400"
-        >
+          class="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
           <span> ⌘ </span>
           <span> K </span>
         </button>
-      </div>
-    </form>
+
+        <ul 
+          v-if="filteredRoutes.length && query" 
+          class="absolute left-0 top-full z-40 w-full mt-1 min-w-[260px] rounded-3xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-[#1E2635]">
+          <li
+            v-for="route in filteredRoutes"
+            :key="route.name"
+            @click="goTo(route)"
+            class="cursor-pointer px-4 py-2 hover:bg-gray-100 rounded-full">
+            {{ route.meta.title || route.name }}
+          </li>
+        </ul>
+      </div>      
+    </form>       
   </div>
 </template>

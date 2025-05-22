@@ -69,11 +69,18 @@ class AuthController extends Controller
         ]);
     }
 
-    public function user(Request $request)
+    public function isAuthenticated(Request $request)
     {
+        if (Auth::check()) {
+            return response()->json([
+                'authenticated' => true,
+            ]);
+        }
+
         return response()->json([
-            'user' => Auth::user()
-        ]);
+            'authenticated' => false,
+            'message' => 'User not logged in.',
+        ], 401);
     }
 
     public function profile()

@@ -12,6 +12,15 @@ const routes = [
     },
   },
   {
+    path: '/task-list',
+    name: 'Task List',
+    component: () => import('../views/TaskList.vue'),
+    meta: {
+      title: 'Task List',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/calendar',
     name: 'Calendar',
     component: () => import('../views/Others/Calendar.vue'),
@@ -58,74 +67,6 @@ const routes = [
     component: () => import('../views/Chart/BarChart/BarChart.vue'),
   },
   {
-    path: '/alerts',
-    name: 'Alerts',
-    component: () => import('../views/UiElements/Alerts.vue'),
-    meta: {
-      title: 'Alerts',
-    },
-  },
-  {
-    path: '/avatars',
-    name: 'Avatars',
-    component: () => import('../views/UiElements/Avatars.vue'),
-    meta: {
-      title: 'Avatars',
-    },
-  },
-  {
-    path: '/badge',
-    name: 'Badge',
-    component: () => import('../views/UiElements/Badges.vue'),
-    meta: {
-      title: 'Badge',
-    },
-  },
-
-  {
-    path: '/buttons',
-    name: 'Buttons',
-    component: () => import('../views/UiElements/Buttons.vue'),
-    meta: {
-      title: 'Buttons',
-    },
-  },
-
-  {
-    path: '/images',
-    name: 'Images',
-    component: () => import('../views/UiElements/Images.vue'),
-    meta: {
-      title: 'Images',
-    },
-  },
-  {
-    path: '/videos',
-    name: 'Videos',
-    component: () => import('../views/UiElements/Videos.vue'),
-    meta: {
-      title: 'Videos',
-    },
-  },
-  {
-    path: '/blank',
-    name: 'Blank',
-    component: () => import('../views/Pages/BlankPage.vue'),
-    meta: {
-      title: 'Blank',
-    },
-  },
-
-  {
-    path: '/error-404',
-    name: '404 Error',
-    component: () => import('../views/Errors/FourZeroFour.vue'),
-    meta: {
-      title: '404 Error',
-    },
-  },
-
-  {
     path: '/signin',
     name: 'Signin',
     component: () => import('../views/Auth/Signin.vue'),
@@ -156,7 +97,7 @@ const router = createRouter({
 // Auth check function
 async function isAuthenticated() {
   try {
-    await axios.get('/user')
+    await axios.get('/is-authenticated')
     return true
   } catch (error) {
     return false
