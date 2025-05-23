@@ -1,3 +1,49 @@
+<script setup>
+  import { ref, watch, onMounted } from 'vue'
+  import axios from 'axios'
+  import Modal from '@/components/common/Modal.vue'
+
+  const isProfileAddressModal = ref(false)
+
+  const form = ref({
+    country: '',
+    city_state: '',
+    postal_code: '',
+    tax_id: ''
+  })
+
+  const saveProfile = async () => {
+    try {
+      await axios.post('/user/address', form.value)
+      isProfileAddressModal.value = false
+    } catch (error) {
+      alert('Failed to update profile')
+      console.error(error)
+    }
+  }
+
+  const loadProfileAddress = async () => {
+    try {
+      const response = await axios.get('/user/address/show')
+      const data = response.data
+      form.value.country = data.country;
+      form.value.city_state = data.city_state;
+      form.value.postal_code = data.postal_code;
+      form.value.tax_id = data.tax_id;
+    } catch (error) {
+      console.error('Failed to load profile address:', error)
+    }
+  }
+
+  onMounted(() => {
+    loadProfileAddress()
+  })
+
+  watch(isProfileAddressModal, (newVal) => {
+    if (newVal) loadProfileAddress()
+  })
+</script>
+
 <template>
   <div>
     <div class="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -8,13 +54,13 @@
           <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Country</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">Philippines</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ form.country }}</p>
             </div>
 
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">City/State</p>
               <p class="text-sm font-medium text-gray-800 dark:text-white/90">
-                Cebu
+                {{ form.city_state }}
               </p>
             </div>
 
@@ -22,12 +68,12 @@
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                 Postal Code
               </p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">ERT 2489</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ form.postal_code }}</p>
             </div>
 
             <div>
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">TAX ID</p>
-              <p class="text-sm font-medium text-gray-800 dark:text-white/90">AS4568384</p>
+              <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ form.tax_id }}</p>
             </div>
           </div>
         </div>
@@ -98,9 +144,10 @@
                   </label>
                   <input
                     type="text"
-                    value="Philippines"
+                    value=""
+                    v-model="form.country"
                     class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
+                    required />
                 </div>
 
                 <div>
@@ -109,9 +156,10 @@
                   </label>
                   <input
                     type="text"
-                    value="Cebu"
+                    value=""
+                    v-model="form.city_state"
                     class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
+                    required />
                 </div>
 
                 <div>
@@ -120,9 +168,10 @@
                   </label>
                   <input
                     type="text"
-                    value="ERT 2489"
+                    value=""
+                    v-model="form.postal_code"
                     class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
+                    required />
                 </div>
 
                 <div>
@@ -131,9 +180,9 @@
                   </label>
                   <input
                     type="text"
-                    value="AS4568384"
-                    class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-                  />
+                    value=""
+                    v-model="form.tax_id"
+                    class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"/>
                 </div>
               </div>
             </div>
@@ -146,10 +195,9 @@
                 Close
               </button>
               <button
-                @click="saveProfile"
-                type="button"
-                class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
-              >
+                @click.prevent="saveProfile"
+                type="submit"
+                class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto">
                 Save Changes
               </button>
             </div>
@@ -159,18 +207,3 @@
     </Modal>
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-import Modal from './Modal.vue'
-
-const isProfileAddressModal = ref(false)
-
-const saveProfile = () => {
-  // Implement save profile logic here
-  console.log('Profile saved')
-  isProfileInfoModal.value = false
-}
-</script>
-
-<style></style>

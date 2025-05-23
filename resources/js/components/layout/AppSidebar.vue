@@ -211,8 +211,6 @@ import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 
 import {
-  GridIcon,
-  CalenderIcon,
   UserCircleIcon,
   ChatIcon,
   MailIcon,
@@ -225,7 +223,11 @@ import {
   ListIcon,
   PlugInIcon,
 } from "../../icons";
-import BoxCubeIcon from "@/icons/BoxCubeIcon.vue";
+import { 
+  Calendar1,
+  Settings,
+  LibraryBig
+} from "lucide-vue-next"
 import { useSidebar } from "@/composables/useSidebar";
 
 const route = useRoute();
@@ -237,7 +239,7 @@ const menuGroups = [
     title: "Menu",
     items: [
       {
-        icon: GridIcon,
+        icon: LibraryBig,
         name: "Projects",
         subItems: [
           { name: "Ecommerce", path: "/", pro: false },
@@ -245,7 +247,7 @@ const menuGroups = [
         ],
       },
       {
-        icon: CalenderIcon,
+        icon: Calendar1,
         name: "Calendar",
         path: "/calendar",
       },
@@ -275,7 +277,7 @@ const menuGroups = [
         ],
       },
       {
-        icon: BoxCubeIcon,
+        icon: Settings,
         name: "Settings",
         path: "/#",
       },

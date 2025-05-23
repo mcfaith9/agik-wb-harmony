@@ -10,5 +10,15 @@
 </template>
 
 <script setup>
-// No additional setup needed
+  import { onMounted, onUnmounted } from 'vue'
+
+  onMounted(() => {
+    // Disable body scroll when modal mounts
+    document.body.classList.add('overflow-hidden')
+  })
+
+  onUnmounted(() => {
+    // Restore body scroll when modal unmounts
+    document.body.classList.remove('overflow-hidden')
+  })
 </script>

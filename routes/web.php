@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -12,6 +13,9 @@ Route::get('/is-authenticated', [AuthController::class, 'isAuthenticated']);
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/login-user', [AuthController::class, 'profile']);
+
+    Route::post('/user/address', [ProfileController::class, 'userAddress']);
+    Route::get('/user/address/show', [ProfileController::class, 'show']);
 });
 
 Route::get('/{any}', function () {

@@ -1,7 +1,7 @@
 <script setup>
   import { ref, onMounted, computed } from 'vue'
   import axios from 'axios'
-  import Modal from '@/components/profile/Modal.vue'
+  import Modal from '@/components/common/Modal.vue'
 
   import { userStore } from '@/stores/userStore'
 
