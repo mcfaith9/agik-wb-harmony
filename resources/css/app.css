@@ -8,6 +8,10 @@ layer(base);
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+.flatpickr-calendar:before, .flatpickr-calendar:after {
+  display: none !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
