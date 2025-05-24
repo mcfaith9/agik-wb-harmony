@@ -39,15 +39,6 @@ const routes = [
     },
   },
   {
-    path: '/form-elements',
-    name: 'Form Elements',
-    component: () => import('../views/Forms/FormElements.vue'),
-    meta: {
-      title: 'Form Elements',
-      requiresAuth: true,
-    },
-  },
-  {
     path: '/basic-tables',
     name: 'Basic Tables',
     component: () => import('../views/Tables/BasicTables.vue'),

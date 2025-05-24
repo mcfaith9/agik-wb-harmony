@@ -2,7 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TaskListController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
+
 
 // Public routes
 Route::post('/signin', [AuthController::class, 'signin']);
@@ -16,6 +20,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/user/address', [ProfileController::class, 'userAddress']);
     Route::get('/user/address/show', [ProfileController::class, 'show']);
+
+    Route::prefix('api')->group(function () {
+        Route::resource('projects', ProjectController::class);
+        Route::resource('projects.tasklists', TaskListController::class);
+        Route::resource('tasklists.tasks', TaskController::class);
+    });
 });
 
 Route::get('/{any}', function () {
