@@ -10,7 +10,7 @@ class Task extends Model
     use HasFactory;
 
     protected $fillable = [
-        'tasklist_id',
+        'task_list_id',
         'name',
         'description',
         'priority',
@@ -28,9 +28,9 @@ class Task extends Model
         'end_date' => 'date',
     ];
 
-    public function tasklist()
+    public function taskList()
     {
-        return $this->belongsTo(TaskList::class);
+        return $this->belongsTo(TaskList::class, 'task_list_id');
     }
 
     public function creator()
