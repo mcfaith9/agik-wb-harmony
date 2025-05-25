@@ -1,25 +1,19 @@
 <script setup lang="ts">
   import { onMounted, ref, computed } from "vue"
   import axios from "axios"
-  import { format } from "date-fns"
   import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue"
   import AdminLayout from "@/components/layout/AdminLayout.vue"
   import AddTask from "@/views/Task/AddTask.vue"
+  import TaskColumn from "@/views/Task/TaskColumn.vue"
   import { 
   	Settings2, 
   	CircleFadingPlus,
-    X,
-    CircleHelp
+    X
   } from "lucide-vue-next"
 
   const currentPageTitle = ref("Tasks")
   const addTaskModal = ref(false)
   const tasks = ref([])
-
-  const formatDateRange = (start: string, end: string) => {
-    if (!start || !end) return ''
-    return `${format(new Date(start), 'MMM d')} to ${format(new Date(end), 'MMM d, yyyy')}`
-  }
 
   onMounted(async () => {
     const res = await axios.get("/api/tasks")
@@ -37,6 +31,22 @@
   const completedTasks = computed(() =>
     tasks.value.filter(task => task.status === "completed")
   )
+
+  const handleTaskDrop = async ({ task, newStatus }) => {
+    if (task.status === newStatus) return;
+
+    try {
+      await axios.put(`/api/tasks/${task.id}`, { status: newStatus });
+
+      const t = tasks.value.find(t => t.id === task.id);
+      if (t) t.status = newStatus;
+
+      // Force update reactivity to refresh UI
+      tasks.value = [...tasks.value];
+    } catch (e) {
+      console.error("Error updating task status", e);
+    }
+  }
 </script>
 
 <template>
@@ -75,7 +85,7 @@
       </div>
 
       <div class="grid grid-cols-1 border-t border-gray-200 divide-x divide-gray-200 dark:border-gray-800 mt-7 dark:divide-gray-800 sm:mt-0 sm:grid-cols-2 xl:grid-cols-3">	
-        <div class="overflow-hidden">
+        <div class="overflow-hidden" id="parentTodo">
           <div class="p-4 xl:p-6">
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
@@ -84,63 +94,13 @@
               </h3>
             </div>
 
-            <div class="min-h-[200px] space-y-5 mt-5">
-              <div 
-                v-for="task in todoTasks" 
-                :key="task.id" 
-                draggable="true"
-                class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
-                <div class="flex items-start justify-between gap-6">
-                  <div>
-                    <div class="mb-2 text-xs text-gray-500 dark:text-gray-400">
-                      {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }} 
-                    </div>
-                    <h4 class="mb-5 text-base text-gray-800 dark:text-white/90">
-                      {{ task.name }}
-                    </h4>
-                    <div class="flex items-center gap-3">
-                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                        📅 {{ formatDateRange(task.start_date, task.end_date) }}
-                      </span>
-                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                        🕓 {{ task.estimated_time }}
-                      </span>
-                    </div>      
-                    <div class="mt-2 flex flex-wrap gap-1">
-                      <span
-                        v-for="(tag, index) in task.tags"
-                        :key="index"
-                        class="px-2 py-0.5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400 mt-3 inline-flex rounded-full px-2 py-0.5 text-xs font-medium">
-                        {{ tag || 'Uncategorized' }}
-                      </span>
-                    </div> 
-                  </div>
-                  <div
-                    v-if="task.users && task.users.length > 0" 
-                    class="flex -space-x-3 rtl:space-x-reverse">
-                    <template v-for="user in task.users">
-                      <img
-                        v-if="user.first_name && user.last_name"
-                        :key="user.id"
-                        :src="`https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${user.first_name}+${user.last_name}`"
-                        :alt="`${user.first_name} ${user.last_name}`"
-                        class="w-6 h-6 border-2 border-white rounded-full dark:border-gray-800"
-                      />                     
-                    </template>
-                  </div>
-                  <img
-                    v-else
-                    src="@/images/user/owner.jpg"
-                    alt="default avatar"
-                    class="w-6 h-6 border-2 border-white rounded-full dark:border-gray-800"
-                  />
-                </div>
-              </div>
+            <div class="overflow-y-auto max-h-[600px] p-4 xl:p-6 custom-scrollbar space-y-5 mt-5">
+              <TaskColumn :all-tasks="tasks" status="todo" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>
 
-        <div class="overflow-hidden">
+        <div class="overflow-hidden" id="parentInProgress">
           <div class="p-4 xl:p-6">
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
@@ -149,42 +109,13 @@
               </h3>
             </div>
 
-            <div class="min-h-[200px] space-y-5 mt-5">
-              <div 
-                v-for="task in inProgressTasks" 
-                :key="task.id" 
-                draggable="true"
-                class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
-                <div class="flex items-start justify-between gap-6">
-                  <div>
-                    <h4 class="mb-5 text-base text-gray-800 dark:text-white/90">
-                      {{ task.name }}
-                    </h4>
-                    <div class="flex items-center gap-3">
-                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                        📅 {{ formatDateRange(task.start_date, task.end_date) }}
-                      </span>
-                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                        🕓 {{ task.estimated_time }}
-                      </span>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                      {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }} 
-                    </div>
-                    <span class="mt-2 inline-block rounded-full bg-orange-400/10 px-2 py-0.5 text-xs font-medium text-orange-400">
-                      {{ task.tags ?? "Uncategorized" }}
-                    </span>
-                  </div>
-                  <div class="h-6 w-6 shrink-0 overflow-hidden rounded-full border-[0.5px] border-gray-200 dark:border-gray-800">
-                    <img src="@/images/user/user-07.jpg" alt="Assignee" />
-                  </div>
-                </div>
-              </div>
+            <div class="overflow-y-auto max-h-[600px] p-4 xl:p-6 custom-scrollbar space-y-5 mt-5">
+              <TaskColumn :all-tasks="tasks" status="in_progress" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>
 
-        <div class="overflow-hidden">
+        <div class="overflow-hidden" id="parentCompleted">
           <div class="p-4 xl:p-6">
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
@@ -193,37 +124,8 @@
               </h3>
             </div>
 
-            <div class="min-h-[200px] space-y-5 mt-5">
-              <div 
-                v-for="task in completedTasks" 
-                :key="task.id" 
-                draggable="true"
-                class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
-                <div class="flex items-start justify-between gap-6">
-                  <div>
-                    <h4 class="mb-5 text-base text-gray-800 dark:text-white/90">
-                      {{ task.name }}
-                    </h4>
-                    <div class="flex items-center gap-3">
-                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                        📅 {{ formatDateRange(task.start_date, task.end_date) }}
-                      </span>
-                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                        🕓 {{ task.estimated_time }}
-                      </span>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                      {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }} 
-                    </div>
-                    <span class="mt-2 inline-block rounded-full bg-orange-400/10 px-2 py-0.5 text-xs font-medium text-orange-400">
-                      {{ task.tags ?? "Uncategorized" }}
-                    </span>
-                  </div>
-                  <div class="h-6 w-6 shrink-0 overflow-hidden rounded-full border-[0.5px] border-gray-200 dark:border-gray-800">
-                    <img src="@/images/user/user-07.jpg" alt="Assignee" />
-                  </div>
-                </div>
-              </div>
+            <div class="overflow-y-auto max-h-[600px] p-4 xl:p-6 custom-scrollbar space-y-5 mt-5">
+              <TaskColumn :all-tasks="tasks" status="completed" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>

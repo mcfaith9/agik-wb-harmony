@@ -15,6 +15,7 @@ class Task extends Model
         'description',
         'priority',
         'privacy',
+        'status',
         'tags',
         'estimated_time',
         'start_date',

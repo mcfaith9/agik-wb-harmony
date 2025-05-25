@@ -89,6 +89,7 @@ class TaskController extends Controller
             'description' => 'nullable|string',
             'priority' => 'in:none,low,medium,high',
             'privacy' => 'in:public,private',
+            'status' => 'in:todo,in_progress,completed',
             'tags' => 'nullable|array',
             'estimated_time' => 'nullable|string|max:20',
             'start_date' => 'nullable|date',
