@@ -8,7 +8,8 @@
   import { 
   	Settings2, 
   	CircleFadingPlus,
-    X
+    X,
+    CircleHelp
   } from "lucide-vue-next"
 
   const currentPageTitle = ref("Tasks")
@@ -48,11 +49,11 @@
           <div class="flex flex-wrap items-center gap-x-1 gap-y-2 rounded-lg bg-gray-100 p-0.5 dark:bg-gray-900">
             <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-900 dark:text-white bg-white dark:bg-gray-800">
               All Tasks
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">{{ todoTasks.length }}</span>
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">{{ tasks.length }}</span>
             </button>
             <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-500 dark:text-gray-400">
               To do
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">{{ inProgressTasks.length }}</span>
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">{{ todoTasks.length }}</span>
             </button>
             <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-500 dark:text-gray-400">
               Completed
@@ -79,7 +80,7 @@
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
                 To Do
-                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">3</span>
+                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">{{ todoTasks.length }}</span>
               </h3>
             </div>
 
@@ -91,6 +92,9 @@
                 class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
                 <div class="flex items-start justify-between gap-6">
                   <div>
+                    <div class="mb-2 text-xs text-gray-500 dark:text-gray-400">
+                      {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }} 
+                    </div>
                     <h4 class="mb-5 text-base text-gray-800 dark:text-white/90">
                       {{ task.name }}
                     </h4>
@@ -101,17 +105,35 @@
                       <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                         🕓 {{ task.estimated_time }}
                       </span>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                      {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }} 
-                    </div>
-                    <span class="mt-2 inline-block rounded-full bg-orange-400/10 px-2 py-0.5 text-xs font-medium text-orange-400">
-                      {{ task.tags ?? "Uncategorized" }}
-                    </span>
+                    </div>      
+                    <div class="mt-2 flex flex-wrap gap-1">
+                      <span
+                        v-for="(tag, index) in task.tags"
+                        :key="index"
+                        class="px-2 py-0.5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400 mt-3 inline-flex rounded-full px-2 py-0.5 text-xs font-medium">
+                        {{ tag || 'Uncategorized' }}
+                      </span>
+                    </div> 
                   </div>
-                  <div class="h-6 w-6 shrink-0 overflow-hidden rounded-full border-[0.5px] border-gray-200 dark:border-gray-800">
-                    <img src="@/images/user/user-07.jpg" alt="Assignee" />
+                  <div
+                    v-if="task.users && task.users.length > 0" 
+                    class="flex -space-x-3 rtl:space-x-reverse">
+                    <template v-for="user in task.users">
+                      <img
+                        v-if="user.first_name && user.last_name"
+                        :key="user.id"
+                        :src="`https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${user.first_name}+${user.last_name}`"
+                        :alt="`${user.first_name} ${user.last_name}`"
+                        class="w-6 h-6 border-2 border-white rounded-full dark:border-gray-800"
+                      />                     
+                    </template>
                   </div>
+                  <img
+                    v-else
+                    src="@/images/user/owner.jpg"
+                    alt="default avatar"
+                    class="w-6 h-6 border-2 border-white rounded-full dark:border-gray-800"
+                  />
                 </div>
               </div>
             </div>
@@ -123,7 +145,7 @@
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
                 In Progress
-                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">4</span>
+                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">{{ inProgressTasks.length }}</span>
               </h3>
             </div>
 
@@ -167,7 +189,7 @@
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
                 Completed
-                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">4</span>
+                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">{{ completedTasks.length }}</span>
               </h3>
             </div>
 

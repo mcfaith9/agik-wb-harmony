@@ -13,7 +13,11 @@ class TaskController extends Controller
      */
     public function index(TaskList $tasklist)
     {
-        $tasks = Task::with(['tasklist.project'])->get();
+        $tasks = Task::with([
+                    'tasklist.project', 
+                    'users:id,first_name,last_name'
+                ])->get();
+
         return response()->json($tasks);
     }
 
