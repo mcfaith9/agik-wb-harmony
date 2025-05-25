@@ -1,7 +1,7 @@
 <script setup lang="ts">	
 	import { ref, onMounted, watch } from 'vue'
 	import axios from 'axios'
-	import { format } from 'date-fns'
+	import { format, parseISO, isDate } from 'date-fns'
 	import { priorities, privacies, tags } from '@/stores/data.js'
 	import Modal from '@/components/common/Modal.vue'
 	import Input from '@/components/common/Input.vue'
@@ -18,6 +18,10 @@
 	  CalendarRange
 	} from "lucide-vue-next"
 
+	const taskName = ref<string>('')
+	const estimated_time = ref<string>('')
+	const taskDesc = ref<string>('')
+
 	const selectedPriority = ref<string | null>(null)	
 	const selectedPrivacy = ref<string | null>(null)
 	const projectOptions = ref<{ label: string; value: string }[]>([])
@@ -25,11 +29,7 @@
 	const tasklistOptions = ref<{ label: string; value: string }[]>([])
 	const selectedTasklist = ref<string | null>(null)
 
-	const users = ref([
-    { id: 4, name: 'John Doe', avatar: new URL('@/images/user/user-07.jpg', import.meta.url).href },
-    { id: 5, name: 'Jane Smith', avatar: new URL('@/images/user/user-08.jpg', import.meta.url).href },
-    { id: 6, name: 'Rena', avatar: new URL('@/images/user/user-09.jpg', import.meta.url).href }
-	])
+	const users = ref([])
 	const selectedUsers = ref([])
 	const selectedTags = ref<Array<{ value: string; label: string }>>([])
 
@@ -39,23 +39,25 @@
 	  altInput: true,
 	  altFormat: 'F j, Y',
 	  wrap: true,
-	  onChange(selectedDates) {
-      selectedDateRange.value = selectedDates;
-    }
+	  // onChange(selectedDates) {
+    //   selectedDateRange.value = selectedDates;
+    // }
 	}
-	const selectedDateRange = ref<(Date | string)[] | null>(null)
+	const selectedDateRange = ref<string | null>(null)
 
-	const taskName = ref<string>('')
-	const estimated_time = ref<string>('')
-	const taskDesc = ref<string>('')
+	const formatDate = (val: string | null) => {
+		if (!val || !val.includes(' to ')) return [null, null]
+		const [startStr, endStr] = val.split(' to ')
+		return [startStr, endStr]
+	}
+
+	watch(selectedDateRange, (newVal) => {
+		const [start, end] = formatDate(newVal)
+		console.log('Start:', start, 'End:', end)
+	})
 
 	const handleSubmit = async () => {
-		const start = selectedDateRange.value?.[0]
-	    ? format(new Date(selectedDateRange.value[0]), 'yyyy-MM-dd')
-	    : null;
-	  const end = selectedDateRange.value?.[1]
-	    ? format(new Date(selectedDateRange.value[1]), 'yyyy-MM-dd')
-	    : null;
+		const [start, end] = formatDate(selectedDateRange.value)
 
 		const payload = {
 			name: taskName.value,
@@ -68,12 +70,11 @@
 			estimated_time: estimated_time.value,
 			start_date: start,
 			end_date: end,
+			user_ids: selectedUsers.value.map(user => user.id),
 		};
 
-		console.log('Payload:', payload);
-
-		await axios.post('/api/tasks', payload);
-		emit('close');
+		await axios.post('/api/tasks', payload)
+		emit('close')
 	}
 
 	onMounted(async () => {
@@ -83,6 +84,9 @@
 	      label: project.name,
 	      value: project.id.toString(),
 	    }))
+
+	    const res = await axios.get('/api/users')
+	    users.value = res.data
 	  } catch (error) {
 	    console.error('Failed to fetch projects:', error)
 	  }
@@ -191,6 +195,7 @@
 	            			</label>
 	            			<div class="relative">
 		            			<flat-pickr
+		            				v-model="selectedDateRange"
 		            			  :config="flatpickrConfig"
 		            			  class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
 		            			  placeholder="Select date"/>

@@ -13,7 +13,8 @@ class TaskController extends Controller
      */
     public function index(TaskList $tasklist)
     {
-        return response()->json($tasklist->tasks);
+        $tasks = Task::with(['tasklist.project'])->get();
+        return response()->json($tasks);
     }
 
     /**
@@ -39,12 +40,21 @@ class TaskController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
             'task_list_id' => 'required|exists:task_lists,id',
+            'user_ids' => 'array',
+            'user_ids.*' => 'exists:users,id',
         ]);
 
-        $validated['tags'] = $request->tags ?? [];
+        $validated['tags'] = $validated['tags'] ?? [];
         $validated['created_by'] = auth()->id();
 
+        $userIds = $validated['user_ids'] ?? [];
+        unset($validated['user_ids']); // remove user_ids from task creation payload
+
         $task = Task::create($validated);
+
+        if (!empty($userIds)) {
+            $task->users()->sync($userIds);
+        }
 
         return response()->json($task, 201);
     }
@@ -79,13 +89,22 @@ class TaskController extends Controller
             'estimated_time' => 'nullable|string|max:20',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date',
+            'user_ids' => 'array',
+            'user_ids.*' => 'exists:users,id',
         ]);
 
         if ($request->has('tags')) {
             $validated['tags'] = $request->tags;
         }
 
+        $userIds = $validated['user_ids'] ?? null;
+        unset($validated['user_ids']);
+
         $task->update($validated);
+
+        if (!is_null($userIds)) {
+            $task->users()->sync($userIds);
+        }
 
         return response()->json($task);
     }

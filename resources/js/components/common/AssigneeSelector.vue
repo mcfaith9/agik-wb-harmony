@@ -1,8 +1,6 @@
 <script setup>
-  import { ref, computed } from 'vue'
-  import { 
-    Check
-  } from "lucide-vue-next"
+  import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+  import { Check } from "lucide-vue-next"
 
   const props = defineProps({
     users: {
@@ -17,6 +15,7 @@
 
   const emit = defineEmits(['update:modelValue'])
   const dropdownOpen = ref(false)
+  const dropdownRef = ref(null)
 
   const maxVisible = 3
 
@@ -48,10 +47,24 @@
     }
     emit('update:modelValue', selected)
   }
+
+  function handleClickOutside(event) {
+    if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+      dropdownOpen.value = false
+    }
+  }
+
+  onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+  })
+
+  onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutside)
+  })
 </script>
 
 <template>
-  <div class="relative inline-block text-left w-full">
+  <div ref="dropdownRef" class="relative inline-block text-left w-full">
     <button type="button" @click="toggleDropdown" class="w-full">
       <div class="flex -space-x-4 rtl:space-x-reverse">        
         <template v-for="user in visibleSelectedUsers" :key="user.id">
@@ -79,7 +92,7 @@
         v-if="dropdownOpen"
         class="shadow-lg absolute z-[40] w-full top-full mt-1 bg-white rounded-lg dark:bg-gray-900 min-w-[200px] max-w-md">
         <ul
-          class="overflow-y-auto max-h-[20vh] border border-gray-300 divide-y divide-gray-200 custom-scrollbar max-h-60 dark:divide-gray-800 dark:border-gray-700 rounded-lg"
+          class="overflow-y-auto max-h-[30vh] border border-gray-300 divide-y divide-gray-200 custom-scrollbar max-h-60 dark:divide-gray-800 dark:border-gray-700 rounded-lg"
           role="listbox"
           aria-multiselectable="true">
           <li

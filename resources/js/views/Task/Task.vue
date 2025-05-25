@@ -1,16 +1,41 @@
 <script setup lang="ts">
-import { ref } from "vue"
-import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue"
-import AdminLayout from "@/components/layout/AdminLayout.vue"
-import AddTask from '@/views/Task/AddTask.vue'
-import { 
-	Settings2, 
-	CircleFadingPlus,
-  X
-} from "lucide-vue-next"
+  import { onMounted, ref, computed } from "vue"
+  import axios from "axios"
+  import { format } from "date-fns"
+  import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue"
+  import AdminLayout from "@/components/layout/AdminLayout.vue"
+  import AddTask from "@/views/Task/AddTask.vue"
+  import { 
+  	Settings2, 
+  	CircleFadingPlus,
+    X
+  } from "lucide-vue-next"
 
-const currentPageTitle = ref("Tasks")
-const addTaskModal = ref(false)
+  const currentPageTitle = ref("Tasks")
+  const addTaskModal = ref(false)
+  const tasks = ref([])
+
+  const formatDateRange = (start: string, end: string) => {
+    if (!start || !end) return ''
+    return `${format(new Date(start), 'MMM d')} to ${format(new Date(end), 'MMM d, yyyy')}`
+  }
+
+  onMounted(async () => {
+    const res = await axios.get("/api/tasks")
+    tasks.value = res.data
+  })
+
+  const todoTasks = computed(() =>
+    tasks.value.filter(task => task.status === "todo")
+  )
+
+  const inProgressTasks = computed(() =>
+    tasks.value.filter(task => task.status === "in_progress")
+  )
+
+  const completedTasks = computed(() =>
+    tasks.value.filter(task => task.status === "completed")
+  )
 </script>
 
 <template>
@@ -23,15 +48,15 @@ const addTaskModal = ref(false)
           <div class="flex flex-wrap items-center gap-x-1 gap-y-2 rounded-lg bg-gray-100 p-0.5 dark:bg-gray-900">
             <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-900 dark:text-white bg-white dark:bg-gray-800">
               All Tasks
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">23</span>
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">{{ todoTasks.length }}</span>
             </button>
             <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-500 dark:text-gray-400">
               To do
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">3</span>
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">{{ inProgressTasks.length }}</span>
             </button>
             <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-500 dark:text-gray-400">
               Completed
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">14</span>
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">{{ completedTasks.length }}</span>
             </button>
           </div>
 
@@ -59,22 +84,33 @@ const addTaskModal = ref(false)
             </div>
 
             <div class="min-h-[200px] space-y-5 mt-5">
-              <div draggable="true" class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
+              <div 
+                v-for="task in todoTasks" 
+                :key="task.id" 
+                draggable="true"
+                class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
                 <div class="flex items-start justify-between gap-6">
                   <div>
-                  	<h4 class="mb-5 text-base text-gray-800 dark:text-white/90">Finish user onboarding</h4>
-                  	<div class="flex items-center gap-3">
-                  	  <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                  	    📅 Tomorrow
-                  	  </span>
-                  	  <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                  	    🕓 2h
-                  	  </span>
-                  	</div>
-                  	<span class="px-2 py-0.5 text-xs font-medium bg-orange-400/10 text-orange-400 mt-3 inline-flex rounded-full px-2 py-0.5 text-xs font-medium">Development</span>
+                    <h4 class="mb-5 text-base text-gray-800 dark:text-white/90">
+                      {{ task.name }}
+                    </h4>
+                    <div class="flex items-center gap-3">
+                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                        📅 {{ formatDateRange(task.start_date, task.end_date) }}
+                      </span>
+                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                        🕓 {{ task.estimated_time }}
+                      </span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                      {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }} 
+                    </div>
+                    <span class="mt-2 inline-block rounded-full bg-orange-400/10 px-2 py-0.5 text-xs font-medium text-orange-400">
+                      {{ task.tags ?? "Uncategorized" }}
+                    </span>
                   </div>
                   <div class="h-6 w-6 shrink-0 overflow-hidden rounded-full border-[0.5px] border-gray-200 dark:border-gray-800">
-                  	<img src="@/images/user/user-07.jpg" alt="Finish user onboarding">
+                    <img src="@/images/user/user-07.jpg" alt="Assignee" />
                   </div>
                 </div>
               </div>
@@ -92,21 +128,33 @@ const addTaskModal = ref(false)
             </div>
 
             <div class="min-h-[200px] space-y-5 mt-5">
-              <div draggable="true" class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
+              <div 
+                v-for="task in inProgressTasks" 
+                :key="task.id" 
+                draggable="true"
+                class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
                 <div class="flex items-start justify-between gap-6">
                   <div>
-                  	<h4 class="mb-5 text-base text-gray-800 dark:text-white/90">Finish user onboarding</h4>
-                  	<div class="flex items-center gap-3">
-                  	  <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                  	    📅 Tomorrow
-                  	  </span>
-                  	  <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                  	    🕓 2h
-                  	  </span>
-                  	</div>
+                    <h4 class="mb-5 text-base text-gray-800 dark:text-white/90">
+                      {{ task.name }}
+                    </h4>
+                    <div class="flex items-center gap-3">
+                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                        📅 {{ formatDateRange(task.start_date, task.end_date) }}
+                      </span>
+                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                        🕓 {{ task.estimated_time }}
+                      </span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                      {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }} 
+                    </div>
+                    <span class="mt-2 inline-block rounded-full bg-orange-400/10 px-2 py-0.5 text-xs font-medium text-orange-400">
+                      {{ task.tags ?? "Uncategorized" }}
+                    </span>
                   </div>
                   <div class="h-6 w-6 shrink-0 overflow-hidden rounded-full border-[0.5px] border-gray-200 dark:border-gray-800">
-                  	<img src="@/images/user/user-07.jpg" alt="Finish user onboarding">
+                    <img src="@/images/user/user-07.jpg" alt="Assignee" />
                   </div>
                 </div>
               </div>
@@ -124,21 +172,33 @@ const addTaskModal = ref(false)
             </div>
 
             <div class="min-h-[200px] space-y-5 mt-5">
-              <div draggable="true" class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
+              <div 
+                v-for="task in completedTasks" 
+                :key="task.id" 
+                draggable="true"
+                class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
                 <div class="flex items-start justify-between gap-6">
                   <div>
-                  	<h4 class="mb-5 text-base text-gray-800 dark:text-white/90">Finish user onboarding</h4>
-                  	<div class="flex items-center gap-3">
-                  	  <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                  	    📅 Tomorrow
-                  	  </span>
-                  	  <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                  	    🕓 2h
-                  	  </span>
-                  	</div>
+                    <h4 class="mb-5 text-base text-gray-800 dark:text-white/90">
+                      {{ task.name }}
+                    </h4>
+                    <div class="flex items-center gap-3">
+                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                        📅 {{ formatDateRange(task.start_date, task.end_date) }}
+                      </span>
+                      <span class="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                        🕓 {{ task.estimated_time }}
+                      </span>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                      {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }} 
+                    </div>
+                    <span class="mt-2 inline-block rounded-full bg-orange-400/10 px-2 py-0.5 text-xs font-medium text-orange-400">
+                      {{ task.tags ?? "Uncategorized" }}
+                    </span>
                   </div>
                   <div class="h-6 w-6 shrink-0 overflow-hidden rounded-full border-[0.5px] border-gray-200 dark:border-gray-800">
-                  	<img src="@/images/user/user-07.jpg" alt="Finish user onboarding">
+                    <img src="@/images/user/user-07.jpg" alt="Assignee" />
                   </div>
                 </div>
               </div>

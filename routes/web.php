@@ -25,6 +25,14 @@ Route::middleware('auth')->group(function () {
         Route::resource('projects', ProjectController::class);
         Route::resource('projects.tasklists', TaskListController::class);
         Route::resource('tasks', TaskController::class);
+
+        Route::get('/users', function () {
+            return \App\Models\User::select('id', 'first_name', 'last_name')->get()->map(function ($user) {
+                $user->name = $user->first_name . ' ' . $user->last_name;
+                $user->avatar = 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
+                return $user;
+            });
+        });
     });
 });
 

@@ -80,7 +80,7 @@
         <div
           v-for="item in selectedItems"
           :key="item.value"
-          class="group flex items-center justify-center h-[30px] rounded-full border-[0.7px] border-transparent bg-gray-100 py-1 pl-2.5 pr-2 text-sm text-gray-800 hover:border-gray-200 dark:bg-gray-800 dark:text-white/90 dark:hover:border-gray-800">
+          class="group flex items-center justify-center h-[22px] rounded-full border-[0.7px] border-transparent bg-gray-100 pl-2.5 pr-2 text-sm text-gray-800 hover:border-gray-200 dark:bg-gray-800 dark:text-white/90 dark:hover:border-gray-800">
           <span class="text-xs">{{ item.label }}</span>
           <button
             @click.stop="removeItem(item)"
