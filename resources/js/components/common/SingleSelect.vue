@@ -1,41 +1,71 @@
 <script setup>
-  import { 
-    ChevronDown
-  } from "lucide-vue-next"
+import { ref } from 'vue'
+import { ChevronDown } from 'lucide-vue-next'
 
-  const props = defineProps({
-    modelValue: [String, Number, null],
-    options: {
-      type: Array,
-      default: () => []
-    },
-    placeholder: {
-      type: String,
-      default: 'Select Option'
-    }
-  })
-
-  const emit = defineEmits(['update:modelValue'])
-
-  const onChange = (event) => {
-    emit('update:modelValue', event.target.value)
+const props = defineProps({
+  modelValue: [String, Number, null],
+  options: {
+    type: Array,
+    default: () => []
+  },
+  placeholder: {
+    type: String,
+    default: 'Select Option'
+  },
+  required: {
+    type: Boolean,
+    default: false
   }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const isOpen = ref(false)
+
+const toggleDropdown = () => {
+  isOpen.value = !isOpen.value
+}
+
+const selectOption = (option) => {
+  emit('update:modelValue', option.value)
+  isOpen.value = false
+}
+
+const getSelectedLabel = () => {
+  const found = props.options.find(o => o.value === props.modelValue)
+  return found ? found.label : props.placeholder
+}
 </script>
 
 <template>
-  <select
-    :value="modelValue"
-    @change="onChange"
-    class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800">
-    <option
-      v-for="option in options"
-      :key="option.value"
-      :value="option.value"
-      class="text-gray-700 dark:bg-gray-900 dark:text-gray-400">
-      {{ option.label }}
-    </option>
-  </select>
-  <span class="absolute z-30 text-gray-500 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-gray-400">
-    <ChevronDown class="w-5 h-5" />
-  </span>
+  <div class="relative w-full">
+    <input
+      class="sr-only"
+      :value="modelValue"
+      :required="required"
+      tabindex="-1"
+      autocomplete="off"
+    />
+
+    <button
+      @click="toggleDropdown"
+      type="button"
+      class="dark:bg-dark-900 flex h-11 w-full items-center justify-between rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800">
+      <span>{{ getSelectedLabel() }}</span>
+      <ChevronDown class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+    </button>
+
+    <ul
+      v-if="isOpen"
+      class="absolute z-30 max-h-[20vh] w-full custom-scrollbar mt-2 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-300 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-gray-900">
+      <li
+        v-for="option in options"
+        :key="option.value"
+        @click="selectOption(option)"
+        class="cursor-pointer px-4 py-2 text-sm text-gray-800 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">
+        {{ option.label }}
+      </li>
+    </ul>
+  </div>
 </template>
+

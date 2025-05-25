@@ -1,61 +1,36 @@
 <script setup lang="ts">	
-	import { ref } from 'vue'
+	import { ref, onMounted, watch } from 'vue'
+	import axios from 'axios'
+	import { format } from 'date-fns'
+	import { priorities, privacies, tags } from '@/stores/data.js'
 	import Modal from '@/components/common/Modal.vue'
 	import Input from '@/components/common/Input.vue'
 	import SingleSelect from '@/components/common/SingleSelect.vue'
 	import MultiSelect from '@/components/common/MultiSelect.vue'
+	import AssigneeSelector from '@/components/common/AssigneeSelector.vue'
 	import flatPickr from 'vue-flatpickr-component'
 	import 'flatpickr/dist/themes/airbnb.css'
 
 	import { 
 	  X,
 	  ChevronDown,
-	  UserRoundPlus
+	  UserRoundPlus,
+	  CalendarRange
 	} from "lucide-vue-next"
 
-	const priorities = [
-		{ value: 'none', label: 'None' },
-	  { value: 'low', label: 'Low' },
-	  { value: 'medium', label: 'Medium' },
-	  { value: 'high', label: 'High' },
-	]
-	const selectedPriority = ref<string | null>(null)
-
-	const privacies = [		
-	  { value: 'public', label: 'Public' },
-	  { value: 'private', label: 'Private' },
-	]
+	const selectedPriority = ref<string | null>(null)	
 	const selectedPrivacy = ref<string | null>(null)
-
-	const projectOptions = [
-	  { label: 'Website Redesign', value: 'website-redesign' },
-	  { label: 'Mobile App Development', value: 'mobile-app' },
-	  { label: 'Marketing Campaign', value: 'marketing-campaign' },
-	  { label: 'Customer Support Setup', value: 'customer-support' },
-	  { label: 'Data Analysis', value: 'data-analysis' },
-	  { label: 'New Product Launch', value: 'product-launch' },
-	  { label: 'SEO Optimization', value: 'seo-optimization' }
-	]
+	const projectOptions = ref<{ label: string; value: string }[]>([])
 	const selectedProject = ref<string | null>(null)
-
-	const taskList = [
-	  { value: '1', label: 'Design homepage layout' },
-	  { value: '2', label: 'Implement login feature' },
-	  { value: '3', label: 'Set up database schema' },
-	  { value: '4', label: 'Write unit tests' }
-	]
+	const tasklistOptions = ref<{ label: string; value: string }[]>([])
 	const selectedTasklist = ref<string | null>(null)
 
-
-	const tags = [
-	  { value: 'apple', label: 'Apple' },
-	  { value: 'banana', label: 'Banana' },
-	  { value: 'cherry', label: 'Cherry' },
-	  { value: 'date', label: 'Date' },
-	  { value: 'elderberry', label: 'Elderberry' },
-	  { value: 'graphs', label: 'Graphs' },
-	  { value: 'orange', label: 'Orange' },
-	]
+	const users = ref([
+    { id: 4, name: 'John Doe', avatar: new URL('@/images/user/user-07.jpg', import.meta.url).href },
+    { id: 5, name: 'Jane Smith', avatar: new URL('@/images/user/user-08.jpg', import.meta.url).href },
+    { id: 6, name: 'Rena', avatar: new URL('@/images/user/user-09.jpg', import.meta.url).href }
+	])
+	const selectedUsers = ref([])
 	const selectedTags = ref<Array<{ value: string; label: string }>>([])
 
 	const flatpickrConfig = {
@@ -64,12 +39,79 @@
 	  altInput: true,
 	  altFormat: 'F j, Y',
 	  wrap: true,
+	  onChange(selectedDates) {
+      selectedDateRange.value = selectedDates;
+    }
 	}
-	const selectedDateRange = ref<Date[] | null>(null)
+	const selectedDateRange = ref<(Date | string)[] | null>(null)
 
 	const taskName = ref<string>('')
-	const estimate = ref<string>('')
+	const estimated_time = ref<string>('')
 	const taskDesc = ref<string>('')
+
+	const handleSubmit = async () => {
+		const start = selectedDateRange.value?.[0]
+	    ? format(new Date(selectedDateRange.value[0]), 'yyyy-MM-dd')
+	    : null;
+	  const end = selectedDateRange.value?.[1]
+	    ? format(new Date(selectedDateRange.value[1]), 'yyyy-MM-dd')
+	    : null;
+
+		const payload = {
+			name: taskName.value,
+			description: taskDesc.value,
+			project_id: selectedProject.value,
+			task_list_id: selectedTasklist.value,
+			priority: selectedPriority.value,
+			privacy: selectedPrivacy.value,
+			tags: selectedTags.value.map(tag => tag.value),
+			estimated_time: estimated_time.value,
+			start_date: start,
+			end_date: end,
+		};
+
+		console.log('Payload:', payload);
+
+		await axios.post('/api/tasks', payload);
+		emit('close');
+	}
+
+	onMounted(async () => {
+	  try {
+	    const project = await axios.get('/api/projects')
+	    projectOptions.value = project.data.map((project: any) => ({
+	      label: project.name,
+	      value: project.id.toString(),
+	    }))
+	  } catch (error) {
+	    console.error('Failed to fetch projects:', error)
+	  }
+	})
+
+	watch(selectedProject, async (newProjectId) => {
+	  if (!newProjectId) {
+	    tasklistOptions.value = []
+	    selectedTasklist.value = null
+	    return
+	  }
+
+	  try {
+	    const response = await axios.get(`/api/projects/${newProjectId}/tasklists`)
+	    tasklistOptions.value = response.data.map((tl: any) => ({
+	      label: tl.name,
+	      value: tl.id.toString(),
+	    }))
+	    selectedTasklist.value = null;
+	  } catch (error) {
+	    console.error('Failed to fetch tasklists:', error)
+	    tasklistOptions.value = []
+	  }
+	})
+
+	watch(selectedUsers, (newVal) => {
+	  const selectedUserIds = newVal.map(u => u.id)
+	  console.log('Selected IDs:', selectedUserIds)
+	})
 
 	const props = defineProps<{
 	  isOpen: boolean
@@ -81,7 +123,7 @@
 </script>
 
 <template>
-	<Modal v-if="isOpen" @close="isOpen = false">
+	<Modal v-if="isOpen" @close="emit('close')">
 	  <template #body>
 	    <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
 	      <button
@@ -93,11 +135,11 @@
 	        <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
 	          Add Task
 	        </h4>
-	        <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-	          Update your details to keep your profile up-to-date.
+	        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400 lg:mb-4">
+	          Add a new task and assign it to a project or team member.
 	        </p>
 	      </div>
-	      <form class="flex flex-col">
+	      <form class="flex flex-col" @submit.prevent="handleSubmit">
 	        <div class="px-2 overflow-y-auto custom-scrollbar">
 	          <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
 	            <div>
@@ -108,7 +150,8 @@
 	                <SingleSelect 
 	                	v-model="selectedProject" 
 	                	:options="projectOptions"
-	                	placeholder="Select Project"/>
+	                	placeholder="Select Project"
+	                	required />
 	              </div>
 	            </div>
 
@@ -119,8 +162,9 @@
 	              <div class="relative z-20 bg-transparent">
 	                <SingleSelect 
 	                  v-model="selectedTasklist" 
-	                  :options="taskList" 
-	                  placeholder="Select Task" />
+	                  :options="tasklistOptions" 
+	                  placeholder="Select Task" 
+	                  required />
 	              </div>
 	            </div>
 
@@ -136,40 +180,31 @@
 	            	<div class="grid grid-cols-12 gap-x-6">
 	            		<div class="col-span-3">
 	            			<label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-	            			  Assignees
-	            			</label>
-	            			
-	            			<button type="button">
-	            			  <div class="flex -space-x-4 rtl:space-x-reverse">
-	            			      <img class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800" src="@/images/user/owner.jpg" alt="">
-	            			      <img class="w-10 h-10 border-2 border-white rounded-full dark:border-gray-800" src="@/images/user/owner.jpg" alt="">
-	            			      <a class="flex items-center justify-center w-10 h-10 text-xs font-medium text-white bg-gray-700 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800" href="#">+0</a>
-	            			  </div>
-	            			</button>	
+            			    Assignees
+            			  </label>
+            			  <AssigneeSelector v-model="selectedUsers" :users="users" />
 	            		</div> 
 
 	            		<div class="col-span-6">
 	            			<label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
 	            			  Dates
 	            			</label>
-	            			<flat-pickr
-	            				v-model="selectedDateRange"
-	            			  :config="flatpickrConfig"
-	            			  class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-	            			  placeholder="Select date"/>
+	            			<div class="relative">
+		            			<flat-pickr
+		            			  :config="flatpickrConfig"
+		            			  class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+		            			  placeholder="Select date"/>
+	            			  <span class="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+	            			  	<CalendarRange class="w-4 h-4" />
+	            			  </span>
+	            			</div>
 	            		</div>
 
 	            		<div class="col-span-3">
-	            			<label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-	            			  Estimated Time
-	            			</label>
-	            			<input
-	            				v-model="estimate"
-	            			  type="text"
-	            			  value=""
-	            			  placeholder="1h"
-	            			  class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-	            			  required />
+	            			<Input 
+			            		v-model="estimated_time"
+		            		  label="Estimated Time"
+		            		  placeholder="e.g 1h" />
 	            		</div> 
 	            	</div>          	
 	            </div>
@@ -224,7 +259,7 @@
 
 	          </div>	          
 	        </div>
-	        <div class="flex items-center gap-3 mt-6 lg:justify-end">
+	        <div class="flex items-center gap-3 mt-4 lg:justify-end">
 	          <button
 	            @click="emit('close')"
 	            type="button"

@@ -103,9 +103,9 @@
       leave-to-class="transform scale-95 opacity-0">
       <div
         v-if="isOpen"
-        class="shadow-lg absolute z-10 w-full bottom-full mb-1 bg-white rounded-lg dark:bg-gray-900">
+        class="shadow-lg absolute z-10 w-full top-full mt-1 bg-white rounded-lg dark:bg-gray-900">
         <ul
-          class="overflow-y-auto divide-y divide-gray-200 custom-scrollbar max-h-60 dark:divide-gray-800"
+          class="overflow-y-auto max-h-[20vh] border border-gray-300 divide-y divide-gray-200 custom-scrollbar max-h-60 dark:divide-gray-800 dark:border-gray-700 rounded-lg"
           role="listbox"
           aria-multiselectable="true">
           <li

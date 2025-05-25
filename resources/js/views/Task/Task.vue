@@ -9,7 +9,7 @@ import {
   X
 } from "lucide-vue-next"
 
-const currentPageTitle = ref("Task List")
+const currentPageTitle = ref("Tasks")
 const addTaskModal = ref(false)
 </script>
 

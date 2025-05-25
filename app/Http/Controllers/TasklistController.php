@@ -47,7 +47,7 @@ class TasklistController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Task $task)
+    public function show(TaskList $tasklist)
     {
         return response()->json($tasklist);
     }
@@ -63,7 +63,7 @@ class TasklistController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Task $task)
+    public function update(Request $request, TaskList $tasklist)
     {
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -81,7 +81,7 @@ class TasklistController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Task $task)
+    public function destroy(TaskList $tasklist)
     {
         $tasklist->delete();
         return response()->json(['message' => 'TaskList deleted successfully']);

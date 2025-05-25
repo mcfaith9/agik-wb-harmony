@@ -12,11 +12,20 @@ const routes = [
     },
   },
   {
-    path: '/task-list',
-    name: 'Task List',
-    component: () => import('../views/Task/TaskList.vue'),
+    path: '/tasks',
+    name: 'Tasks',
+    component: () => import('../views/Task/Task.vue'),
     meta: {
-      title: 'Task List',
+      title: 'Tasks',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/projects',
+    name: 'Projects',
+    component: () => import('../views/Task/Project.vue'),
+    meta: {
+      title: 'Projects',
       requiresAuth: true,
     },
   },

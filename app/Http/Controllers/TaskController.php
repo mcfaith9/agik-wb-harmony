@@ -27,7 +27,7 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, TaskList $tasklist)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -35,11 +35,16 @@ class TaskController extends Controller
             'priority' => 'in:none,low,medium,high',
             'privacy' => 'in:public,private',
             'tags' => 'nullable|array',
+            'estimated_time' => 'nullable|string|max:20',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
+            'task_list_id' => 'required|exists:task_lists,id',
         ]);
 
-        $validated['created_by'] = Auth::id();
+        $validated['tags'] = $request->tags ?? [];
+        $validated['created_by'] = auth()->id();
 
-        $task = $tasklist->tasks()->create($validated);
+        $task = Task::create($validated);
 
         return response()->json($task, 201);
     }
@@ -71,7 +76,14 @@ class TaskController extends Controller
             'priority' => 'in:none,low,medium,high',
             'privacy' => 'in:public,private',
             'tags' => 'nullable|array',
+            'estimated_time' => 'nullable|string|max:20',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
         ]);
+
+        if ($request->has('tags')) {
+            $validated['tags'] = $request->tags;
+        }
 
         $task->update($validated);
 

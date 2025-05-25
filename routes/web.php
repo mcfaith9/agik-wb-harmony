@@ -24,7 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('api')->group(function () {
         Route::resource('projects', ProjectController::class);
         Route::resource('projects.tasklists', TaskListController::class);
-        Route::resource('tasklists.tasks', TaskController::class);
+        Route::resource('tasks', TaskController::class);
     });
 });
 

@@ -14,8 +14,7 @@
       :class="[
         'py-8 flex',
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
-      ]"
-    >
+      ]">
       <router-link to="/">
         <img
           v-if="isExpanded || isHovered || isMobileOpen"
@@ -53,8 +52,7 @@
                 !isExpanded && !isHovered
                   ? 'lg:justify-center'
                   : 'justify-start',
-              ]"
-            >
+              ]">
               <template v-if="isExpanded || isHovered || isMobileOpen">
                 {{ menuGroup.title }}
               </template>
@@ -74,15 +72,13 @@
                     !isExpanded && !isHovered
                       ? 'lg:justify-center'
                       : 'lg:justify-start',
-                  ]"
-                >
+                  ]">
                   <span
                     :class="[
                       isSubmenuOpen(groupIndex, index)
                         ? 'menu-item-icon-active'
                         : 'menu-item-icon-inactive',
-                    ]"
-                  >
+                    ]">
                     <component :is="item.icon" class="w-5 h-5" />
                   </span>
                   <span
@@ -112,35 +108,31 @@
                       'menu-item-active': isActive(item.path),
                       'menu-item-inactive': !isActive(item.path),
                     },
-                  ]"
-                >
+                  ]">
                   <span
                     :class="[
                       isActive(item.path)
                         ? 'menu-item-icon-active'
                         : 'menu-item-icon-inactive',
-                    ]"
-                  >
+                    ]">
                     <component :is="item.icon" class="w-5 h-5" />
                   </span>
                   <span
                     v-if="isExpanded || isHovered || isMobileOpen"
-                    class="menu-item-text"
-                    >{{ item.name }}</span
-                  >
+                    class="menu-item-text">
+                    {{ item.name }}
+                  </span>
                 </router-link>
                 <transition
                   @enter="startTransition"
                   @after-enter="endTransition"
                   @before-leave="startTransition"
-                  @after-leave="endTransition"
-                >
+                  @after-leave="endTransition">
                   <div
                     v-show="
                       isSubmenuOpen(groupIndex, index) &&
                       (isExpanded || isHovered || isMobileOpen)
-                    "
-                  >
+                    ">
                     <ul class="mt-2 space-y-1 ml-9">
                       <li v-for="subItem in item.subItems" :key="subItem.name">
                         <router-link
@@ -155,8 +147,7 @@
                                 subItem.path
                               ),
                             },
-                          ]"
-                        >
+                          ]">
                           {{ subItem.name }}
                           <span class="flex items-center gap-1 ml-auto">
                             <span
@@ -171,8 +162,7 @@
                                     subItem.path
                                   ),
                                 },
-                              ]"
-                            >
+                              ]">
                               new
                             </span>
                             <span
@@ -187,8 +177,7 @@
                                     subItem.path
                                   ),
                                 },
-                              ]"
-                            >
+                              ]">
                               pro
                             </span>
                           </span>
@@ -240,23 +229,17 @@ const menuGroups = [
     items: [
       {
         icon: LibraryBig,
-        name: "Projects",
+        name: "Work",
         subItems: [
           { name: "Ecommerce", path: "/", pro: false },
-          { name: "Task", path: "/task-list", pro: false },
+          { name: "Tasks", path: "/tasks", pro: false },
+          { name: "Projects", path: "/projects", pro: false },
         ],
       },
       {
         icon: Calendar1,
         name: "Calendar",
         path: "/calendar",
-      },
-      {
-        name: "Forms",
-        icon: ListIcon,
-        subItems: [
-          { name: "Form Elements", path: "/form-elements", pro: false },
-        ],
       },
       {
         name: "Tables",

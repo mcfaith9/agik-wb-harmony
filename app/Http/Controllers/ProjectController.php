@@ -36,7 +36,7 @@ class ProjectController extends Controller
             'tags' => 'nullable|array',
         ]);
 
-        $validated['created_by'] = Auth::id();
+        $validated['created_by'] = auth()->id();
 
         $project = Project::create($validated);
 
