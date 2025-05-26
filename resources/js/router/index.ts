@@ -4,10 +4,10 @@ import axios from 'axios'
 const routes = [
   {
     path: '/',
-    name: 'Ecommerce',
+    name: 'Dashboard',
     component: () => import('../views/Ecommerce.vue'),
     meta: {
-      title: 'eCommerce Dashboard',
+      title: 'Dashboard',
       description: 'Get a real-time overview of sales, revenue, and user activity across your platform.',
       requiresAuth: true,
     },
@@ -133,7 +133,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.meta.guestOnly && auth) {
     // If route is guest only but user is logged in → redirect to dashboard
-    return next({ name: 'Ecommerce' })
+    return next({ name: 'Dashboard' })
   }
 
   next()

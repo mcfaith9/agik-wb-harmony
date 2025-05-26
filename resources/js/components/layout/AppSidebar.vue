@@ -231,7 +231,7 @@ const menuGroups = [
         icon: LibraryBig,
         name: "Work",
         subItems: [
-          { name: "Ecommerce", path: "/", pro: false },
+          { name: "Dashboard", path: "/", pro: false },
           { name: "Tasks", path: "/tasks", pro: false },
           { name: "Projects", path: "/projects", pro: false },
         ],

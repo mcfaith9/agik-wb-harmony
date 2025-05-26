@@ -6,21 +6,21 @@
       <div class="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4 select-none">
         <button
           @click="handleToggle"
-          class="flex items-center justify-center w-8 h-8 text-gray-500 border-gray-200 rounded-lg z-99999 dark:border-gray-800 dark:text-gray-400 lg:h-8 lg:w-8 lg:border"
+          class="flex items-center justify-center w-8 h-8 text-gray-500 border-gray-200 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:h-8 lg:w-8 lg:border"
           :class="[
             isMobileOpen
               ? 'lg:bg-transparent dark:lg:bg-transparent bg-gray-100 dark:bg-gray-800'
               : '',
           ]">
-          <ChevronsRightLeft class="w-5 h-5" />
+          <PanelLeft class="w-5 h-5" />
         </button>
 
         <HeaderLogo />
 
         <button
           @click="toggleApplicationMenu"
-          class="flex items-center justify-center w-10 h-10 text-gray-700 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden">
-          <Search />
+          class="flex items-center justify-center w-8 h-8 text-gray-500 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden">
+          <Ellipsis class="w-6 h-6" />
         </button>
         <SearchBar />
       </div>
@@ -48,8 +48,8 @@ import HeaderLogo from './header/HeaderLogo.vue'
 import NotificationMenu from './header/NotificationMenu.vue'
 import UserMenu from './header/UserMenu.vue'
 import { 
-  ChevronsRightLeft,
-  Search
+  PanelLeft,
+  Ellipsis
 } from "lucide-vue-next"
 
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen } = useSidebar()

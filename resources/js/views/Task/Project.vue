@@ -34,22 +34,8 @@
           </div>
     	  </template>
 
-    	  <div class="grid grid-cols-9 divide-x divide-gray-200 dark:border-gray-800 dark:divide-gray-800 sm:mt-0">	
-    	    <div class="overflow-hidden col-span-2">
-    	      <div class="p-2 xl:p-4">
-    	        To do here....when?
-    	      </div>
-    	    </div>
-
-    	    <div class="overflow-hidden col-span-7">
-    	      <div class="p-2 xl:p-4">
-    	      	<ProjectTree />
-    	      </div>
-    	    </div>
-    	  </div>
-
-    	  
-	    </ComponentCard>
+    	  <ProjectTree />	    
+    	</ComponentCard>
 	  </div>
 
 	  <AddProject :isOpen="addProjectModal" @close="addProjectModal = false" />
