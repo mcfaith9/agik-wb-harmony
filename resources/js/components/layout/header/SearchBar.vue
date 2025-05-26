@@ -1,6 +1,9 @@
 <script setup>
   import { ref, computed } from 'vue'
   import { useRouter } from 'vue-router'
+  import {
+    CornerDownLeft
+  } from "lucide-vue-next"
 
   // 1️⃣ grab your router
   const router = useRouter()
@@ -73,13 +76,15 @@
 
         <ul 
           v-if="filteredRoutes.length && query" 
-          class="absolute left-0 top-full z-40 w-full mt-1 min-w-[260px] rounded-3xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-[#1E2635]">
+          class="absolute left-0 top-full z-40 w-full mt-1 min-w-[260px] rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-[#1E2635]">
+          <span class="mb-3 px-4 text-xs uppercase flex text-gray-400 justify-start">Suggestions</span>
           <li
             v-for="route in filteredRoutes"
             :key="route.name"
             @click="goTo(route)"
-            class="cursor-pointer px-4 py-2 hover:bg-gray-100 rounded-full">
+            class="flex justify-between items-center cursor-pointer px-4 py-2 rounded-lg text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
             {{ route.meta.title || route.name }}
+            <CornerDownLeft class="ml-2 w-3 h-3" />
           </li>
         </ul>
       </div>      

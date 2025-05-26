@@ -8,6 +8,7 @@ const routes = [
     component: () => import('../views/Ecommerce.vue'),
     meta: {
       title: 'eCommerce Dashboard',
+      description: 'Get a real-time overview of sales, revenue, and user activity across your platform.',
       requiresAuth: true,
     },
   },
@@ -17,6 +18,7 @@ const routes = [
     component: () => import('../views/Task/Task.vue'),
     meta: {
       title: 'Tasks',
+      description: 'View, create, and manage your personal or team tasks efficiently.',
       requiresAuth: true,
     },
   },
@@ -26,6 +28,7 @@ const routes = [
     component: () => import('../views/Task/Project.vue'),
     meta: {
       title: 'Projects',
+      description: 'Browse and organize all your active and archived projects in one place.',
       requiresAuth: true,
     },
   },
@@ -35,6 +38,7 @@ const routes = [
     component: () => import('../views/Others/Calendar.vue'),
     meta: {
       title: 'Calendar',
+      description: 'Check your schedule and manage important events and deadlines.',
       requiresAuth: true,
     },
   },
@@ -44,6 +48,7 @@ const routes = [
     component: () => import('../views/Others/UserProfile.vue'),
     meta: {
       title: 'Profile',
+      description: 'Update your personal information, avatar, and account settings.',
       requiresAuth: true,
     },
   },
@@ -53,6 +58,7 @@ const routes = [
     component: () => import('../views/Tables/BasicTables.vue'),
     meta: {
       title: 'Basic Tables',
+      description: 'View structured data in a sortable and filterable table layout.',
       requiresAuth: true,
     },
   },
@@ -60,11 +66,19 @@ const routes = [
     path: '/line-chart',
     name: 'Line Chart',
     component: () => import('../views/Chart/LineChart/LineChart.vue'),
+    meta: {
+      title: 'Line Chart',
+      description: 'Visualize trends and performance over time with line graphs.',
+    },
   },
   {
     path: '/bar-chart',
     name: 'Bar Chart',
     component: () => import('../views/Chart/BarChart/BarChart.vue'),
+    meta: {
+      title: 'Bar Chart',
+      description: 'Analyze categorical data using customizable bar charts.',
+    },
   },
   {
     path: '/signin',
@@ -72,6 +86,7 @@ const routes = [
     component: () => import('../views/Auth/Signin.vue'),
     meta: {
       title: 'Signin',
+      description: 'Access your account by signing in with your credentials.',
       guestOnly: true,
     },
   },
@@ -81,6 +96,7 @@ const routes = [
     component: () => import('../views/Auth/Signup.vue'),
     meta: {
       title: 'Signup',
+      description: 'Create a new account to start managing your projects and tasks.',
       guestOnly: true,
     },
   },

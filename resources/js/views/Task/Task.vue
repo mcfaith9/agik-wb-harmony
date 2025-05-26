@@ -66,18 +66,22 @@
               <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">{{ todoTasks.length }}</span>
             </button>
             <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-500 dark:text-gray-400">
+              In Progres
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">{{ inProgressTasks.length }}</span>
+            </button>
+            <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-500 dark:text-gray-400">
               Completed
               <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">{{ completedTasks.length }}</span>
             </button>
           </div>
 
           <div class="flex flex-wrap items-center gap-3 xl:justify-end">
-            <button class="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03]">
+            <button class="inline-flex items-center gap-2 rounded-full border border-dashed border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03]">
               <Settings2 class="w-4 h-4" />
               Filter & Sort
             </button>
-            <button @click="addTaskModal = true" class="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
-              Add New Task
+            <button @click="addTaskModal = true" class="inline-flex items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
+              Add Task
               <CircleFadingPlus class="w-4 h-4" />
             </button>
           </div>
@@ -86,7 +90,7 @@
 
       <div class="grid grid-cols-1 border-t border-gray-200 divide-x divide-gray-200 dark:border-gray-800 mt-7 dark:divide-gray-800 sm:mt-0 sm:grid-cols-2 xl:grid-cols-3">	
         <div class="overflow-hidden" id="parentTodo">
-          <div class="p-4 xl:p-6">
+          <div class="p-2 xl:p-4">
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
                 To Do
@@ -94,14 +98,14 @@
               </h3>
             </div>
 
-            <div class="overflow-y-auto max-h-[600px] p-4 xl:p-6 custom-scrollbar space-y-5 mt-5">
+            <div class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
               <TaskColumn :all-tasks="tasks" status="todo" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>
 
         <div class="overflow-hidden" id="parentInProgress">
-          <div class="p-4 xl:p-6">
+          <div class="p-2 xl:p-4">
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
                 In Progress
@@ -109,14 +113,14 @@
               </h3>
             </div>
 
-            <div class="overflow-y-auto max-h-[600px] p-4 xl:p-6 custom-scrollbar space-y-5 mt-5">
+            <div class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
               <TaskColumn :all-tasks="tasks" status="in_progress" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>
 
         <div class="overflow-hidden" id="parentCompleted">
-          <div class="p-4 xl:p-6">
+          <div class="p-2 xl:p-4">
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
                 Completed
@@ -124,7 +128,7 @@
               </h3>
             </div>
 
-            <div class="overflow-y-auto max-h-[600px] p-4 xl:p-6 custom-scrollbar space-y-5 mt-5">
+            <div class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
               <TaskColumn :all-tasks="tasks" status="completed" @update-status="handleTaskDrop" />
             </div>
           </div>

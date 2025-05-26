@@ -12,7 +12,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        return response()->json(Project::with('tasklists')->get());
+        return Project::with('tasklists.tasks')->get();
     }
 
     /**
