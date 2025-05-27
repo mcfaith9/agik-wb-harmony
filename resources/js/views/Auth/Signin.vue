@@ -4,7 +4,10 @@
   import axios from 'axios'
   import CommonGridShape from '@/components/common/CommonGridShape.vue'
   import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+  import AppLoader from '@/views/Auth/AppLoader.vue'
 
+  const loading = ref(false)
+  const startTime = Date.now()
   const router = useRouter()
   const email = ref('')
   const password = ref('')
@@ -12,7 +15,6 @@
   const keepLoggedIn = ref(false)
 
   const errorMessage = ref('')
-  const loading = ref(false)
 
   const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value
@@ -20,26 +22,28 @@
 
   const handleSubmit = async () => {
     errorMessage.value = ''
-    loading.value = true
-
     if (!email.value || !password.value) {
       errorMessage.value = 'Email and password are required.'
-      loading.value = false
       return
     }
-
+    loading.value = true
     try {
       const response = await axios.post('/signin', {
         email: email.value,
         password: password.value,
       })
-
-      // Store token or user info if needed
       localStorage.setItem('token', response.data.token)
 
-      router.push('/')
+      const elapsed = Date.now() - startTime
+      const minLoadingTime = 4000
+      if (elapsed < minLoadingTime) {
+        await new Promise(resolve => setTimeout(resolve, minLoadingTime - elapsed))
+      }
+      
+      await router.push('/')
+
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
+      if (error.response?.data?.message) {
         errorMessage.value = error.response.data.message
       } else {
         errorMessage.value = 'Something went wrong. Please try again.'
@@ -52,10 +56,10 @@
 
 <template>
   <FullScreenLayout>
+
+    <AppLoader :visible="loading" />
     <div class="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
-      <div
-        class="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900"
-      >
+      <div class="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900">
         <div class="flex flex-col flex-1 w-full lg:w-1/2">
           <div class="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
             <div>
@@ -209,9 +213,8 @@
                     <div>
                       <button
                         type="submit"
-                        :disabled="loading"
                         class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                        {{ loading ? 'Signing in...' : 'Sign In' }}
+                        Sign In
                       </button>
                     </div>
                   </div>
