@@ -7,7 +7,7 @@
     <title>agik | Harmony</title>
     @vite(['resources/css/app.css', 'resources/js/app.ts'])
   </head>
-  <body class="dark:bg-gray-900 overflow-hidden">
+  <body class="dark:bg-gray-900">
     <div id="app"></div>
   </body>
 </html>

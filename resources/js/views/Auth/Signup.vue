@@ -64,13 +64,13 @@
             <div>
               <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
                 <button
-                  class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
-                  <img class="w-5 h-5" src="@/images/brand/google.svg">
+                  class="inline-flex items-center justify-center gap-2 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+                  <img class="w-4 h-4" src="@/images/brand/google.svg">
                   Sign up with Google
                 </button>
                 <button
                   class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
-                  <img class="w-5 h-5" src="@/images/brand/github.svg">
+                  <img class="w-4 h-4" src="@/images/brand/github.svg">
                   Sign up with Github
                 </button>
               </div>

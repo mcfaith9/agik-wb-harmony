@@ -13,38 +13,49 @@
 
   const currentPageTitle = ref("Tasks")
   const addTaskModal = ref(false)
-  const tasks = ref([])
+  const selectedStatuses = ref<string[]>([])
+  const tasks = computed(() => Array.from(taskMap.value.values()))
+  const taskMap = ref(new Map())
 
   onMounted(async () => {
     const res = await axios.get("/api/tasks")
-    tasks.value = res.data
+    const map = new Map()
+    res.data.forEach(task => map.set(task.id, task))
+    taskMap.value = map
   })
 
-  const todoTasks = computed(() =>
-    tasks.value.filter(task => task.status === "todo")
-  )
 
-  const inProgressTasks = computed(() =>
-    tasks.value.filter(task => task.status === "in_progress")
-  )
+  const groupedTasks = computed(() => {
+    const groups = { todo: [], in_progress: [], completed: [] }
+    for (const task of taskMap.value.values()) {
+      if (groups[task.status]) {
+        groups[task.status].push(task)
+      }
+    }
+    return groups
+  })
 
-  const completedTasks = computed(() =>
-    tasks.value.filter(task => task.status === "completed")
-  )
+  function toggleStatusFilter(status: string) {
+    const index = selectedStatuses.value.indexOf(status)
+    if (index === -1) {
+      selectedStatuses.value.push(status)
+    } else {
+      selectedStatuses.value.splice(index, 1)
+    }
+  }
 
-  const handleTaskDrop = async ({ task, newStatus }) => {
-    if (task.status === newStatus) return;
+  async function handleTaskDrop({ task, newStatus }) {
+    if (task.status === newStatus) return
 
     try {
-      await axios.put(`/api/tasks/${task.id}`, { status: newStatus });
-
-      const t = tasks.value.find(t => t.id === task.id);
-      if (t) t.status = newStatus;
-
-      // Force update reactivity to refresh UI
-      tasks.value = [...tasks.value];
+      await axios.put(`/api/tasks/${task.id}`, { status: newStatus })
+      const t = taskMap.value.get(task.id)
+      if (t) {
+        t.status = newStatus
+        taskMap.value = new Map(taskMap.value)
+      }
     } catch (e) {
-      console.error("Error updating task status", e);
+      console.error("Error updating task status", e)
     }
   }
 </script>
@@ -57,21 +68,47 @@
         <div class="flex flex-col w-full gap-5 sm:justify-between xl:flex-row xl:items-center">
 
           <div class="flex flex-wrap items-center gap-x-1 gap-y-2 rounded-lg bg-gray-100 p-0.5 dark:bg-gray-900">
-            <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-900 dark:text-white bg-white dark:bg-gray-800">
-              All Tasks
+            <button 
+              :class="[
+                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group',
+                selectedStatuses.length === 0 ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800' : 'text-gray-500 dark:text-gray-400',
+                ]"
+                @click="selectedStatuses = []">
+                All Task
               <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">{{ tasks.length }}</span>
             </button>
-            <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-500 dark:text-gray-400">
+            <button 
+              :class="[
+                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group',
+                selectedStatuses.includes('todo') ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800' : 'text-gray-500 dark:text-gray-400'
+                ]"
+              @click="toggleStatusFilter('todo')">
               To do
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">{{ todoTasks.length }}</span>
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">
+                {{ groupedTasks.todo.length }}
+              </span>
             </button>
-            <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-500 dark:text-gray-400">
+            <button 
+              :class="[
+                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group',
+                selectedStatuses.includes('in_progress') ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800' : 'text-gray-500 dark:text-gray-400'
+                ]"
+              @click="toggleStatusFilter('in_progress')">
               In Progres
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">{{ inProgressTasks.length }}</span>
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">
+                {{ groupedTasks.in_progress.length }}
+              </span>
             </button>
-            <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group hover:text-gray-900 dark:hover:text-white text-gray-500 dark:text-gray-400">
+            <button 
+              :class="[
+                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group',
+                selectedStatuses.includes('completed') ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800' : 'text-gray-500 dark:text-gray-400'
+                ]"
+              @click="toggleStatusFilter('completed')">
               Completed
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">{{ completedTasks.length }}</span>
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">
+                {{ groupedTasks.completed.length }}
+              </span>
             </button>
           </div>
 
@@ -94,12 +131,14 @@
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
                 To Do
-                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">{{ todoTasks.length }}</span>
+                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">{{ groupedTasks.todo.length }}</span>
               </h3>
             </div>
 
-            <div class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
-              <TaskColumn :all-tasks="tasks" status="todo" @update-status="handleTaskDrop" />
+            <div
+              v-if="selectedStatuses.length === 0 || selectedStatuses.includes('todo')" 
+              class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
+              <TaskColumn :data="groupedTasks.todo" status="todo" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>
@@ -109,12 +148,14 @@
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
                 In Progress
-                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">{{ inProgressTasks.length }}</span>
+                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">{{ groupedTasks.in_progress.length }}</span>
               </h3>
             </div>
 
-            <div class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
-              <TaskColumn :all-tasks="tasks" status="in_progress" @update-status="handleTaskDrop" />
+            <div
+              v-if="selectedStatuses.length === 0 || selectedStatuses.includes('in_progress')" 
+              class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
+              <TaskColumn :data="groupedTasks.in_progress" status="in_progress" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>
@@ -124,12 +165,14 @@
             <div class="flex items-center justify-between mb-1">
               <h3 class="flex items-center gap-3 text-base font-medium text-gray-800 dark:text-white/90">
                 Completed
-                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">{{ completedTasks.length }}</span>
+                <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-white/[0.03] dark:text-white/80">{{ groupedTasks.completed.length }}</span>
               </h3>
             </div>
 
-            <div class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
-              <TaskColumn :all-tasks="tasks" status="completed" @update-status="handleTaskDrop" />
+            <div
+              v-if="selectedStatuses.length === 0 || selectedStatuses.includes('completed')" 
+              class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
+              <TaskColumn :data="groupedTasks.completed" status="completed" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>

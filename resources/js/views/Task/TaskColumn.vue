@@ -1,10 +1,10 @@
 <script setup lang="ts">
-	import { defineEmits, defineProps, ref, computed, watch } from "vue"
+	import { defineEmits, defineProps, ref, computed } from "vue"
 	import { format } from "date-fns"
 	import draggable from "vuedraggable"
 
 	const props = defineProps({
-	  allTasks: {
+	  data: {
 	    type: Array,
 	    required: true
 	  },
@@ -14,16 +14,9 @@
 	  }
 	})
 
-	const filteredTasks = ref([])
 	const dragging = ref(false)
-	const emit = defineEmits(['update-status', 'update:allTasks'])
-	const tasks = computed(() =>
-	  props.allTasks.filter(t => t.status === props.status)
-	)	
-
-	watch(() => props.allTasks, () => {
-	  filteredTasks.value = props.allTasks.filter(t => t.status === props.status)
-	}, { immediate: true })
+	const emit = defineEmits(['update-status', 'update:data'])
+	const tasks = computed(() => props.data)
 
 	const formatDateRange = (start: string, end: string) => {
 	  if (!start || !end) return ''
@@ -31,27 +24,24 @@
 	}
 
 	const onTaskAdd = (evt: any) => {
-	  const task = evt.item?._underlying_vm_;
-	  if (!task) return;
+	  const task = evt.item?._underlying_vm_
+	  if (!task) return
 
 	  emit('update-status', { task, newStatus: props.status })
-
-	  // Optional: refresh filtered list (not always needed)
-	  filteredTasks.value = props.allTasks.filter(t => t.status === props.status)
 	}
 
-	const onDragStart = (evt) => {
+	const onDragStart = () => {
 	  dragging.value = true
 	}
 
-	const onDragEnd = (evt) => {
+	const onDragEnd = () => {
 	  dragging.value = false
 	}
 </script>
 
 <template>
   <draggable
-    :list="filteredTasks"
+    :list="tasks"
     :group="{ name: 'tasks', pull: true, put: true }"
     item-key="id"
     animation="200"

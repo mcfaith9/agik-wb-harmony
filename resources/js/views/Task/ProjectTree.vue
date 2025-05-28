@@ -41,7 +41,7 @@ const badgeClass = 'inline-flex items-center justify-center w-5 h-5 text-xs font
         <Settings class="w-4 h-4 left-2" />
       </div>
 
-      <ul class="space-y-2 px-2 mt-2">
+      <ul class="space-y-3 px-2 mt-2">
         <li class="flex items-center text-sm text-gray-800 dark:text-white px-1 border-l border-gray-200 dark:border-white/10">
           <span class="w-4 h-4 mr-1 inline-block shrink-0 select-none"></span>
           <span class="font-medium flex-1 truncate">
@@ -82,7 +82,7 @@ const badgeClass = 'inline-flex items-center justify-center w-5 h-5 text-xs font
     </aside>
 
     <section class="overflow-hidden col-span-7">
-      <div class="p-4 xl:p-6">
+      <div class="px-4">
         <ul class="space-y-4">
           <li 
             v-for="project in projects" 
