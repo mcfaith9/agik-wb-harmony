@@ -3,8 +3,8 @@
   import axios from "axios"
   import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue"
   import AdminLayout from "@/components/layout/AdminLayout.vue"
-  import AddTask from "@/views/Task/AddTask.vue"
-  import TaskColumn from "@/views/Task/TaskColumn.vue"
+  import AddTask from "@/views/Task/Modal/AddTask.vue"
+  import TaskCard from "@/views/Task/TaskCard.vue"
   import { 
   	Settings2, 
   	CircleFadingPlus,
@@ -66,12 +66,11 @@
     <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div class="flex flex-col items-center px-4 py-5 xl:px-6 xl:py-6">
         <div class="flex flex-col w-full gap-5 sm:justify-between xl:flex-row xl:items-center">
-
-          <div class="flex flex-wrap items-center gap-x-1 gap-y-2 rounded-lg bg-gray-100 p-0.5 dark:bg-gray-900">
+          <div class="flex flex-wrap items-center gap-x-1 gap-y-2 rounded-full bg-gray-100 p-0.5 dark:bg-gray-900">
             <button 
               :class="[
-                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group',
-                selectedStatuses.length === 0 ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800' : 'text-gray-500 dark:text-gray-400',
+                'inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full h group',
+                selectedStatuses.length === 0 ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800 shadow' : 'text-gray-500 dark:text-gray-400',
                 ]"
                 @click="selectedStatuses = []">
                 All Task
@@ -79,34 +78,34 @@
             </button>
             <button 
               :class="[
-                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group',
-                selectedStatuses.includes('todo') ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800' : 'text-gray-500 dark:text-gray-400'
+                'inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full h group',
+                selectedStatuses.includes('todo') ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800 shadow' : 'text-gray-500 dark:text-gray-400'
                 ]"
               @click="toggleStatusFilter('todo')">
               To do
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
                 {{ groupedTasks.todo.length }}
               </span>
             </button>
             <button 
               :class="[
-                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group',
-                selectedStatuses.includes('in_progress') ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800' : 'text-gray-500 dark:text-gray-400'
+                'inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full h group',
+                selectedStatuses.includes('in_progress') ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800 shadow' : 'text-gray-500 dark:text-gray-400'
                 ]"
               @click="toggleStatusFilter('in_progress')">
               In Progres
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
                 {{ groupedTasks.in_progress.length }}
               </span>
             </button>
             <button 
               :class="[
-                'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md h group',
-                selectedStatuses.includes('completed') ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800' : 'text-gray-500 dark:text-gray-400'
+                'inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full h group',
+                selectedStatuses.includes('completed') ? 'text-gray-900 dark:text-white bg-white dark:bg-gray-800 shadow' : 'text-gray-500 dark:text-gray-400'
                 ]"
               @click="toggleStatusFilter('completed')">
               Completed
-              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-white dark:bg-white/[0.03]">
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
                 {{ groupedTasks.completed.length }}
               </span>
             </button>
@@ -137,8 +136,8 @@
 
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('todo')" 
-              class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
-              <TaskColumn :data="groupedTasks.todo" status="todo" @update-status="handleTaskDrop" />
+              class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
+              <TaskCard :data="groupedTasks.todo" status="todo" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>
@@ -154,8 +153,8 @@
 
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('in_progress')" 
-              class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
-              <TaskColumn :data="groupedTasks.in_progress" status="in_progress" @update-status="handleTaskDrop" />
+              class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
+              <TaskCard :data="groupedTasks.in_progress" status="in_progress" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>
@@ -171,8 +170,8 @@
 
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('completed')" 
-              class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-2 cursor-grab">
-              <TaskColumn :data="groupedTasks.completed" status="completed" @update-status="handleTaskDrop" />
+              class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
+              <TaskCard :data="groupedTasks.completed" status="completed" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>

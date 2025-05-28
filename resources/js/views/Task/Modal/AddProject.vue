@@ -1,6 +1,7 @@
 <script setup lang="ts">	
 	import { ref } from 'vue'
 	import axios from 'axios'
+	import { priorities, privacies, tags } from '@/stores/data.js'
 	import Modal from '@/components/common/Modal.vue'
 	import Input from '@/components/common/Input.vue'
 	import SingleSelect from '@/components/common/SingleSelect.vue'
@@ -11,30 +12,9 @@
 	  ChevronDown,
 	  UserRoundPlus,
 	} from "lucide-vue-next"
-
-	const priorities = [
-		{ value: 'none', label: 'None' },
-	  { value: 'low', label: 'Low' },
-	  { value: 'medium', label: 'Medium' },
-	  { value: 'high', label: 'High' },
-	]
+	
 	const selectedPriority = ref<string | null>(null)
-
-	const privacies = [		
-	  { value: 'public', label: 'Public' },
-	  { value: 'private', label: 'Private' },
-	]
 	const selectedPrivacy = ref<string | null>(null)
-
-	const tags = [
-	  { value: 'apple', label: 'Apple' },
-	  { value: 'banana', label: 'Banana' },
-	  { value: 'cherry', label: 'Cherry' },
-	  { value: 'date', label: 'Date' },
-	  { value: 'elderberry', label: 'Elderberry' },
-	  { value: 'graphs', label: 'Graphs' },
-	  { value: 'orange', label: 'Orange' },
-	]
 	const selectedTags = ref<Array<{ value: string; label: string }>>([])
 	const projectName = ref<string>('')
 	const projectDesc = ref<string>('')

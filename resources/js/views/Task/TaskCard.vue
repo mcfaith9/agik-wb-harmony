@@ -3,18 +3,12 @@
 	import { format } from "date-fns"
 	import draggable from "vuedraggable"
 
-	const props = defineProps({
-	  data: {
-	    type: Array,
-	    required: true
-	  },
-	  status: {
-	    type: String,
-	    required: true
-	  }
-	})
+	const props = defineProps<{
+    data: Task[],
+    status: string
+  }>()
 
-	const dragging = ref(false)
+	const dragging = ref<boolean>(false)
 	const emit = defineEmits(['update-status', 'update:data'])
 	const tasks = computed(() => props.data)
 
@@ -30,13 +24,8 @@
 	  emit('update-status', { task, newStatus: props.status })
 	}
 
-	const onDragStart = () => {
-	  dragging.value = true
-	}
-
-	const onDragEnd = () => {
-	  dragging.value = false
-	}
+	const onDragStart = () => { dragging.value = true }
+	const onDragEnd = () => { dragging.value = false }
 </script>
 
 <template>
@@ -49,10 +38,10 @@
     @end="onDragEnd"
     @add="onTaskAdd"
     :class="{ 'cursor-grabbing': dragging }"
-    class="min-h-[200px] flex flex-col gap-5">
+    class="flex flex-col gap-5 py-2">
     <template #item="{ element: task }">
       <div class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
-        <div class="flex items-start justify-between gap-6">
+        <div class="flex items-start justify-between">
           <div>
           	<div class="mb-2 text-xs text-gray-500 dark:text-gray-400">
           	  {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }}
