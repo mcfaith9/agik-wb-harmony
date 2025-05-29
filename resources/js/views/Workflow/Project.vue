@@ -3,9 +3,9 @@
 	import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue"
 	import AdminLayout from "@/components/layout/AdminLayout.vue"
 	import ComponentCard from "@/components/common/ComponentCard.vue"
-	import ProjectForm from "@/views/Task/Modal/ProjectForm.vue"
-	import CreateTags from "@/views/Task/Modal/CreateTags.vue"
-	import ProjectTree from "@/views/Task/ProjectTree.vue"
+	import ProjectForm from "@/views/Workflow/Modal/ProjectForm.vue"
+	import CreateTags from "@/views/Workflow/Modal/CreateTags.vue"
+	import ProjectTree from "@/views/Workflow/ProjectTree.vue"
 
 	import { 
 		Settings2, 

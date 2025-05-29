@@ -3,8 +3,8 @@
   import axios from "axios"
   import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue"
   import AdminLayout from "@/components/layout/AdminLayout.vue"
-  import TaskForm from "@/views/Task/Modal/TaskForm.vue"
-  import TaskCard from "@/views/Task/TaskCard.vue"
+  import TaskForm from "@/views/Workflow/Modal/TaskForm.vue"
+  import TaskCard from "@/views/Workflow/TaskCard.vue"
   import { 
   	Settings2, 
   	CircleFadingPlus,

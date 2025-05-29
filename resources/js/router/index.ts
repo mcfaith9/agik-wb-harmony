@@ -15,7 +15,7 @@ const routes = [
   {
     path: '/tasks',
     name: 'Tasks',
-    component: () => import('../views/Task/Task.vue'),
+    component: () => import('../views/Workflow/Task.vue'),
     meta: {
       title: 'Tasks',
       description: 'View, create, and manage your personal or team tasks efficiently.',
@@ -25,7 +25,7 @@ const routes = [
   {
     path: '/projects',
     name: 'Projects',
-    component: () => import('../views/Task/Project.vue'),
+    component: () => import('../views/Workflow/Project.vue'),
     meta: {
       title: 'Projects',
       description: 'Browse and organize all your active and archived projects in one place.',
