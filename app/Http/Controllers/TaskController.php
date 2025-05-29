@@ -56,6 +56,22 @@ class TaskController extends Controller
 
         $task = Task::create($validated);
 
+        $tagIds = collect($request->tags)->map(function ($tag) {
+            if (isset($tag['id'])) {
+                return $tag['id'];
+            }
+
+            $newTag = \App\Models\Tag::firstOrCreate([
+                'label' => $tag['label']
+            ], [
+                'color' => $tag['color'] ?? '#ec4899',
+                'created_by' => auth()->id(),
+            ]);
+
+            return $newTag->id;
+        });
+        $task->tags()->sync($tagIds);
+
         if (!empty($userIds)) {
             $task->users()->sync($userIds);
         }

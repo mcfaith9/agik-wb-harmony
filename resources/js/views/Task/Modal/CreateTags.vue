@@ -1,18 +1,11 @@
 <script setup lang="ts">	
+	import axios from 'axios'
 	import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
 	import { tags as staticTags, colorPalette } from '@/stores/data'
 	import Modal from '@/components/common/Modal.vue'
 	import { 
 	  X,
 	} from "lucide-vue-next"
-
-	const tags = ref([...staticTags])
-	const newTag = ref<string>('')
-	const newColor = ref('#4f46e5')
-	const activeDropdownIndex = ref<number | null>(null)
-	const dropdownPosition = ref({ top: 0, left: 0 })
-	const editLabel = ref('')
-	const editColor = ref('')
 
 	const props = defineProps<{
 	  isOpen: boolean
@@ -21,6 +14,14 @@
 	const emit = defineEmits<{
 	  (e: 'close'): void
 	}>()
+
+	const tags = ref([...staticTags])
+	const newTag = ref<string>('')
+	const newColor = ref('#4f46e5')
+	const activeDropdownIndex = ref<number | null>(null)
+	const dropdownPosition = ref({ top: 0, left: 0 })
+	const editLabel = ref('')
+	const editColor = ref('')	
 
 	function addTag() {
 	  if (!newTag.value.trim()) return
@@ -70,10 +71,24 @@
 	  return `top: ${dropdownPosition.value.top}px; left: ${dropdownPosition.value.left}px; position: absolute;`
 	}
 
-	function updateTag(index) {
-	  tags.value[index].label = editLabel.value
-	  tags.value[index].color = editColor.value
-	  activeDropdownIndex.value = null
+	async function updateTag(index: number) {
+	  const tag = tags.value[index]
+
+	  if (!tag.id) {
+	    console.error('Cannot update tag without ID')
+	    return
+	  }
+
+	  try {
+	    await axios.put(`/api/tags/${tag.id}`, {
+	      label: tag.label,
+	      color: tag.color,
+	    })
+	    activeDropdownIndex.value = null
+	    console.log('Tag updated successfully')
+	  } catch (error) {
+	    console.error('Failed to update tag:', error)
+	  }
 	}
 
 	function handleClickOutside(event: MouseEvent) {
@@ -107,7 +122,14 @@
 	  }
 	}
 
-	onMounted(() => {
+	onMounted(async () => {
+	  try {
+	    const res = await axios.get('/api/tags')
+	    tags.value = res.data
+	  } catch (error) {
+	    console.error('Failed to load tags:', error)
+	  }
+
 	  window.addEventListener('click', handleClickOutside)
 	})
 
@@ -142,7 +164,7 @@
             :id="`tag-${index}`"
             class="relative cursor-pointer mt-3 inline-flex rounded-full text-xs font-medium"
             :style="{ backgroundColor: tag.color, color: tag.color ? 'white' : '' }"
-           	@click.stop.prevent="toggleDropdown(index, tag)">
+           	@click.stop.prevent="tag.id && toggleDropdown(index, tag)">
             <div class="flex items-center px-2 py-0.5 dark:text-white">
               {{ tag.label }}
               <button @click.stop="removeTag(index)" class="ml-2 text-xs">

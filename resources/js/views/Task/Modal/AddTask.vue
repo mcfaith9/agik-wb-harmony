@@ -2,7 +2,7 @@
 	import { ref, onMounted, watch } from 'vue'
 	import axios from 'axios'
 	import { format, parseISO, isDate } from 'date-fns'
-	import { priorities, privacies, tags } from '@/stores/data.js'
+	import { priorities, privacies } from '@/stores/data.js'
 	import Modal from '@/components/common/Modal.vue'
 	import Input from '@/components/common/Input.vue'
 	import SingleSelect from '@/components/common/SingleSelect.vue'
@@ -18,6 +18,14 @@
 	  CalendarRange
 	} from "lucide-vue-next"
 
+	const props = defineProps<{
+	  isOpen: boolean
+	}>()
+
+	const emit = defineEmits<{
+	  (e: 'close'): void
+	}>()
+
 	const taskName = ref<string>('')
 	const estimated_time = ref<string>('')
 	const taskDesc = ref<string>('')
@@ -29,9 +37,10 @@
 	const tasklistOptions = ref<{ label: string; value: string }[]>([])
 	const selectedTasklist = ref<string | null>(null)
 
-	const users = ref([])
-	const selectedUsers = ref([])
-	const selectedTags = ref<Array<{ value: string; label: string }>>([])
+	const tags = ref<Array>([]);
+	const users = ref<Array<{ id: string; name: string }>>([])
+	const selectedUsers = ref<Array<{ id: string; name: string }>>([])
+	const selectedTags = ref<Array<{ id?: string; label: string; color: string }>>([])
 
 	const flatpickrConfig = {
 		mode: "range",
@@ -39,9 +48,6 @@
 	  altInput: true,
 	  altFormat: 'F j, Y',
 	  wrap: true,
-	  // onChange(selectedDates) {
-    //   selectedDateRange.value = selectedDates;
-    // }
 	}
 	const selectedDateRange = ref<string | null>(null)
 
@@ -53,7 +59,6 @@
 
 	watch(selectedDateRange, (newVal) => {
 		const [start, end] = formatDate(newVal)
-		console.log('Start:', start, 'End:', end)
 	})
 
 	const handleSubmit = async () => {
@@ -66,7 +71,11 @@
 			task_list_id: selectedTasklist.value,
 			priority: selectedPriority.value,
 			privacy: selectedPrivacy.value,
-			tags: selectedTags.value.map(tag => tag.value),
+			tags: selectedTags.value.map(tag => ({
+        id: tag.id || null,
+        label: tag.label,
+        color: tag.color,
+      })),
 			estimated_time: estimated_time.value,
 			start_date: start,
 			end_date: end,
@@ -89,6 +98,13 @@
 	    users.value = res.data
 	  } catch (error) {
 	    console.error('Failed to fetch projects:', error)
+	  }
+
+	  try {
+	    const res = await axios.get('/api/tags')
+	    tags.value = res.data
+	  } catch (error) {
+	    console.error('Failed to load tags:', error)
 	  }
 	})
 
@@ -114,16 +130,7 @@
 
 	watch(selectedUsers, (newVal) => {
 	  const selectedUserIds = newVal.map(u => u.id)
-	  console.log('Selected IDs:', selectedUserIds)
-	})
-
-	const props = defineProps<{
-	  isOpen: boolean
-	}>()
-
-	const emit = defineEmits<{
-	  (e: 'close'): void
-	}>()
+	})	
 </script>
 
 <template>
@@ -247,7 +254,8 @@
 	            			<div class="relative z-20 bg-transparent">
 	            				<MultiSelect
             				    v-model="selectedTags"
-            				    :options="tags"/>	            			  
+            				    :options="tags"
+            				    :type="tags" />	            			  
 	            			</div>
 	            		</div>
 	            	</div>

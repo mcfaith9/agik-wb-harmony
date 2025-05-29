@@ -15,6 +15,9 @@
       type: Array,
       default: () => [],
     },
+    type: {
+      type: String
+    }
   })
 
   const emit = defineEmits(['update:modelValue'])
@@ -28,7 +31,7 @@
   }
 
   const toggleItem = (item) => {
-    const index = selectedItems.value.findIndex(s => s.value === item.value)
+    const index = selectedItems.value.findIndex(s => s.id === item.id)
     if (index === -1) {
       selectedItems.value.push(item)
     } else {
@@ -38,7 +41,7 @@
   }
 
   const removeItem = (item) => {
-    const index = selectedItems.value.findIndex(s => s.value === item.value)
+    const index = selectedItems.value.findIndex(s => s.id === item.id)
     if (index !== -1) {
       selectedItems.value.splice(index, 1)
       emit('update:modelValue', [...selectedItems.value])
@@ -46,7 +49,7 @@
   }
 
   const isSelected = (item) => {
-    return selectedItems.value.some(s => s.value === item.value)
+    return selectedItems.value.some(s => s.id === item.id)
   }
 
   // Watch for external changes to modelValue and update selectedItems accordingly
@@ -80,13 +83,18 @@
         <div
           v-for="item in selectedItems"
           :key="item.value"
-          class="group flex items-center justify-center h-[22px] rounded-full border-[0.7px] border-transparent bg-gray-100 pl-2.5 pr-2 text-sm text-gray-800 hover:border-gray-200 dark:bg-gray-800 dark:text-white/90 dark:hover:border-gray-800">
+          :class="[
+            'px-2 py-0.5 text-xs font-medium rounded-full inline-flex',
+            item.color == null ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400' : 'text-white'
+          ]"
+          :style="item.color ? { backgroundColor: item.color } : null">
           <span class="text-xs">{{ item.label }}</span>
           <button
+            type="button"
             @click.stop="removeItem(item)"
             class="pl-2 text-gray-500 cursor-pointer group-hover:text-gray-400 dark:text-gray-400"
             aria-label="Remove item">
-            <X class="w-3 h-3" />
+            <X class="w-3 h-3 text-white" />
           </button>
         </div>
       </div>
