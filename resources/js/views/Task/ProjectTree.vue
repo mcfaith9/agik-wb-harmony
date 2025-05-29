@@ -114,8 +114,12 @@ const badgeClass = 'inline-flex items-center justify-center w-5 h-5 text-xs font
                         <span
                           v-for="(tag, index) in task.tags"
                           :key="index"
-                          class="px-2 py-0.5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400 rounded-full">
-                          {{ tag || 'Uncategorized' }}
+                          :class="[
+                            'px-2 py-0.5 text-xs font-medium inline-flex rounded-full',
+                            tag.color == null ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400' : 'text-white'
+                          ]"
+                          :style="tag.color ? { backgroundColor: tag.color } : null">
+                          {{ tag.label || 'Uncategorized' }}
                         </span>
                       </div> 
                     </div>

@@ -2,14 +2,22 @@
 	import { defineEmits, defineProps, ref, computed } from "vue"
 	import { format } from "date-fns"
 	import draggable from "vuedraggable"
+  import { 
+    FilePenLine
+  } from "lucide-vue-next"
 
 	const props = defineProps<{
     data: Task[],
     status: string
   }>()
 
+  const emit = defineEmits<{
+    (e: 'edit-task'): void
+    (e: 'update-status'): void
+    (e: 'update:data'): void
+  }>()
+
 	const dragging = ref<boolean>(false)
-	const emit = defineEmits(['update-status', 'update:data'])
 	const tasks = computed(() => props.data)
 
 	const formatDateRange = (start: string, end: string) => {
@@ -40,7 +48,10 @@
     :class="{ 'cursor-grabbing': dragging }"
     class="flex flex-col gap-5 py-2">
     <template #item="{ element: task }">
-      <div class="p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
+      <div class="relative p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
+        <button class="absolute top-1 left-1" @click="$emit('edit-task', task)">
+          <FilePenLine class="w-4 h-4 text-xs text-gray-500 dark:text-gray-400" />
+        </button>
         <div class="flex items-start justify-between">
           <div>
           	<div class="mb-2 text-xs text-gray-500 dark:text-gray-400">
@@ -54,7 +65,7 @@
                 {{ formatDateRange(task.start_date, task.end_date) }}
               </span>
               <span class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                🕓 {{ task.estimated_time }}
+                ETA {{ task.estimated_time }}
               </span>
             </div>            
             <div class="mt-2 flex flex-wrap gap-1">

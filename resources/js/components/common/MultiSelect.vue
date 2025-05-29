@@ -14,9 +14,6 @@
     modelValue: {
       type: Array,
       default: () => [],
-    },
-    type: {
-      type: String
     }
   })
 

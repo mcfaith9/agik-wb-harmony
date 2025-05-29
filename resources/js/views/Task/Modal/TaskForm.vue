@@ -1,7 +1,6 @@
-<script setup lang="ts">	
+<script setup lang="ts">
 	import { ref, onMounted, watch } from 'vue'
 	import axios from 'axios'
-	import { format, parseISO, isDate } from 'date-fns'
 	import { priorities, privacies } from '@/stores/data.js'
 	import Modal from '@/components/common/Modal.vue'
 	import Input from '@/components/common/Input.vue'
@@ -11,126 +10,230 @@
 	import flatPickr from 'vue-flatpickr-component'
 	import 'flatpickr/dist/themes/airbnb.css'
 
-	import { 
-	  X,
-	  ChevronDown,
-	  UserRoundPlus,
-	  CalendarRange
-	} from "lucide-vue-next"
+	import { X, CalendarRange } from "lucide-vue-next"
+
+	interface Task {
+	  id?: number | string
+	  name?: string
+	  description?: string
+	  estimated_time?: string
+	  priority?: string | null
+	  privacy?: string | null
+	  task_list_id?: number | string | null
+	  tasklist?: { project_id?: number | string }
+	  start_date?: string | null
+	  end_date?: string | null
+	  users?: { id: string; name: string }[]
+	  tags?: { id?: string; label: string; color: string }[]
+	}
 
 	const props = defineProps<{
 	  isOpen: boolean
+	  task: Task | null
 	}>()
 
 	const emit = defineEmits<{
 	  (e: 'close'): void
+	  (e: 'task-created', task: any): void
+	  (e: 'task-updated', task: any): void
 	}>()
 
-	const taskName = ref<string>('')
-	const estimated_time = ref<string>('')
-	const taskDesc = ref<string>('')
-
-	const selectedPriority = ref<string | null>(null)	
+	// Reactive form fields
+	const taskName = ref('')
+	const estimated_time = ref('')
+	const taskDesc = ref('')
+	const selectedPriority = ref<string | null>(null)
 	const selectedPrivacy = ref<string | null>(null)
 	const projectOptions = ref<{ label: string; value: string }[]>([])
 	const selectedProject = ref<string | null>(null)
 	const tasklistOptions = ref<{ label: string; value: string }[]>([])
 	const selectedTasklist = ref<string | null>(null)
 
-	const tags = ref<Array>([]);
-	const users = ref<Array<{ id: string; name: string }>>([])
-	const selectedUsers = ref<Array<{ id: string; name: string }>>([])
-	const selectedTags = ref<Array<{ id?: string; label: string; color: string }>>([])
+	const tags = ref<{ id?: string; label: string; color: string }[]>([])
+	const users = ref<{ id: string; name: string }[]>([])
+	const selectedUsers = ref<{ id: string; first_name: string, last_name: string }[]>([])
+	const selectedTags = ref<{ id?: string; label: string; color: string }[]>([])
+
+	const selectedDateRange = ref<string | null>(null)
 
 	const flatpickrConfig = {
-		mode: "range",
+	  mode: "range",
 	  dateFormat: 'Y-m-d',
 	  altInput: true,
 	  altFormat: 'F j, Y',
 	  wrap: true,
 	}
-	const selectedDateRange = ref<string | null>(null)
 
-	const formatDate = (val: string | null) => {
-		if (!val || !val.includes(' to ')) return [null, null]
-		const [startStr, endStr] = val.split(' to ')
-		return [startStr, endStr]
+	function formatDate(val: string | null): [string | null, string | null] {
+	  if (!val || !val.includes(' to ')) return [null, null]
+	  const [startStr, endStr] = val.split(' to ')
+	  return [startStr, endStr]
 	}
 
-	watch(selectedDateRange, (newVal) => {
-		const [start, end] = formatDate(newVal)
-	})
-
-	const handleSubmit = async () => {
-		const [start, end] = formatDate(selectedDateRange.value)
-
-		const payload = {
-			name: taskName.value,
-			description: taskDesc.value,
-			project_id: selectedProject.value,
-			task_list_id: selectedTasklist.value,
-			priority: selectedPriority.value,
-			privacy: selectedPrivacy.value,
-			tags: selectedTags.value.map(tag => ({
-        id: tag.id || null,
-        label: tag.label,
-        color: tag.color,
-      })),
-			estimated_time: estimated_time.value,
-			start_date: start,
-			end_date: end,
-			user_ids: selectedUsers.value.map(user => user.id),
-		};
-
-		await axios.post('/api/tasks', payload)
-		emit('close')
-	}
-
-	onMounted(async () => {
+	async function loadInitialData() {
 	  try {
-	    const project = await axios.get('/api/projects')
-	    projectOptions.value = project.data.map((project: any) => ({
-	      label: project.name,
-	      value: project.id.toString(),
+	    const [projectRes, userRes, tagRes] = await Promise.all([
+	      axios.get('/api/projects'),
+	      axios.get('/api/users'),
+	      axios.get('/api/tags'),
+	    ])
+
+	    projectOptions.value = projectRes.data.map((p: any) => ({
+	      label: p.name,
+	      value: p.id.toString(),
 	    }))
-
-	    const res = await axios.get('/api/users')
-	    users.value = res.data
+	    users.value = userRes.data
+	    tags.value = tagRes.data
 	  } catch (error) {
-	    console.error('Failed to fetch projects:', error)
+	    console.error('Failed to load initial data:', error)
 	  }
+	}
 
-	  try {
-	    const res = await axios.get('/api/tags')
-	    tags.value = res.data
-	  } catch (error) {
-	    console.error('Failed to load tags:', error)
-	  }
+	// Load projects, users, tags once
+	onMounted(() => {
+	  loadInitialData()
 	})
 
+	// Load tasklists when selectedProject changes
 	watch(selectedProject, async (newProjectId) => {
 	  if (!newProjectId) {
 	    tasklistOptions.value = []
 	    selectedTasklist.value = null
 	    return
 	  }
-
 	  try {
-	    const response = await axios.get(`/api/projects/${newProjectId}/tasklists`)
-	    tasklistOptions.value = response.data.map((tl: any) => ({
+	    const res = await axios.get(`/api/projects/${newProjectId}/tasklists`)
+	    tasklistOptions.value = res.data.map((tl: any) => ({
 	      label: tl.name,
 	      value: tl.id.toString(),
 	    }))
-	    selectedTasklist.value = null;
+	    // Don't reset selectedTasklist here to preserve user selection or editing value
 	  } catch (error) {
 	    console.error('Failed to fetch tasklists:', error)
 	    tasklistOptions.value = []
+	    selectedTasklist.value = null
+	  }
+	}, { immediate: true })
+
+	function resetForm() {
+	  taskName.value = ''
+	  taskDesc.value = ''
+	  estimated_time.value = ''
+	  selectedPriority.value = null
+	  selectedPrivacy.value = null
+	  selectedProject.value = null
+	  selectedTasklist.value = null
+	  selectedDateRange.value = null
+	  selectedUsers.value = []
+	  selectedTags.value = []
+	  tasklistOptions.value = []
+	}
+
+	function populateForm(task: Task) {
+	  taskName.value = task.name || ''
+	  taskDesc.value = task.description || ''
+	  estimated_time.value = task.estimated_time || ''
+	  selectedPriority.value = task.priority || null
+	  selectedPrivacy.value = task.privacy || null
+	  selectedProject.value = task.tasklist?.project_id?.toString() || null
+
+	  if (selectedProject.value) {
+	    axios.get(`/api/projects/${selectedProject.value}/tasklists`)
+	      .then(res => {
+	        tasklistOptions.value = res.data.map((tl: any) => ({
+	          label: tl.name,
+	          value: tl.id.toString(),
+	        }))
+	        selectedTasklist.value = task.task_list_id?.toString() || null
+	      })
+	      .catch(() => {
+	        tasklistOptions.value = []
+	        selectedTasklist.value = null
+	      })
+	  } else {
+	    tasklistOptions.value = []
+	    selectedTasklist.value = null
+	  }
+
+	  selectedDateRange.value = (task.start_date && task.end_date)
+	    ? `${task.start_date.slice(0, 10)} to ${task.end_date.slice(0, 10)}`
+	    : null
+
+	  selectedUsers.value = (task.users || []).map(user => ({
+	    id: user.id,
+	    first_name: user.first_name,
+	    last_name: user.last_name
+	  }))
+
+	  selectedTags.value = (task.tags || []).map(tag => ({
+	    id: tag.id ?? undefined,
+	    label: tag.label,
+	    color: tag.color,
+	  }))
+	}
+
+	// Populate form when editing a task
+	watch(() => props.task, (task) => {
+	  if (!task) {
+	    resetForm()
+	  } else {
+	    populateForm(task)
+	  }
+	}, { immediate: true })
+
+	// Reset form when modal closes
+	watch(() => props.isOpen, (newVal) => {
+	  if (!newVal) {
+	    resetForm()
+	  } else {
+	    // Modal opened: repopulate from props.task if exists
+	    if (props.task) {
+	      // Trigger the same code you do in the task watcher
+	      populateForm(props.task)
+	    }
 	  }
 	})
 
-	watch(selectedUsers, (newVal) => {
-	  const selectedUserIds = newVal.map(u => u.id)
-	})	
+	const handleSubmit = async () => {
+	  if (!taskName.value || !selectedProject.value || !selectedTasklist.value) {
+	    alert('Please fill in required fields: Task Name, Project, and Task List.')
+	    return
+	  }
+
+	  const [start, end] = formatDate(selectedDateRange.value)
+
+	  const payload = {
+	    name: taskName.value,
+	    description: taskDesc.value,
+	    project_id: selectedProject.value,
+	    task_list_id: selectedTasklist.value,
+	    priority: selectedPriority.value,
+	    privacy: selectedPrivacy.value,
+	    tags: selectedTags.value.map(tag => ({
+	      id: tag.id || null,
+	      label: tag.label,
+	      color: tag.color,
+	    })),
+	    estimated_time: estimated_time.value,
+	    start_date: start,
+	    end_date: end,
+	    user_ids: selectedUsers.value.map(user => user.id),
+	  }
+
+	  try {
+	    if (props.task && props.task.id) {
+	      const response = await axios.put(`/api/tasks/${props.task.id}`, payload)
+	      emit("task-updated", response.data)
+	    } else {
+	      const response = await axios.post('/api/tasks', payload)
+	      emit("task-created", response.data)
+	    }
+	    emit("close")
+	  } catch (error) {
+	    console.error('Task submission failed:', error)
+	    alert('Failed to submit the task. Please try again.')
+	  }
+	}
 </script>
 
 <template>
@@ -144,10 +247,10 @@
 	      </button>
 	      <div class="px-2 pr-14">
 	        <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-	          Add Task
+	          {{ props.task ? 'Edit Task' : 'Add Task' }}
 	        </h4>
 	        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400 lg:mb-4">
-	          Add a new task and assign it to a project or team member.
+	          {{ props.task ? 'Update the task details below.' : 'Add a new task and assign it to a project or team member.' }}
 	        </p>
 	      </div>
 	      <form class="flex flex-col" @submit.prevent="handleSubmit">
@@ -254,8 +357,7 @@
 	            			<div class="relative z-20 bg-transparent">
 	            				<MultiSelect
             				    v-model="selectedTags"
-            				    :options="tags"
-            				    :type="tags" />	            			  
+            				    :options="tags" />	            			  
 	            			</div>
 	            		</div>
 	            	</div>
@@ -266,7 +368,7 @@
 	            		v-model="taskDesc"
 	            	  placeholder="Add description..."
 	            	  rows="6"
-	            	  class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+	            	  class="custom-scrollbar dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
 	            	></textarea>
 	            </div>
 
@@ -282,7 +384,7 @@
 	          <button
 	            type="submit"
 	            class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto">
-	            Create Task
+	            {{ props.task ? 'Update Task' : 'Create Task' }}
 	          </button>
 	        </div>
 	      </form>

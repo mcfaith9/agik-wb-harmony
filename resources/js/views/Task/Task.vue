@@ -3,7 +3,7 @@
   import axios from "axios"
   import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue"
   import AdminLayout from "@/components/layout/AdminLayout.vue"
-  import AddTask from "@/views/Task/Modal/AddTask.vue"
+  import TaskForm from "@/views/Task/Modal/TaskForm.vue"
   import TaskCard from "@/views/Task/TaskCard.vue"
   import { 
   	Settings2, 
@@ -15,6 +15,7 @@
   const addTaskModal = ref(false)
   const selectedStatuses = ref<string[]>([])
   const tasks = computed(() => Array.from(taskMap.value.values()))
+  const selectedTask = ref<Task | null>(null)
   const taskMap = ref(new Map())
 
   onMounted(async () => {
@@ -57,6 +58,22 @@
     } catch (e) {
       console.error("Error updating task status", e)
     }
+  }
+
+  const handleTaskUpdated = (task) => {
+    console.log("Task to edit:", task)
+    selectedTask.value = task
+    addTaskModal.value = true
+  }
+
+  const handleTaskCreated = () => {
+    selectedTask.value = null
+    addTaskModal.value = true
+  }
+
+  function openAddTaskModal() {
+    selectedTask.value = null
+    addTaskModal.value = true
   }
 </script>
 
@@ -116,7 +133,7 @@
               <Settings2 class="w-4 h-4" />
               Filter & Sort
             </button>
-            <button @click="addTaskModal = true" class="inline-flex items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
+            <button  @click="openAddTaskModal" class="inline-flex items-center gap-2 rounded-full bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
               Add Task
               <CircleFadingPlus class="w-4 h-4" />
             </button>
@@ -137,7 +154,7 @@
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('todo')" 
               class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
-              <TaskCard :data="groupedTasks.todo" status="todo" @update-status="handleTaskDrop" />
+              <TaskCard :data="groupedTasks.todo" status="todo" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>
@@ -154,7 +171,7 @@
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('in_progress')" 
               class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
-              <TaskCard :data="groupedTasks.in_progress" status="in_progress" @update-status="handleTaskDrop" />
+              <TaskCard :data="groupedTasks.in_progress" status="in_progress" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>
@@ -171,13 +188,18 @@
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('completed')" 
               class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
-              <TaskCard :data="groupedTasks.completed" status="completed" @update-status="handleTaskDrop" />
+              <TaskCard :data="groupedTasks.completed" status="completed" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" />
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <AddTask :isOpen="addTaskModal" @close="addTaskModal = false" />
+    <TaskForm 
+      :isOpen="addTaskModal" 
+      :task="selectedTask"
+      @close="addTaskModal = false" 
+      @task-created="handleTaskCreated"
+      @task-updated="handleTaskUpdated" />
   </AdminLayout>
 </template>

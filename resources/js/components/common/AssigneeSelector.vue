@@ -54,6 +54,10 @@
     }
   }
 
+  function getAvatarUrl(user) {
+    return `https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${user.first_name}+${user.last_name}`
+  }
+
   onMounted(() => {
     document.addEventListener('click', handleClickOutside)
   })
@@ -70,8 +74,8 @@
         <template v-for="user in visibleSelectedUsers" :key="user.id">
           <img
             class="w-9 h-9 border-2 border-white rounded-full dark:border-gray-800"
-            :src="user.avatar"
-            :alt="user.name"/>
+            :src="getAvatarUrl(user)"
+            :alt="user.first_name + ' ' + user.last_name" />
         </template>
         <a
           class="flex items-center justify-center w-9 h-9 text-xs font-medium text-white bg-gray-700 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800"
