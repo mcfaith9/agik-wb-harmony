@@ -1,35 +1,41 @@
 <script setup>
-import { ref, onMounted } from "vue"
-import axios from "axios"
-import { 
-  ChevronRight,
-  Folder,
-  FolderOpen,
-  Settings
-} from "lucide-vue-next"
+  import { ref, onMounted } from "vue"
+  import axios from "axios"
+  import { 
+    ChevronRight,
+    Folder,
+    FolderOpen,
+    Settings
+  } from "lucide-vue-next"
 
-const projects = ref([])
+  const badgeClass = 'inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400 rounded-full'
 
-const fetchTree = async () => {
-  const { data } = await axios.get('/api/projects')
+  const projects = ref([])
+  
+  const fetchTree = async () => {
+    const { data } = await axios.get('/api/projects')
 
-  data.forEach((project, index) => {
-    project.expanded = index < 1
-    project.tasklists?.forEach(list => {
-      list.expanded = index < 1
+    data.forEach((project, index) => {
+      project.expanded = index < 1
+      project.tasklists?.forEach(list => {
+        list.expanded = index < 1
+      })
     })
+
+    projects.value = data
+  }
+
+  const toggle = (item) => {
+    item.expanded = !item.expanded
+  }
+
+  onMounted(() => {
+    fetchTree()
   })
 
-  projects.value = data
-}
-
-onMounted(fetchTree)
-
-const toggle = (item) => {
-  item.expanded = !item.expanded
-}
-
-const badgeClass = 'inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400 rounded-full'
+  defineExpose({ 
+    fetchTree 
+  })
 </script>
 
 <template>

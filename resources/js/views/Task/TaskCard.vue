@@ -18,7 +18,13 @@
   }>()
 
 	const dragging = ref<boolean>(false)
-	const tasks = computed(() => props.data)
+	const tasks = computed(() => {
+    return [...props.data].sort((a, b) => {
+      const dateA = new Date(a.created_at || a.start_date).getTime()
+      const dateB = new Date(b.created_at || b.start_date).getTime()
+      return dateB - dateA
+    })
+  })
 
 	const formatDateRange = (start: string, end: string) => {
 	  if (!start || !end) return ''

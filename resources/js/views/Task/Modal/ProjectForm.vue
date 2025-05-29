@@ -1,21 +1,30 @@
 <script setup lang="ts">	
-	import { ref } from 'vue'
+	import { ref, onMounted } from 'vue'
 	import axios from 'axios'
-	import { priorities, privacies, tags } from '@/stores/data.js'
+	import { priorities, privacies } from '@/stores/data.js'
 	import Modal from '@/components/common/Modal.vue'
 	import Input from '@/components/common/Input.vue'
 	import SingleSelect from '@/components/common/SingleSelect.vue'
 	import MultiSelect from '@/components/common/MultiSelect.vue'
-
 	import { 
 	  X,
 	  ChevronDown,
 	  UserRoundPlus,
 	} from "lucide-vue-next"
+
+	const props = defineProps<{
+	  isOpen: boolean
+	}>()
+
+	const emit = defineEmits<{
+	  (e: 'close'): void,
+	  (e: 'created'): void,
+	}>()
 	
+	const tags = ref<{ id?: string; label: string; color: string }[]>([])
 	const selectedPriority = ref<string | null>(null)
 	const selectedPrivacy = ref<string | null>(null)
-	const selectedTags = ref<Array<{ value: string; label: string }>>([])
+	const selectedTags = ref<{ id?: string; label: string; color: string }[]>([])
 	const projectName = ref<string>('')
 	const projectDesc = ref<string>('')
 
@@ -32,18 +41,27 @@
 	    await axios.post('/api/projects', payload)
 
 	    emit('close')
+	    emit('created')
 	  } catch (error) {
 	    console.error('Failed to create project:', error)
 	  }
 	}
 
-	const props = defineProps<{
-	  isOpen: boolean
-	}>()
+	async function loadInitialData() {
+	  try {
+	    const [tagRes] = await Promise.all([
+	      axios.get('/api/tags'),
+	    ])
 
-	const emit = defineEmits<{
-	  (e: 'close'): void
-	}>()
+	    tags.value = tagRes.data
+	  } catch (error) {
+	    console.error('Failed to load initial data:', error)
+	  }
+	}
+
+	onMounted(() => {
+	  loadInitialData()
+	})
 </script>
 
 <template>

@@ -33,9 +33,9 @@
 	}>()
 
 	const emit = defineEmits<{
-	  (e: 'close'): void
-	  (e: 'task-created', task: any): void
-	  (e: 'task-updated', task: any): void
+	  (e: 'close'): void,
+	  (e: 'task-created', task: any): void,
+	  (e: 'task-updated', task: any): void,
 	}>()
 
 	// Reactive form fields

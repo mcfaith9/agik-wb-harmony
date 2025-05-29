@@ -60,17 +60,27 @@
     }
   }
 
+  const upsertTask = (task) => {
+    const existingTask = taskMap.value.get(task.id)
+    if (existingTask) {
+      taskMap.value.set(task.id, { ...existingTask, ...task })
+    } else {
+      taskMap.value.set(task.id, task)
+    }
+  }
+
   const handleTaskUpdated = (task) => {
-    console.log("Task to edit:", task)
+    upsertTask(task)
     selectedTask.value = task
     addTaskModal.value = true
   }
 
-  const handleTaskCreated = () => {
+  const handleTaskCreated = (newTask) => {
+    upsertTask(newTask)
     selectedTask.value = null
     addTaskModal.value = true
   }
-
+  
   function openAddTaskModal() {
     selectedTask.value = null
     addTaskModal.value = true

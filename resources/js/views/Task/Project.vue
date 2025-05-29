@@ -17,6 +17,11 @@
 	const currentPageTitle = ref("Projects")
 	const addProjectModal = ref<Boolean>(false)
 	const createTagsModal = ref<Boolean>(false)
+	const projectTreeRef = ref()
+
+	const refreshProjectTree = () => {
+	  projectTreeRef.value?.fetchTree()
+	}
 </script>
 
 <template>
@@ -44,11 +49,14 @@
 	    		</div>
     	  </template>
 
-    	  <ProjectTree />	    
+    	  <ProjectTree ref="projectTreeRef" />	    
     	</ComponentCard>
 	  </div>
 
-	  <ProjectForm :isOpen="addProjectModal" @close="addProjectModal = false" />
+	  <ProjectForm 
+	  	:isOpen="addProjectModal" 
+	  	@close="addProjectModal = false" 
+	  	@created="refreshProjectTree" />
 	  <CreateTags :isOpen="createTagsModal" @close="createTagsModal = false" />
 	</AdminLayout>
 </template>
