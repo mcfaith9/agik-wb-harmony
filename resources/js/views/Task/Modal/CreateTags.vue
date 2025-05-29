@@ -1,11 +1,12 @@
 <script setup lang="ts">	
 	import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
-	import { tags, colorPalette } from '@/stores/data'
+	import { tags as staticTags, colorPalette } from '@/stores/data'
 	import Modal from '@/components/common/Modal.vue'
 	import { 
 	  X,
 	} from "lucide-vue-next"
 
+	const tags = ref([...staticTags])
 	const newTag = ref<string>('')
 	const newColor = ref('#4f46e5')
 	const activeDropdownIndex = ref<number | null>(null)
@@ -35,8 +36,8 @@
 	  newTag.value = ''
 	}
 
-	function removeTag(tag) {
-	  console.log(tag)
+	function removeTag(index: number) {
+	  tags.value.splice(index, 1)
 	}
 
 	function toggleDropdown(index, tag) {
@@ -44,14 +45,12 @@
 	    activeDropdownIndex.value = null
 	    removeDynamicListeners()
 	  } else {
+	  	editLabel.value = tag.label
+	  	editColor.value = tag.color
 	    activeDropdownIndex.value = index
-	    editLabel.value = tag.label
-	    editColor.value = tag.color
-
 	    nextTick(() => {
 	      updateDropdownPosition(index)
 	    })
-
 	    addDynamicListeners()
 	  }
 	}
@@ -160,6 +159,7 @@
                 <div class="select-none w-[10rem] rounded-2xl border border-gray-200 bg-white p-3 shadow-lg dark:border-gray-800 dark:bg-gray-900">
                   <input
                     v-model="editLabel"
+                    @input="tags[index].label = editLabel"
                     type="text"
                     class="dark:bg-dark-900 mb-2 h-8 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"/>
                   <div class="grid grid-cols-4 gap-2 mb-3">
