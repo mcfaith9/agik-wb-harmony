@@ -1,9 +1,15 @@
 <template>
-  <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-    <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90" x-text="pageTitle">
-      {{ pageTitle }}
-    </h2>
-    <nav>
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <div>
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+        {{ pageTitle }}
+      </h2>
+      <p v-if="pageDescription" class="text-xs text-gray-500 dark:text-gray-400">
+        {{ pageDescription }}
+      </p>
+    </div>
+
+    <nav class="shrink-0">
       <ol class="flex items-center gap-1.5">
         <li>
           <router-link
@@ -41,7 +47,8 @@
 import { defineProps } from 'vue'
 
 interface BreadcrumbProps {
-  pageTitle: string
+  pageTitle: string,
+  pageDescription?: string, 
 }
 
 defineProps<BreadcrumbProps>()

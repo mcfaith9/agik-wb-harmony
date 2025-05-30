@@ -8,7 +8,7 @@ const routes = [
     component: () => import('../views/Ecommerce.vue'),
     meta: {
       title: 'Dashboard',
-      description: 'Get a real-time overview of sales, revenue, and user activity across your platform.',
+      description: 'Monitor task progress, project performance, and team activity—all in one snapshot.',
       requiresAuth: true,
     },
   },
@@ -18,7 +18,7 @@ const routes = [
     component: () => import('../views/Workflow/Task.vue'),
     meta: {
       title: 'Tasks',
-      description: 'View, create, and manage your personal or team tasks efficiently.',
+      description: 'Stay productive—create, track, and complete tasks with ease.',
       requiresAuth: true,
     },
   },
@@ -28,7 +28,7 @@ const routes = [
     component: () => import('../views/Workflow/Project.vue'),
     meta: {
       title: 'Projects',
-      description: 'Browse and organize all your active and archived projects in one place.',
+      description: 'Organize your work—manage active and archived projects effortlessly.',
       requiresAuth: true,
     },
   },
@@ -38,7 +38,7 @@ const routes = [
     component: () => import('../views/Others/Calendar.vue'),
     meta: {
       title: 'Calendar',
-      description: 'Check your schedule and manage important events and deadlines.',
+      description: 'Never miss a deadline—view and plan events, meetings, and due dates.',
       requiresAuth: true,
     },
   },
@@ -48,36 +48,48 @@ const routes = [
     component: () => import('../views/Others/UserProfile.vue'),
     meta: {
       title: 'Profile',
-      description: 'Update your personal information, avatar, and account settings.',
+      description: 'Customize your experience—edit your info, avatar, and account settings.',
       requiresAuth: true,
     },
   },
   {
-    path: '/basic-tables',
-    name: 'Basic Tables',
-    component: () => import('../views/Tables/BasicTables.vue'),
+    path: '/admin/users',
+    name: 'Users',
+    component: () => import('../views/Admin/Users/UserList.vue'),
     meta: {
-      title: 'Basic Tables',
-      description: 'View structured data in a sortable and filterable table layout.',
+      title: 'User List',
+      description: 'Manage platform users—view, edit, and control user access effortlessly.',
       requiresAuth: true,
     },
   },
   {
-    path: '/line-chart',
-    name: 'Line Chart',
-    component: () => import('../views/Chart/LineChart/LineChart.vue'),
+    path: '/admin/roles',
+    name: 'Roles',
+    component: () => import('../views/Admin/Roles/RolesList.vue'),
     meta: {
-      title: 'Line Chart',
-      description: 'Visualize trends and performance over time with line graphs.',
+      title: 'Roles',
+      description: 'Define access—assign roles and permissions to control user capabilities.',
+      requiresAuth: true,
     },
   },
   {
-    path: '/bar-chart',
-    name: 'Bar Chart',
-    component: () => import('../views/Chart/BarChart/BarChart.vue'),
+    path: '/admin/settings',
+    name: 'Admin Settings',
+    component: () => import('../views/Admin/Settings/AdminSettings.vue'),
     meta: {
-      title: 'Bar Chart',
-      description: 'Analyze categorical data using customizable bar charts.',
+      title: 'Admin Settings',
+      description: 'Fine-tune system configurations and platform-wide administrative options.',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('../views/Settings.vue'),
+    meta: {
+      title: 'Settings',
+      description: 'Adjust your preferences—notifications, themes, and more.',
+      requiresAuth: true,
     },
   },
   {
@@ -86,7 +98,7 @@ const routes = [
     component: () => import('../views/Auth/Signin.vue'),
     meta: {
       title: 'Signin',
-      description: 'Access your account by signing in with your credentials.',
+      description: 'Welcome back—sign in to access your projects, tasks, and team.',
       guestOnly: true,
     },
   },
@@ -96,7 +108,7 @@ const routes = [
     component: () => import('../views/Auth/Signup.vue'),
     meta: {
       title: 'Signup',
-      description: 'Create a new account to start managing your projects and tasks.',
+      description: 'Get started—create your account and join the productivity movement.',
       guestOnly: true,
     },
   },

@@ -1,10 +1,16 @@
 <script setup>
-  import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon } from '@/icons'
   import { RouterLink } from 'vue-router'
   import { ref, onMounted, onUnmounted } from 'vue'
   import axios from 'axios'
   import { useRouter } from 'vue-router'
   import { userStore } from '@/stores/userStore'
+  import {
+    UserRoundPen,
+    UserRoundCog,
+    HeartHandshake,
+    DoorOpen,
+    ChevronDown
+  } from 'lucide-vue-next'
 
   const router = useRouter()
   const dropdownOpen = ref(false)
@@ -17,9 +23,9 @@
   })
 
   const menuItems = [
-    { href: '/profile', icon: UserCircleIcon, text: 'Edit profile' },
-    { href: '/#', icon: SettingsIcon, text: 'Account settings' },
-    { href: '/#', icon: InfoCircleIcon, text: 'Support' },
+    { href: '/profile', icon: UserRoundPen, text: 'Edit profile' },
+    { href: '/#', icon: UserRoundCog, text: 'Account settings' },
+    { href: '/#', icon: HeartHandshake, text: 'Support' },
   ]
 
   const toggleDropdown = () => {
@@ -79,10 +85,9 @@
       <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
         <img src="@/images/user/owner.jpg" alt="User" />
       </span>
-
+      
       <span class="block mr-1 font-medium text-theme-sm">{{ user.name }}</span>
-
-      <ChevronDownIcon :class="{ 'rotate-180': dropdownOpen }" />
+      <ChevronDown :class="{ 'rotate-180': dropdownOpen }" />
     </button>
 
     <!-- Dropdown Start -->
@@ -106,7 +111,7 @@
             <!-- SVG icon would go here -->
             <component
               :is="item.icon"
-              class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+              class="w-5 h-5 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
             />
             {{ item.text }}
           </router-link>
@@ -115,11 +120,8 @@
       <router-link
         to="/signin"
         @click="signOut"
-        class="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-      >
-        <LogoutIcon
-          class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
-        />
+        class="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+        <DoorOpen class="w-5 h-5 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
         Sign out
       </router-link>
     </div>

@@ -2,9 +2,6 @@ import BoxCubeIcon from "./BoxCubeIcon.vue";
 import TaskIcon from "./TaskIcon.vue";
 import ChatIcon from "./ChatIcon.vue";
 import MailIcon from "./MailIcon.vue";
-import DocsIcon from "./DocsIcon.vue";
-import PieChartIcon from "./PieChartIcon.vue";
-import UserCircleIcon from "./UserCircleIcon.vue";
 import ChevronDownIcon from "./ChevronDownIcon.vue";
 import HorizontalDots from "./HorizontalDots.vue";
 import PlugInIcon from "./PlugInIcon.vue";
@@ -63,11 +60,9 @@ export {
   BoxIcon,
   ChevronRightIcon,
   BoxCubeIcon,
-  UserCircleIcon,
   TaskIcon,
   ChatIcon,
   MailIcon,
-  DocsIcon,
   PieChartIcon,
   ChevronDownIcon,
   HorizontalDots,

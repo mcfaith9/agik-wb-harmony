@@ -61,7 +61,7 @@
 
 <template>
   <div class="grid grid-cols-9 divide-x divide-gray-200 dark:divide-gray-800">    
-    <aside class="col-span-2 w-full max-w-xs overflow-y-auto">
+    <aside class="col-span-2 w-full max-w-xs overflow-y-auto custom-scrollbar max-h-[26rem]">
       <div class="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-white/90">
         <Folder class="w-4 h-4" />
         <span>Categories</span>
