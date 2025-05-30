@@ -1,32 +1,53 @@
-<script setup>
+<script setup lang="ts">
   import { ref, onMounted } from "vue"
   import axios from "axios"
+  import TasklistForm from '@/views/Workflow/Modal/TasklistForm.vue'
   import { 
     ChevronRight,
     Folder,
     FolderOpen,
-    Settings
+    Settings,
+    CircleFadingPlus
   } from "lucide-vue-next"
 
   const badgeClass = 'inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400 rounded-full'
-
+  const projectRefs = {} as Record<number, HTMLElement>
   const projects = ref([])
+  const addTasklistModal = ref<Boolean>(false)
+  const tasklistParent = ref<{ id: number; name: string } | null>(null)
   
   const fetchTree = async () => {
     const { data } = await axios.get('/api/projects')
 
     data.forEach((project, index) => {
-      project.expanded = index < 1
+      project.expanded = index < 2
       project.tasklists?.forEach(list => {
-        list.expanded = index < 1
+        list.expanded = index < 2
       })
     })
 
     projects.value = data
   }
 
+  const scrollToProject = (projectId: number) => {
+    const el = projectRefs[projectId]
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
   const toggle = (item) => {
     item.expanded = !item.expanded
+  }
+
+  const openAddTasklistModal = (projectId: number, projectName: string) => {
+    tasklistParent.value = { 'id': projectId, 'name': projectName }
+    addTasklistModal.value = true
+  }
+
+  const onTasklistCreated = async () => {
+    addTasklistModal.value = false
+    await fetchTree()
   }
 
   onMounted(() => {
@@ -59,7 +80,9 @@
         </li>
 
         <li v-for="project in projects" :key="project.id" class="border-l border-gray-200 dark:border-white/10">
-          <div class="flex items-center text-sm text-gray-800 dark:text-white px-1">
+          <div
+            @click="scrollToProject(project.id)" 
+            class="cursor-pointer flex items-center text-sm text-gray-800 dark:text-white px-1">
             <span class="w-4 h-4 mr-1 inline-block"></span> 
             <span class="font-medium flex-1 truncate">
               {{ project.name }}
@@ -93,6 +116,7 @@
           <li 
             v-for="project in projects" 
             :key="project.id" 
+            :ref="el => projectRefs[project.id] = el"
             class="p-5 bg-white border border-gray-200 rounded-xl shadow-sm dark:border-gray-800 dark:bg-white/5">
             <div @click="toggle(project)" class="cursor-pointer flex items-center gap-2 text-sm text-gray-800 dark:text-white">
               <ChevronRight 
@@ -103,7 +127,7 @@
             </div>
 
             <ul v-if="project.expanded" class="ml-2 mt-2 pl-4 space-y-2 border-l border-gray-200 dark:border-white/10">
-              <li v-for="list in project.tasklists" :key="list.id">
+              <li v-for="list in project.tasklists" :key="list.id" class="mb-3">
                 <div @click="toggle(list)" class="cursor-pointer flex items-center gap-2 text-sm text-gray-800 dark:text-white">
                   <ChevronRight 
                     class="w-5 h-5 transition-transform duration-200" 
@@ -159,8 +183,18 @@
                         </span>
                       </div> 
                     </div>
-                  </li>
+                  </li>                  
                 </ul>
+              </li>
+              <li class="mt-4 w-[25%]">
+                <div class="flex items-center gap-2 mt-2">
+                  <button
+                    @click="openAddTasklistModal(project.id, project.name)"
+                    class="w-full inline-flex items-center rounded-lg border border-dashed border-gray-300 px-2 py-1 text-xs font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03]">
+                    <CircleFadingPlus class="w-3 h-3 mr-1" />
+                    <span>Create Tasklist</span>
+                  </button>
+                </div>
               </li>
             </ul>
           </li>
@@ -168,4 +202,10 @@
       </div>      
     </section>
   </div>
+
+  <TasklistForm 
+    :isOpen="addTasklistModal"
+    @close="addTasklistModal = false"
+    @created="onTasklistCreated"
+    :project="tasklistParent" />
 </template>

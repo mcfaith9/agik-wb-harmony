@@ -61,7 +61,7 @@
         </button>
         <div class="flex items-start justify-between">
           <div>
-            <div class="shrink-0 text-xs text-gray-500 dark:text-gray-400">
+            <div class="shrink-0 text-xs text-gray-500 dark:text-gray-400 uppercase">
               {{ task.privacy }}
             </div>
           	<div class="mb-2 text-xs text-gray-500 dark:text-gray-400">

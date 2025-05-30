@@ -1,5 +1,5 @@
 <script setup lang="ts">	
-	import { ref, onMounted } from 'vue'
+	import { ref, onMounted, watch } from 'vue'
 	import axios from 'axios'
 	import { priorities, privacies } from '@/stores/data.js'
 	import Modal from '@/components/common/Modal.vue'
@@ -11,7 +11,8 @@
 	} from "lucide-vue-next"
 
 	const props = defineProps<{
-	  isOpen: boolean
+	  isOpen: boolean,
+	  project?: { id: number; name: string } | null
 	}>()
 
 	const emit = defineEmits<{
@@ -19,51 +20,80 @@
 	  (e: 'created'): void,
 	}>()
 	
+	const selectedProject = ref<{ id: number; name: string } | null>(null)
+	const projectOptions = ref<{ label: string; value: number }[]>([])
 	const tags = ref<{ id?: string; label: string; color: string }[]>([])
 	const selectedPriority = ref<string | null>(null)
 	const selectedPrivacy = ref<string | null>(null)
 	const selectedTags = ref<{ id?: string; label: string; color: string }[]>([])
-	const projectName = ref<string>('')
-	const projectDesc = ref<string>('')
+	const tasklistName = ref<string>('')
+	const tasklistDesc = ref<string>('')
 
 	const submitForm = async () => {
 	  try {
+	    const projectId = props.project?.id ?? selectedProject.value;
 	    const payload = {
-	      name: projectName.value,
-	      description: projectDesc.value,
+	      name: tasklistName.value,
+	      description: tasklistDesc.value,
 	      priority: selectedPriority.value,
 	      privacy: selectedPrivacy.value,
-	      tags: selectedTags.value.map(tag => tag.value),
-	    }
+	      tags: selectedTags.value.map(tag => ({
+	        id: tag.id || null,
+	        label: tag.label,
+	        color: tag.color,
+	      })),
+	    };
 
-	    await axios.post('/api/projects', payload)
-
-	    emit('close')
-	    emit('created')
+	    await axios.post(`/api/projects/${projectId}/tasklists`, payload);
+	    resetForm();
+	    onTasklistCreated();
 	  } catch (error) {
-	    console.error('Failed to create project:', error)
+	    console.error('Failed to create tasklist:', error);
 	  }
+	}
+
+	const onTasklistCreated = () => {
+	  emit('created')
+	  emit('close')
 	}
 
 	async function loadInitialData() {
 	  try {
-	    const [tagRes] = await Promise.all([
+	    const [tagRes, projectRes] = await Promise.all([
 	      axios.get('/api/tags'),
+	      axios.get('/api/projects')
 	    ])
 
 	    tags.value = tagRes.data
+	    projectOptions.value = projectRes.data.map(p => ({ label: p.name, value: p.id }))
 	  } catch (error) {
 	    console.error('Failed to load initial data:', error)
 	  }
 	}
 
+	function resetForm() {
+	  selectedProject.value = null
+	  tasklistName.value = ''
+	  tasklistDesc.value = ''
+	  selectedPriority.value = null
+	  selectedPrivacy.value = null
+	  selectedTags.value = []
+	}
+
 	onMounted(() => {
 	  loadInitialData()
+
+	  if (props.project) {
+		 	selectedProject.value = {
+		   	label: props.project.name,
+		   	value: props.project.id
+		 	}
+		}
 	})
 </script>
 
 <template>
-	<Modal v-if="isOpen" @close="isOpen = false">
+	<Modal v-if="isOpen" @close="emit('close')">
 	  <template #body>
 	    <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
 	      <button
@@ -73,18 +103,36 @@
 	      </button>
 	      <div class="px-2 pr-14">
 	        <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-	          Add Project
+	          Create Tasklist
 	        </h4>
 	        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400 lg:mb-4">
-	          Create a new project by providing essential details.
+	          Create a new tasklist by providing essential details.
 	        </p>
 	      </div>
 	      <form class="flex flex-col" @submit.prevent="submitForm">
 	        <div class="px-2 overflow-y-auto custom-scrollbar">
 	          <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
 	            <div class="col-span-full">
+	            	<div v-if="project">
+	            		<label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+	            		  Assign to Project
+	            		</label>
+	            		<span class="text-md font-medium text-gray-800 dark:text-white/90">• {{ props.project?.name }}</span>
+	            	</div>
+            		<div v-else>
+            			<label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            			  Project
+            			</label>
+            			<SingleSelect 
+            				v-model="selectedProject"
+          				  :options="projectOptions"
+          				  placeholder="Select project" />
+            		</div>
+	            </div>
+
+	            <div class="col-span-full">
 	            	<Input 
-	            		v-model="projectName"
+	            		v-model="tasklistName"
             		  label="Task Name"
             		  placeholder="Enter Task Name"
             		  required />
@@ -99,8 +147,7 @@
 	            			<div class="relative z-20 bg-transparent">
 	            				<SingleSelect
             				    v-model="selectedPriority"
-            				    :options="priorities"
-            				    placeholder=""/>	            			  
+            				    :options="priorities" />	            			  
 	            			</div>
 	            		</div>
 
@@ -111,8 +158,7 @@
 	            			<div class="relative z-20 bg-transparent">
 	            				<SingleSelect
             				    v-model="selectedPrivacy"
-            				    :options="privacies"
-            				    placeholder=""/>	            			  
+            				    :options="privacies" />	            			  
 	            			</div>
 	            		</div>
 
@@ -131,7 +177,7 @@
 
 	            <div class="col-span-full">
 	            	<textarea
-	            		v-model="projectDesc"
+	            		v-model="tasklistDesc"
 	            	  placeholder="Add description..."
 	            	  rows="6"
 	            	  class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
@@ -150,7 +196,7 @@
 	          <button
 	            type="submit"
 	            class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto">
-	            Create Project
+	            Create Tasklist
 	          </button>
 	        </div>
 	      </form>

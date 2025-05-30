@@ -37,7 +37,7 @@ class TasklistController extends Controller
             'tags' => 'nullable|array',
         ]);
 
-        $validated['created_by'] = Auth::id();
+        $validated['created_by'] = auth()->id();
 
         $tasklist = $project->tasklists()->create($validated);
 

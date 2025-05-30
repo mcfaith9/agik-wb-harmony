@@ -1,40 +1,46 @@
 <script setup>
-import { ref } from 'vue'
-import { ChevronDown } from 'lucide-vue-next'
+  import { ref, onMounted } from 'vue'
+  import { ChevronDown } from 'lucide-vue-next'
 
-const props = defineProps({
-  modelValue: [String, Number, null],
-  options: {
-    type: Array,
-    default: () => []
-  },
-  placeholder: {
-    type: String,
-    default: 'Select Option'
-  },
-  required: {
-    type: Boolean,
-    default: false
+  const props = defineProps({
+    modelValue: [String, Number, null],
+    options: {
+      type: Array,
+      default: () => []
+    },
+    placeholder: {
+      type: String,
+      default: 'Select Option'
+    },
+    required: {
+      type: Boolean,
+      default: false
+    }
+  })
+
+  const emit = defineEmits(['update:modelValue'])
+
+  const isOpen = ref(false)
+
+  const toggleDropdown = () => {
+    isOpen.value = !isOpen.value
   }
-})
 
-const emit = defineEmits(['update:modelValue'])
+  const selectOption = (option) => {
+    emit('update:modelValue', option.value)
+    isOpen.value = false
+  }
 
-const isOpen = ref(false)
+  const getSelectedLabel = () => {
+    const found = props.options.find(o => o.value === props.modelValue)
+    return found ? found.label : props.placeholder
+  }
 
-const toggleDropdown = () => {
-  isOpen.value = !isOpen.value
-}
-
-const selectOption = (option) => {
-  emit('update:modelValue', option.value)
-  isOpen.value = false
-}
-
-const getSelectedLabel = () => {
-  const found = props.options.find(o => o.value === props.modelValue)
-  return found ? found.label : props.placeholder
-}
+  onMounted(() => {
+    if (props.modelValue == null && props.options.length > 0) {
+      emit('update:modelValue', props.options[0].value)
+    }
+  })
 </script>
 
 <template>
