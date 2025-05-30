@@ -12,7 +12,19 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        return Project::with('tasklists.tasks')->get();
+        $projects = Project::with('tasklists.tasks')->get();
+
+        $projects->each(function ($project) {
+            $project->tasklists->each(function ($tasklist) {
+                $tasklist->task_counts = [
+                    'todo' => $tasklist->tasks->where('status', 'todo')->count(),
+                    'in_progress' => $tasklist->tasks->where('status', 'in_progress')->count(),
+                    'completed' => $tasklist->tasks->where('status', 'completed')->count(),
+                ];
+            });
+        });
+
+        return response()->json($projects);
     }
 
     /**

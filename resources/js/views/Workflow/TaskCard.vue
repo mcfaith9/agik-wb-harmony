@@ -1,9 +1,10 @@
 <script setup lang="ts">
-	import { defineEmits, defineProps, ref, computed } from "vue"
+	import { ref, computed } from "vue"
 	import { format } from "date-fns"
 	import draggable from "vuedraggable"
   import { 
-    FilePenLine
+    Pencil,
+    Flag
   } from "lucide-vue-next"
 
 	const props = defineProps<{
@@ -55,16 +56,26 @@
     class="flex flex-col gap-5 py-2">
     <template #item="{ element: task }">
       <div class="relative p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
-        <button class="absolute top-1 left-1" @click="$emit('edit-task', task)">
-          <FilePenLine class="w-4 h-4 text-xs text-gray-500 dark:text-gray-400" />
+        <button class="absolute -top-1 right-2" @click="$emit('edit-task', task)">
+          <span class="text-xs text-gray-500 dark:text-gray-400">Edit</span>          
         </button>
         <div class="flex items-start justify-between">
           <div>
+            <div class="shrink-0 text-xs text-gray-500 dark:text-gray-400">
+              {{ task.privacy }}
+            </div>
           	<div class="mb-2 text-xs text-gray-500 dark:text-gray-400">
           	  {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }}
           	</div>
-            <h4 class="text-base text-gray-800 dark:text-white/90">
-              {{ task.name }}
+            <h4 class="relative flex items-start gap-1 w-64 text-base text-gray-800 dark:text-white/90">
+              <Flag 
+                :class="{
+                  'w-3 h-3 shrink-0': true,
+                  'text-red-500': task.priority === 'high',
+                  'text-yellow-500': task.priority === 'medium',
+                  'text-blue-500' : task.priority === 'low'
+                }" />
+              <span class="flex-1 truncate">{{ task.name }}</span>
             </h4>
             <div class="flex items-center gap-x-3">
               <span class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">

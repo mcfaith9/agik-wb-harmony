@@ -87,7 +87,7 @@
       </ul>
     </aside>
 
-    <section class="overflow-hidden col-span-7">
+    <section class="overflow-y-auto custom-scrollbar max-h-[26rem] col-span-7">
       <div class="px-4">
         <ul class="space-y-4">
           <li 
@@ -110,12 +110,42 @@
                     :class="{ 'rotate-90': list.expanded }" />
                   <FolderOpen class="w-4 h-4" />
                   <span class="font-medium">{{ list.name }}</span>
+                  <span 
+                    class="text-xs inline-flex items-center gap-1" 
+                    v-show="list.task_counts?.todo">
+                    <span class="w-2 h-2 rounded-full bg-gray-400 inline-block"></span>
+                    {{ list.task_counts.todo }} To Do
+                  </span>
+
+                  <span 
+                    class="text-xs inline-flex items-center gap-1" 
+                    v-show="list.task_counts?.in_progress">
+                    <span class="w-2 h-2 rounded-full bg-yellow-400 inline-block"></span>
+                    {{ list.task_counts.in_progress }} In Progress
+                  </span>
+
+                  <span 
+                    class="text-xs inline-flex items-center gap-1" 
+                    v-show="list.task_counts?.completed">
+                    <span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+                    {{ list.task_counts.completed }} Completed
+                  </span>
                 </div>
 
                 <ul v-if="list.expanded" class="ml-2 mt-2 space-y-2 text-sm text-gray-800 dark:text-white/90 border-l border-gray-200 dark:border-white/10 pl-4">
                   <li v-for="task in list.tasks" :key="task.id">
                     <div class="flex items-center gap-2">
-                      <span>{{ task.name }}</span>
+                      <span
+                        class="w-2 h-2 rounded-full mr-1"
+                        :class="{
+                          'bg-gray-400': task.status === 'todo',
+                          'bg-yellow-400': task.status === 'in_progress',
+                          'bg-green-500': task.status === 'completed'
+                        }">
+                      </span>
+                      <span :class="{ 'line-through text-gray-400': task.status === 'completed'}">
+                        {{ task.name }}
+                      </span>
                       <div class="flex flex-wrap gap-1">
                         <span
                           v-for="(tag, index) in task.tags"
