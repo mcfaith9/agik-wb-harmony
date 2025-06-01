@@ -43,7 +43,7 @@
                   <div v-for="(value, key) in calendarsEvents" :key="key" class="n-chk">
                     <div :class="`form-check form-check-${value} form-check-inline`">
                       <label
-                        class="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
+                        class="flex items-center select-none text-sm text-gray-700 form-check-label dark:text-gray-400"
                         :for="`modal${key}`"
                       >
                         <span class="relative">
@@ -56,7 +56,7 @@
                             class="sr-only form-check-input"
                           />
                           <span
-                            class="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700"
+                            class="flex items-center select-none justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700"
                           >
                             <span class="w-2 h-2 bg-white rounded-full dark:bg-transparent"></span>
                           </span>
@@ -94,21 +94,21 @@
             <div class="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
               <button
                 @click="closeModal"
-                class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
+                class="flex w-full justify-center rounded-full border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
               >
                 Close
               </button>
 
               <button
                 @click="handleAddOrUpdateEvent"
-                class="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
+                class="items-center gap-2 rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600"
               >
                 {{ selectedEvent ? 'Update Changes' : 'Add Event' }}
               </button>
               <button
                 v-if="selectedEvent"
                 @click="handleDeleteEvent"
-                class="flex w-full justify-center rounded-lg border border-error-500 bg-error-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-error-600 sm:w-auto"
+                class="flex w-full justify-center rounded-full border border-error-500 bg-error-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-error-600 sm:w-auto"
               >
                 Delete Event
               </button>
@@ -116,7 +116,7 @@
           </div>
         </template>
       </Modal>
-      <!-- <Teleport to="body">
+      <Teleport to="body">
         <div v-if="isOpen" class="modal-backdrop" @click="closeModal"></div>
         <div v-if="isOpen" class="modal">
           <div >
@@ -149,7 +149,7 @@
                   <div v-for="(value, key) in calendarsEvents" :key="key" class="n-chk">
                     <div :class="`form-check form-check-${value} form-check-inline`">
                       <label
-                        class="flex items-center text-sm text-gray-700 form-check-label dark:text-gray-400"
+                        class="flex items-center select-none text-sm text-gray-700 form-check-label dark:text-gray-400"
                         :for="`modal${key}`"
                       >
                         <span class="relative">
@@ -162,7 +162,7 @@
                             class="sr-only form-check-input"
                           />
                           <span
-                            class="flex items-center justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700"
+                            class="flex items-center select-none justify-center w-5 h-5 mr-2 border border-gray-300 rounded-full box dark:border-gray-700"
                           >
                             <span class="w-2 h-2 bg-white rounded-full dark:bg-transparent"></span>
                           </span>
@@ -200,20 +200,20 @@
             <div class="flex items-center gap-3 mt-6 modal-footer sm:justify-end">
               <button
                 @click="closeModal"
-                class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
+                class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
               >
                 Close
               </button>
               <button
                 @click="handleAddOrUpdateEvent"
-                class="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
+                class="btn btn-success btn-update-event flex w-full justify-center rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
               >
                 {{ selectedEvent ? 'Update Changes' : 'Add Event' }}
               </button>
             </div>
           </div>
         </div>
-      </Teleport> -->
+      </Teleport>
     </div>
   </AdminLayout>
 </template>
@@ -221,8 +221,6 @@
 <script setup>
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-
-const currentPageTitle = ref('Calendar')
 import { ref, reactive, onMounted } from 'vue'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -230,6 +228,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import Modal from '@/components/common/Modal.vue'
 
+const currentPageTitle = ref('Calendar')
 const calendarRef = ref(null)
 const isOpen = ref(false)
 const selectedEvent = ref(null)
@@ -367,9 +366,77 @@ const calendarOptions = reactive({
   eventContent: renderEventContent,
   customButtons: {
     addEventButton: {
-      text: 'Add Event +',
+      text: '',
       click: openModal,
     },
+  },
+  datesSet() {
+    setTimeout(() => {
+      const overrideNextBtn = (selector) => {
+        const btnEvent = document.querySelector(selector)
+        if (btnEvent) {
+          btnEvent.className = 'flex items-center justify-center w-8 h-8 text-gray-500 border-gray-200 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:h-8 lg:w-8 lg:border dark:border-gray-800'
+        }
+      }
+
+      overrideNextBtn(
+        '.fc-next-button',
+      )
+
+      const overridePrevBtn = (selector) => {
+        const btnEvent = document.querySelector(selector)
+        if (btnEvent) {
+          btnEvent.className = 'flex items-center justify-center w-8 h-8 text-gray-500 border-gray-200 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:h-8 lg:w-8 lg:border dark:border-gray-800'
+        }
+      }
+
+      overridePrevBtn(
+        '.fc-prev-button',
+      )
+
+      const overrideEventBtn = (selector, label) => {
+        const btnEvent = document.querySelector(selector)
+        if (btnEvent) {
+          btnEvent.className = 'inline-flex items-center gap-2 rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600'
+
+          btnEvent.innerHTML = ` <span>${label}</span>`
+        }
+      }
+
+      // Customize buttons
+      overrideEventBtn(
+        '.fc-addEventButton-button',
+        'Add Event',
+      )
+
+      const overrideButton = (selector, label) => {
+        const btn = document.querySelector(selector)
+        if (btn) {
+          const isActive = btn.classList.contains('fc-button-active')
+
+          // Apply Tailwind styles based on active state
+          btn.className = isActive
+            ? 'select-none inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-full h group text-gray-900 dark:text-white bg-white dark:bg-gray-800 shadow'
+            : 'select-none inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-full h group text-gray-900 dark:text-white'
+
+          // Style parent .fc-toolbar-chunk
+          const chunk = btn.closest('.fc-toolbar-chunk')
+          if (chunk) {
+            chunk.className = 'flex flex-wrap items-center gap-x-1 gap-y-2 rounded-full bg-gray-100 p-0.5 dark:bg-gray-900'
+          }
+        }
+      }
+
+      overrideButton(
+        '.fc-dayGridMonth-button',
+      )
+      overrideButton(
+        '.fc-timeGridWeek-button',
+      )
+      overrideButton(
+        '.fc-timeGridDay-button',
+      )
+    })
   },
 })
 </script>

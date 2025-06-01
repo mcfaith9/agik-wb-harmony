@@ -1,14 +1,11 @@
 <script setup>
 	import { ref, computed } from "vue"
-	import { useRoute } from "vue-router"
+	import { useRoute, useRouter } from "vue-router"
 	import {
 		ChatIcon,
 		MailIcon,
 		ChevronDownIcon,
 		HorizontalDots,
-		PageIcon,
-		TableIcon,
-		ListIcon,
 		PlugInIcon,
 	} from "../../icons"
 	import { 
@@ -25,6 +22,7 @@
 	import { useSidebar } from "@/composables/useSidebar"
 
 	const route = useRoute()
+	const router = useRouter()
 
 	const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar()
 
@@ -73,7 +71,19 @@
 	const isActive = (path) => route.path === path
 
 	const toggleSubmenu = (groupIndex, itemIndex) => {
+		const item = menuGroups[groupIndex].items[itemIndex]
 		const key = `${groupIndex}-${itemIndex}`
+
+		if (openSubmenu.value === key) return
+
+		if (item.subItems?.length) {
+			const firstSubItem = item.subItems[0]
+			// Navigate to the first subItem if not already active
+			if (route.path !== firstSubItem.path) {
+				router.push(firstSubItem.path)
+			}
+		}
+
 		openSubmenu.value = openSubmenu.value === key ? null : key
 	}
 
@@ -215,7 +225,7 @@
 									v-else-if="item.path"
 									:to="item.path"
 									:class="[
-										'menu-item group',
+										'menu-item group items-center',
 										{
 											'menu-item-active': isActive(item.path),
 											'menu-item-inactive': !isActive(item.path),
