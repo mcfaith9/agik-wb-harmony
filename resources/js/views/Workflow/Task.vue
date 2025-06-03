@@ -181,8 +181,27 @@
     scrollContainers = []
   }
 
-  function postComment() {
-    console.log('Comment:', commentText.value)
+  async function postComment() {
+    if (!commentText.value.trim() || !floatingCommentTaskId.value) return
+
+    try {
+      const taskId = floatingCommentTaskId.value
+      await axios.post(`/api/tasks/${taskId}/comments`, {
+        message: commentText.value
+      })
+
+      commentText.value = ''
+      closeFloatingComment()
+
+      const task = taskMap.value.get(taskId)
+      if (task) {
+        task.comments_count = (task.comments_count || 0) + 1
+        taskMap.value = new Map(taskMap.value)
+      }
+
+    } catch (e) {
+      console.error("Failed to post comment", e)
+    }
   }
 </script>
 
