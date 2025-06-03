@@ -1,0 +1,143 @@
+<script setup lang="ts">  
+	import { format } from "date-fns"
+	import { 
+	  Flag,
+    CloudUpload
+	} from "lucide-vue-next"
+
+	const props = defineProps<{
+	  task: Task,
+	}>()
+
+	const emit = defineEmits<{
+	  (e: 'edit-task'): void,
+	}>()
+
+	const formatDateRange = (date: string) => {
+	  if (!date) return ''
+	  return format(new Date(date), 'MMM d, yyyy')
+	}
+</script>
+
+<template>
+  <div class="flex flex-col gap-6 sm:flex-row sm:justify-between">
+    <div class="flex-1 space-y-4 overflow-hidden">
+      <div>
+        <button type="button" @click="emit('edit-task', task)">
+          <span class="text-sm text-gray-500 dark:text-gray-400 underline">Edit</span>
+        </button>
+      </div>
+
+      <div class="text-sm text-gray-500 dark:text-gray-400">        
+        {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }}
+      </div>
+
+      <div class="flex gap-8">
+      	<div>
+      		<label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Privacy</label>
+      		<span class="text-sm text-gray-500 uppercase dark:text-gray-400">
+      		  {{ task.privacy }}
+      		</span>
+      	</div>
+      	<div>
+      	  <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Start Date</label>
+      	  <span class="text-sm text-gray-500 dark:text-gray-400">
+      	    {{ formatDateRange(task.start_date) }}
+      	  </span>
+      	</div>
+      	<div>
+      		<label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Due Date</label>
+      		<span class="text-sm text-gray-500 dark:text-gray-400">
+      		  {{ formatDateRange(task.end_date) }}
+      		</span>
+      	</div>
+      </div>
+
+      <div class="flex gap-8">
+        <div>
+          <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Priority</label>
+          <div class="flex items-center gap-2">
+            <Flag 
+              :class="{
+                'w-4 h-4': true,
+                'text-red-500': task.priority === 'high',
+                'text-yellow-500': task.priority === 'medium',
+                'text-blue-500': task.priority === 'low'
+              }" 
+            />
+            <span class="text-sm capitalize text-gray-600 dark:text-gray-300">{{ task.priority }}</span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Estimated Time</label>
+          <span class="text-sm text-gray-500 dark:text-gray-400">{{ task.estimated_time }}</span>
+        </div>   
+        <div>
+          <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Progress</label>
+          <span class="text-sm text-gray-500 dark:text-gray-400">?</span>
+        </div>     
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Tags</label>
+        <div class="max-h-24 block pr-1 flex flex-wrap gap-1">
+          <span
+            v-for="(tag, index) in task.tags"
+            :key="index"
+            :class="[
+              'px-2 py-0.5 text-xs font-medium rounded-full inline-flex',
+              tag.color == null ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400' : 'text-white'
+            ]"
+            :style="tag.color ? { backgroundColor: tag.color } : null">
+            {{ tag.label || 'Uncategorized' }}
+          </span>
+        </div>
+      </div>      
+    </div>
+
+    <div>
+    	<label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Assignee</label>
+    	<div class="flex items-start">
+    	  <div class="flex -space-x-3 rtl:space-x-reverse">
+    	    <template v-if="task.users?.length > 0">
+    	      <template v-for="user in task.users" :key="user.id">
+    	        <img
+    	          v-if="user.first_name && user.last_name"
+    	          :src="`https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${user.first_name}+${user.last_name}`"
+    	          :alt="`${user.first_name} ${user.last_name}`"
+    	          class="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800"
+    	        />
+    	      </template>
+    	    </template>
+    	    <img
+    	      v-else
+    	      src="@/images/user/owner.jpg"
+    	      alt="default avatar"
+    	      class="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800" />
+    	  </div>
+    	</div>
+    </div>
+  </div>  
+
+  <div>
+    <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Files</label>
+    <div class="flex items-center justify-center w-full">
+      <label for="dropzone-file" class="flex flex-col items-center justify-center mt-2 w-full h-22 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-800 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+        <div class="flex flex-col items-center justify-center pt-6 pb-6">
+            <CloudUpload class="w-6 h-6 mb-1 text-gray-500 dark:text-gray-400" />
+            <p class="mb-2 text-xs text-gray-500 dark:text-gray-400">
+              <span class="font-semibold">Click to upload</span> or drag and drop</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
+        </div>
+        <input id="dropzone-file" type="file" class="hidden" />
+      </label>
+    </div>
+  </div> 
+
+  <div class="mt-6">
+    <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Comments</label>
+    <div class="flex">
+      <p class="text-xs text-gray-500 dark:text-gray-400">No comments yet. Be the first to share your thoughts!</p>
+    </div>
+  </div>
+</template>

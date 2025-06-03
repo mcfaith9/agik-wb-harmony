@@ -1,10 +1,14 @@
 <script setup lang="ts">
 	import { ref, computed } from "vue"
 	import { format } from "date-fns"
+  import { userStore } from "@/stores/userStore"
 	import draggable from "vuedraggable"
+  import Drawer from "@/components/common/Drawer.vue"
+  import TaskDrawer from "@/views/Workflow/TaskDrawer.vue"
   import { 
-    Pencil,
-    Flag
+    Flag,
+    MessageCircle,
+    Paperclip
   } from "lucide-vue-next"
 
 	const props = defineProps<{
@@ -13,11 +17,14 @@
   }>()
 
   const emit = defineEmits<{
-    (e: 'edit-task'): void
-    (e: 'update-status'): void
-    (e: 'update:data'): void
+    (e: 'edit-task'): void,
+    (e: 'update-status'): void,
+    (e: 'update:data'): void,
+    (e: 'toggle-comment'): void,
   }>()
 
+  const selectedTask = ref<Task | null>(null)
+  const showDrawer = ref<boolean>(false)
 	const dragging = ref<boolean>(false)
 	const tasks = computed(() => {
     return [...props.data].sort((a, b) => {
@@ -26,6 +33,8 @@
       return dateB - dateA
     })
   })
+
+  const user =  computed(() => userStore.user || {})
 
 	const formatDateRange = (start: string, end: string) => {
 	  if (!start || !end) return ''
@@ -38,6 +47,12 @@
 
 	  emit('update-status', { task, newStatus: props.status })
 	}
+
+  const openTaskDrawer = (task: Task) => {
+    if (dragging.value || !selectedTask || !showDrawer) return
+    selectedTask.value = task
+    showDrawer.value = true
+  }
 
 	const onDragStart = () => { dragging.value = true }
 	const onDragEnd = () => { dragging.value = false }
@@ -55,9 +70,9 @@
     :class="{ 'cursor-grabbing': dragging }"
     class="flex flex-col gap-5 py-2">
     <template #item="{ element: task }">
-      <div class="relative p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
-        <button class="absolute -top-1 right-2" @click="$emit('edit-task', task)">
-          <span class="text-xs text-gray-500 dark:text-gray-400">Edit</span>          
+      <div class="relative p-5 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">        
+        <button class="absolute -top-1 right-2" @click="openTaskDrawer(task)">
+          <span class="text-xs text-gray-500 dark:text-gray-400">View</span>          
         </button>
         <div class="flex items-start justify-between">
           <div>
@@ -96,7 +111,17 @@
                 :style="tag.color ? { backgroundColor: tag.color } : null">
                 {{ tag.label || 'Uncategorized' }}
               </span>
-            </div> 
+            </div>
+            <div class="flex absolute bottom-2 right-2 items-center gap-3 text-xs text-gray-500 cursor-pointer dark:text-gray-400">
+              <div class="inline-flex items-center gap-1">
+                <Paperclip class="w-4 h-4" />
+                <span class="leading-none">1</span>
+              </div>
+              <div class="inline-flex items-center gap-1 comment-icon" @click="(e) => $emit('toggle-comment', task.id, task.name, e)" :data-task-id="task.id">
+                <MessageCircle class="w-4 h-4" /> 
+                <span class="leading-none">8</span>
+              </div>
+            </div>         
           </div>
           <div
             v-if="task.users && task.users.length > 0" 
@@ -119,6 +144,36 @@
       </div>
     </template>
   </draggable>
+
+  <Drawer v-model="showDrawer" :title="selectedTask?.name">    
+    <template #body v-if="selectedTask">
+      <TaskDrawer :task="selectedTask" @edit-task="$emit('edit-task', $event)" />
+    </template>
+    <template #footer>
+      <div class="space-y-2">
+        <div class="flex items-start gap-3">
+          <img 
+            v-if="user.first_name && user.last_name"
+            :src="`https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${user.first_name}+${user.last_name}`"
+            :alt="`${user.first_name} ${user.last_name}`"
+            class="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800" />
+          <div class="flex-1">
+            <textarea 
+              rows="4" 
+              class="custom-scrollbar w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              placeholder="Write a comment..."></textarea>
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button 
+            type="button" 
+            class="rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
+            Post Comment
+          </button>
+        </div>
+      </div>
+    </template>
+  </Drawer>
 </template>
 
 <style scoped>

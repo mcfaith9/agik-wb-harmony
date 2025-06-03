@@ -1,11 +1,9 @@
 <script setup lang="ts">	
 	import axios from 'axios'
-	import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
+	import { ref, nextTick, onMounted } from 'vue'
 	import { tags as staticTags, colorPalette } from '@/stores/data'
 	import Modal from '@/components/common/Modal.vue'
-	import { 
-	  X,
-	} from "lucide-vue-next"
+	import { X } from 'lucide-vue-next'
 
 	const props = defineProps<{
 	  isOpen: boolean
@@ -21,7 +19,7 @@
 	const activeDropdownIndex = ref<number | null>(null)
 	const dropdownPosition = ref({ top: 0, left: 0 })
 	const editLabel = ref('')
-	const editColor = ref('')	
+	const editColor = ref('')
 
 	function addTag() {
 	  if (!newTag.value.trim()) return
@@ -44,15 +42,13 @@
 	function toggleDropdown(index, tag) {
 	  if (activeDropdownIndex.value === index) {
 	    activeDropdownIndex.value = null
-	    removeDynamicListeners()
 	  } else {
-	  	editLabel.value = tag.label
-	  	editColor.value = tag.color
+	    editLabel.value = tag.label
+	    editColor.value = tag.color
 	    activeDropdownIndex.value = index
 	    nextTick(() => {
 	      updateDropdownPosition(index)
 	    })
-	    addDynamicListeners()
 	  }
 	}
 
@@ -91,37 +87,6 @@
 	  }
 	}
 
-	function handleClickOutside(event: MouseEvent) {
-	  const dropdowns = document.querySelectorAll('.tag-dropdown')
-	  let clickedInside = false
-
-	  dropdowns.forEach((dropdown) => {
-	    if (dropdown.contains(event.target as Node)) {
-	      clickedInside = true
-	    }
-	  })
-
-	  if (!clickedInside) {
-	    activeDropdownIndex.value = null
-	  }
-	}
-
-	function addDynamicListeners() {
-	  window.addEventListener('scroll', handleDynamicPosition, true)
-	  window.addEventListener('resize', handleDynamicPosition)
-	}
-
-	function removeDynamicListeners() {
-	  window.removeEventListener('scroll', handleDynamicPosition, true)
-	  window.removeEventListener('resize', handleDynamicPosition)
-	}
-
-	function handleDynamicPosition() {
-	  if (activeDropdownIndex.value !== null) {
-	    updateDropdownPosition(activeDropdownIndex.value)
-	  }
-	}
-
 	onMounted(async () => {
 	  try {
 	    const res = await axios.get('/api/tags')
@@ -129,18 +94,11 @@
 	  } catch (error) {
 	    console.error('Failed to load tags:', error)
 	  }
-
-	  window.addEventListener('click', handleClickOutside)
-	})
-
-	onBeforeUnmount(() => {
-	  window.removeEventListener('click', handleClickOutside)
-	  removeDynamicListeners()
 	})
 </script>
 
 <template>
-	<Modal v-if="isOpen" @close="isOpen = false">
+	<Modal v-if="isOpen" @close="emit('close')">
 	  <template #body>
 	    <div class="no-scrollbar relative w-full max-w-[700px] overflow-hidden rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
 	      <button
@@ -153,7 +111,7 @@
 	          Create Tags
 	        </h4>
 	        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400 lg:mb-4">
-	          details here for tags creation
+	          Tag it, color it, make it yours — colorful chaos encouraged.
 	        </p>
 	      </div>     
 
@@ -175,6 +133,7 @@
             <Teleport to="body">
               <div
                 v-if="activeDropdownIndex === index"
+                v-click-outside="() => { activeDropdownIndex = null }"
                 class="fixed z-99999 left-0 top-0 tag-dropdown"
                 :style="getDropdownPosition()"
                 @click.stop>

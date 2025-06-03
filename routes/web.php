@@ -37,6 +37,11 @@ Route::middleware('auth')->group(function () {
                 return $user;
             });
         });
+
+        Route::get('/admin/users/list', function () {
+            return \App\Models\User::select('id', 'first_name', 'last_name', 'email', 'phone', 'email_verified_at')
+                ->paginate(request('per_page', 10));
+        });
     });
 });
 

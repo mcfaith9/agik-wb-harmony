@@ -38,7 +38,7 @@
 			          <Settings2 class="w-4 h-4" />
 			          Filter & Sort
 			        </button>
-			        <button @click="addTasklistModal = true" class="inline-flex items-center gap-2 rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
+			        <button @click="createTagsModal = true" class="inline-flex items-center gap-2 rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
 			          Tags
 			          <Tags class="w-4 h-4" />
 			        </button>

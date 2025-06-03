@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { onMounted, ref, computed } from "vue"
+  import { onMounted, ref, computed, onBeforeUnmount, nextTick } from "vue"
   import axios from "axios"
   import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue"
   import AdminLayout from "@/components/layout/AdminLayout.vue"
@@ -85,6 +85,105 @@
     selectedTask.value = null
     addTaskModal.value = true
   }
+
+  //comment logic
+  const commentText = ref('')
+  const floatingCommentVisible = ref(false)
+  const floatingCommentPos = ref({ top: 0, left: 0 })
+  const floatingCommentTaskId = ref<string | null>(null)
+  const floatingTaskName = ref<string | null>(null)
+
+  let scrollContainers: HTMLElement[] = []
+  let iconElement: HTMLElement | null = null
+
+  function updateFloatingCommentPosition() {
+    if (!iconElement) {
+      floatingCommentVisible.value = false
+      return
+    }
+
+    const iconRect = iconElement.getBoundingClientRect()
+    const commentBoxWidth = 300
+    const commentBoxHeight = 200
+    const padding = 8
+
+    let top = iconRect.bottom + window.scrollY + padding
+    let left = iconRect.left + window.scrollX
+
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+
+    // Correct right overflow
+    if (left + commentBoxWidth > viewportWidth + window.scrollX) {
+      left = viewportWidth + window.scrollX - commentBoxWidth - padding
+    }
+
+    // Correct bottom overflow
+    if (top + commentBoxHeight > viewportHeight + window.scrollY) {
+      top = iconRect.top + window.scrollY - commentBoxHeight - padding
+    }
+
+    // Ensure left doesn't go negative
+    if (left < window.scrollX + padding) {
+      left = window.scrollX + padding
+    }
+
+    floatingCommentPos.value = { top, left }
+    floatingCommentVisible.value = true
+  }
+
+  function onScrollOrResize() {
+    updateFloatingCommentPosition()
+  }
+
+  function toggleComment(taskId: string, taskName: string, event: MouseEvent) {
+    floatingCommentTaskId.value = taskId
+    floatingTaskName.value = taskName
+    iconElement = (event.target as HTMLElement).closest('.comment-icon') as HTMLElement | null
+
+    if (!iconElement) {
+      floatingCommentVisible.value = false
+      return
+    }
+
+    updateFloatingCommentPosition()
+
+    // Add scroll listeners on window and all scrollable parent containers
+    scrollContainers = []
+
+    // Find all scrollable parents (including window)
+    let el: HTMLElement | null = iconElement
+    while (el) {
+      const style = window.getComputedStyle(el)
+      if (el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth) {
+        scrollContainers.push(el)
+      }
+      el = el.parentElement
+    }
+    scrollContainers.push(window as any)
+
+    scrollContainers.forEach(container => {
+      container.addEventListener('scroll', onScrollOrResize, { passive: true })
+    })
+
+    window.addEventListener('resize', onScrollOrResize, { passive: true })
+  }
+
+  function closeFloatingComment() {
+    floatingCommentVisible.value = false
+    floatingCommentTaskId.value = null
+    floatingTaskName.value = null
+    iconElement = null
+    scrollContainers.forEach(container => {
+      container.removeEventListener('scroll', onScrollOrResize)
+    })
+    window.removeEventListener('resize', onScrollOrResize)
+    scrollContainers = []
+  }
+
+  function postComment() {
+    console.log('Comment:', commentText.value)
+  }
 </script>
 
 <template>
@@ -164,7 +263,7 @@
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('todo')" 
               class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
-              <TaskCard :data="groupedTasks.todo" status="todo" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" />
+              <TaskCard :data="groupedTasks.todo" status="todo" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" @toggle-comment="toggleComment" />
             </div>
           </div>
         </div>
@@ -181,7 +280,7 @@
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('in_progress')" 
               class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
-              <TaskCard :data="groupedTasks.in_progress" status="in_progress" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" />
+              <TaskCard :data="groupedTasks.in_progress" status="in_progress" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" @toggle-comment="toggleComment" />
             </div>
           </div>
         </div>
@@ -198,7 +297,7 @@
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('completed')" 
               class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
-              <TaskCard :data="groupedTasks.completed" status="completed" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" />
+              <TaskCard :data="groupedTasks.completed" status="completed" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" @toggle-comment="toggleComment" />
             </div>
           </div>
         </div>
@@ -211,5 +310,28 @@
       @close="addTaskModal = false" 
       @task-created="handleTaskCreated"
       @task-updated="handleTaskUpdated" />
+
+    <div
+      v-if="floatingCommentVisible"
+      class="absolute z-50 rounded-2xl border border-gray-200 bg-white p-3 shadow-lg dark:border-gray-700 dark:bg-gray-800 shadow-lg"
+      :style="{ top: `${floatingCommentPos.top}px`, left: `${floatingCommentPos.left}px`, width: '', height: '' }">
+      <div class="flex justify-between items-center mb-2">
+        <h4 class="flex items-center gap-3 text-sm font-medium text-gray-800 dark:text-white/90">Comments for Task {{ floatingTaskName }}</h4>
+        <button 
+          class="text-gray-500 dark:text-gray-400"
+          @click="closeFloatingComment">
+          <X class="w-4 h-4" />
+        </button>
+      </div>
+      <!-- comment form -->
+      <textarea 
+        rows="4" 
+        v-model="commentText"
+        class="custom-scrollbar dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" 
+        placeholder="Write a comment..."></textarea>
+      <button 
+        class="inline-flex right-0 items-center gap-2 rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600"
+        @click="postComment">Post Comment</button>
+    </div>
   </AdminLayout>
 </template>
