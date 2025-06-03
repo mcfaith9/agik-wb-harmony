@@ -16,7 +16,9 @@ class TaskController extends Controller
         $tasks = Task::with([
                     'tasklist.project', 
                     'users:id,first_name,last_name'
-                ])->get();
+                ])
+                ->withCount('comments')
+                ->get();
 
         return response()->json($tasks);
     }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-	import { ref, computed } from "vue"
+	import { ref, computed, watch } from "vue"
 	import { format } from "date-fns"
   import { userStore } from "@/stores/userStore"
+  import axios from "axios"
 	import draggable from "vuedraggable"
   import Drawer from "@/components/common/Drawer.vue"
   import TaskDrawer from "@/views/Workflow/TaskDrawer.vue"
@@ -23,6 +24,8 @@
     (e: 'toggle-comment'): void,
   }>()
 
+  const newComment = ref("")
+  const comments = ref<Comments[]>([])
   const selectedTask = ref<Task | null>(null)
   const showDrawer = ref<boolean>(false)
 	const dragging = ref<boolean>(false)
@@ -53,6 +56,30 @@
     selectedTask.value = task
     showDrawer.value = true
   }
+
+  const postComment = async () => {
+    if (!newComment.value.trim() || !selectedTask.value) return;
+
+    const { data } = await axios.post(`/api/tasks/${selectedTask.value.id}/comments`, {
+      message: newComment.value
+    });
+
+    comments.value.unshift(data);
+    newComment.value = "";
+
+    const task = tasks.value.find(t => t.id === selectedTask.value?.id)
+    if (task) task.comments_count = (task.comments_count || 0) + 1;
+  }
+
+  const fetchComments = async () => {
+    if (!selectedTask.value) return
+    const { data } = await axios.get(`/api/tasks/${selectedTask.value.id}/comments`)
+    comments.value = data
+  }
+
+  watch(selectedTask, (task) => {
+    if (task) fetchComments()
+  })
 
 	const onDragStart = () => { dragging.value = true }
 	const onDragEnd = () => { dragging.value = false }
@@ -119,7 +146,7 @@
               </div>
               <div class="inline-flex items-center gap-1 comment-icon" @click="(e) => $emit('toggle-comment', task.id, task.name, e)" :data-task-id="task.id">
                 <MessageCircle class="w-4 h-4" /> 
-                <span class="leading-none">8</span>
+                <span class="leading-none">{{ task.comments_count }}</span>
               </div>
             </div>         
           </div>
@@ -147,7 +174,7 @@
 
   <Drawer v-model="showDrawer" :title="selectedTask?.name">    
     <template #body v-if="selectedTask">
-      <TaskDrawer :task="selectedTask" @edit-task="$emit('edit-task', $event)" />
+      <TaskDrawer :task="selectedTask" :comments="comments" @edit-task="$emit('edit-task', $event)" />
     </template>
     <template #footer>
       <div class="space-y-2">
@@ -160,6 +187,7 @@
           <div class="flex-1">
             <textarea 
               rows="4" 
+              v-model="newComment"
               class="custom-scrollbar w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
               placeholder="Write a comment..."></textarea>
           </div>
@@ -167,6 +195,7 @@
         <div class="flex justify-end">
           <button 
             type="button" 
+            @click="postComment"
             class="rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
             Post Comment
           </button>

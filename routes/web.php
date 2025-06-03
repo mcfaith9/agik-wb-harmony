@@ -6,6 +6,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskListController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TagController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -27,8 +28,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('projects.tasklists', TaskListController::class);
         Route::resource('tasks', TaskController::class);
 
+        // Tags
         Route::get('/tags', [TagController::class, 'index']);
         Route::put('/tags/{id}', [TagController::class, 'update']);
+
+        // Comment
+        Route::get('/tasks/{task}/comments', [CommentController::class, 'index']);
+        Route::post('/tasks/{task}/comments', [CommentController::class, 'store']);
 
         Route::get('/users', function () {
             return \App\Models\User::select('id', 'first_name', 'last_name')->get()->map(function ($user) {

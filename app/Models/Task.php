@@ -38,6 +38,10 @@ class Task extends Model
         return $this->morphToMany(Tag::class, 'taggable');
     }
 
+    public function comments() {
+        return $this->hasMany(Comment::class);
+    }
+
     public function users()
     {
         return $this->belongsToMany(User::class);
