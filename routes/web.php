@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
@@ -36,13 +37,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/tasks/{task}/comments', [CommentController::class, 'index']);
         Route::post('/tasks/{task}/comments', [CommentController::class, 'store']);
 
-        Route::get('/users', function () {
-            return \App\Models\User::select('id', 'first_name', 'last_name')->get()->map(function ($user) {
-                $user->name = $user->first_name . ' ' . $user->last_name;
-                $user->avatar = 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
-                return $user;
-            });
-        });
+        // Users
+        Route::get('/app/users', [UserController::class, 'index']);
+        Route::get('/users', [UserController::class, 'assignees']);
 
         Route::get('/admin/users/list', function () {
             return \App\Models\User::select('id', 'first_name', 'last_name', 'email', 'phone', 'email_verified_at')

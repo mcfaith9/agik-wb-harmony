@@ -5,6 +5,8 @@
   import AdminLayout from "@/components/layout/AdminLayout.vue"
   import TaskForm from "@/views/Workflow/Modal/TaskForm.vue"
   import TaskCard from "@/views/Workflow/TaskCard.vue"
+  import MentionTextarea from "@/components/common/MentionTextarea.vue"
+  import { users, fetchUsers } from '@/stores/allUsers'
   import { 
   	Settings2, 
   	CircleFadingPlus,
@@ -23,8 +25,9 @@
     const map = new Map()
     res.data.forEach(task => map.set(task.id, task))
     taskMap.value = map
-  })
 
+    await fetchUsers()
+  })
 
   const groupedTasks = computed(() => {
     const groups = { todo: [], in_progress: [], completed: [] }
@@ -137,6 +140,7 @@
   }
 
   function toggleComment(taskId: string, taskName: string, event: MouseEvent) {
+    commentText.value = ''
     floatingCommentTaskId.value = taskId
     floatingTaskName.value = taskName
     iconElement = (event.target as HTMLElement).closest('.comment-icon') as HTMLElement | null
@@ -282,7 +286,7 @@
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('todo')" 
               class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
-              <TaskCard :data="groupedTasks.todo" status="todo" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" @toggle-comment="toggleComment" />
+              <TaskCard :users="users" :data="groupedTasks.todo" status="todo" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" @toggle-comment="toggleComment" />
             </div>
           </div>
         </div>
@@ -299,7 +303,7 @@
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('in_progress')" 
               class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
-              <TaskCard :data="groupedTasks.in_progress" status="in_progress" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" @toggle-comment="toggleComment" />
+              <TaskCard :users="users" :data="groupedTasks.in_progress" status="in_progress" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" @toggle-comment="toggleComment" />
             </div>
           </div>
         </div>
@@ -316,7 +320,7 @@
             <div
               v-if="selectedStatuses.length === 0 || selectedStatuses.includes('completed')" 
               class="overflow-y-auto max-h-[600px] custom-scrollbar p-2 space-y-5 mt-1 cursor-grab">
-              <TaskCard :data="groupedTasks.completed" status="completed" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" @toggle-comment="toggleComment" />
+              <TaskCard :users="users" :data="groupedTasks.completed" status="completed" @edit-task="handleTaskUpdated" @update-status="handleTaskDrop" @toggle-comment="toggleComment" />
             </div>
           </div>
         </div>
@@ -343,11 +347,11 @@
         </button>
       </div>
       <!-- comment form -->
-      <textarea 
-        rows="4" 
-        v-model="commentText"
-        class="custom-scrollbar dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" 
-        placeholder="Write a comment..."></textarea>
+
+      <MentionTextarea 
+        v-model="commentText" 
+        :key="floatingCommentTaskId"
+        :users="users" />
       <button 
         class="inline-flex right-0 items-center gap-2 rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600"
         @click="postComment">Post Comment</button>

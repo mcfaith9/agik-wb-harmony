@@ -1,11 +1,12 @@
 <script setup lang="ts">
-	import { ref, computed, watch } from "vue"
+	import { ref, computed, watch, onMounted } from "vue"
 	import { format } from "date-fns"
   import { userStore } from "@/stores/userStore"
   import axios from "axios"
 	import draggable from "vuedraggable"
   import Drawer from "@/components/common/Drawer.vue"
   import TaskDrawer from "@/views/Workflow/TaskDrawer.vue"
+  import MentionTextarea from "@/components/common/MentionTextarea.vue"
   import { 
     Flag,
     MessageCircle,
@@ -13,7 +14,8 @@
   } from "lucide-vue-next"
 
 	const props = defineProps<{
-    data: Task[],
+    users: Users[]
+    data: Task[]
     status: string
   }>()
 
@@ -29,15 +31,14 @@
   const selectedTask = ref<Task | null>(null)
   const showDrawer = ref<boolean>(false)
 	const dragging = ref<boolean>(false)
+  const user =  computed(() => userStore.user || {})
 	const tasks = computed(() => {
     return [...props.data].sort((a, b) => {
       const dateA = new Date(a.created_at || a.start_date).getTime()
       const dateB = new Date(b.created_at || b.start_date).getTime()
       return dateB - dateA
     })
-  })
-
-  const user =  computed(() => userStore.user || {})
+  })  
 
 	const formatDateRange = (start: string, end: string) => {
 	  if (!start || !end) return ''
@@ -142,11 +143,11 @@
             <div class="flex absolute bottom-2 right-2 items-center gap-3 text-xs text-gray-500 cursor-pointer dark:text-gray-400">
               <div class="inline-flex items-center gap-1">
                 <Paperclip class="w-4 h-4" />
-                <span class="leading-none">1</span>
+                <span class="leading-none"></span>
               </div>
               <div class="inline-flex items-center gap-1 comment-icon" @click="(e) => $emit('toggle-comment', task.id, task.name, e)" :data-task-id="task.id">
                 <MessageCircle class="w-4 h-4" /> 
-                <span class="leading-none">{{ task.comments_count }}</span>
+                <span class="leading-none">{{ task.comments_count || ''}}</span>
               </div>
             </div>         
           </div>
@@ -183,13 +184,11 @@
             v-if="user.first_name && user.last_name"
             :src="`https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${user.first_name}+${user.last_name}`"
             :alt="`${user.first_name} ${user.last_name}`"
-            class="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800" />
+            class="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800" />            
           <div class="flex-1">
-            <textarea 
-              rows="4" 
-              v-model="newComment"
-              class="custom-scrollbar w-full resize-none rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
-              placeholder="Write a comment..."></textarea>
+            <MentionTextarea 
+              v-model="newComment" 
+              :users="users" />
           </div>
         </div>
         <div class="flex justify-end">
