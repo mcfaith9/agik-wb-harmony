@@ -1,10 +1,14 @@
 <script setup lang="ts">
   import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
-  import { X } from "lucide-vue-next"
+  import { 
+    X,
+    Flag
+  } from "lucide-vue-next"
 
   const props = defineProps<{
     modelValue: boolean,
     title?: string,
+    priority?: string
   }>()
 
   const emit = defineEmits(['update:modelValue'])
@@ -51,7 +55,18 @@
       v-if="modelValue"
       class="cursor-default fixed right-0 top-0 z-[99999] h-full w-full max-w-md bg-white shadow-lg dark:bg-gray-900 flex flex-col">
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">{{ title }}</h2>
+        <h2 class="flex text-lg font-semibold text-gray-800 dark:text-white">
+          <Flag 
+            v-if="priority"
+            :class="{
+              'w-4 h-4 shrink-0 mr-1': true,
+              'text-gray-300': priority === 'none',
+              'text-red-500': priority === 'high',
+              'text-yellow-500': priority === 'medium',
+              'text-blue-500' : priority === 'low'
+            }" />
+          <span>{{ title }}</span>
+        </h2>
         <button
           @click="closeDrawer"
           class=" z-999 flex h-4 w-4 items-center justify-center text-gray-400 dark:text-gray-400">

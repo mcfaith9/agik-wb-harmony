@@ -9,8 +9,12 @@
 	import AssigneeSelector from '@/components/common/AssigneeSelector.vue'
 	import flatPickr from 'vue-flatpickr-component'
 	import 'flatpickr/dist/themes/airbnb.css'
-
-	import { X, CalendarRange } from "lucide-vue-next"
+	import { users as allUsers } from '@/stores/allUsers'
+	import { tags as allTags } from '@/stores/allTags'
+	import { 
+		X, 
+		CalendarRange 
+	} from "lucide-vue-next"
 
 	interface Task {
 	  id?: number | string
@@ -72,18 +76,16 @@
 
 	async function loadInitialData() {
 	  try {
-	    const [projectRes, userRes, tagRes] = await Promise.all([
+	    const [projectRes] = await Promise.all([
 	      axios.get('/api/projects'),
-	      axios.get('/api/app/users'),
-	      axios.get('/api/tags'),
 	    ])
 
 	    projectOptions.value = projectRes.data.map((p: any) => ({
 	      label: p.name,
 	      value: p.id.toString(),
 	    }))
-	    users.value = userRes.data
-	    tags.value = tagRes.data
+	    users.value = allUsers
+	    tags.value = allTags
 	  } catch (error) {
 	    console.error('Failed to load initial data:', error)
 	  }

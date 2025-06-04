@@ -34,7 +34,7 @@
 					icon: LibraryBig,
 					name: "Work",
 					subItems: [
-						{ icon: LayoutDashboard, name: "Dashboard", path: "/", pro: false },
+						// { icon: LayoutDashboard, name: "Dashboard", path: "/", pro: false },
 						{ icon: ScrollText, name: "Tasks", path: "/tasks", pro: false },
 						{ icon: Scroll, name: "Projects", path: "/projects", pro: false },
 					],

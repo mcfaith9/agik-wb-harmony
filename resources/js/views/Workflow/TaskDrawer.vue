@@ -1,7 +1,6 @@
 <script setup lang="ts">  
 	import { format } from "date-fns"
 	import { 
-	  Flag,
     CloudUpload,
     MessageCircleReply,
 	} from "lucide-vue-next"
@@ -23,6 +22,10 @@
   const avatar = (fname: string, lname: string) => {
     return `https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${fname}+${lname}`
   }
+
+  const highlightMentions = (message: string) => {
+    return message.replace(/(@[A-Za-z]+(?:\s[A-Za-z]+)?)/g, '<span class="font-medium text-blue-500">$1</span>');
+  }
 </script>
 
 <template>
@@ -34,26 +37,26 @@
         </button>
       </div>
 
-      <div class="text-sm text-gray-500 dark:text-gray-400">        
+      <div class="text-sm text-gray-600 dark:text-gray-300">        
         {{ task.tasklist?.project?.name }} • {{ task.tasklist?.name }}
       </div>
 
       <div class="flex gap-8">
       	<div>
       		<label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Privacy</label>
-      		<span class="text-sm text-gray-500 uppercase dark:text-gray-400">
+      		<span class="text-sm text-gray-600 uppercase dark:text-gray-300">
       		  {{ task.privacy }}
       		</span>
       	</div>
       	<div>
       	  <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Start Date</label>
-      	  <span class="text-sm text-gray-500 dark:text-gray-400">
+      	  <span class="text-sm text-gray-600 dark:text-gray-300">
       	    {{ formatDate(task.start_date) }}
       	  </span>
       	</div>
       	<div>
       		<label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Due Date</label>
-      		<span class="text-sm text-gray-500 dark:text-gray-400">
+      		<span class="text-sm text-gray-600 dark:text-gray-300">
       		  {{ formatDate(task.end_date) }}
       		</span>
       	</div>
@@ -63,24 +66,16 @@
         <div>
           <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Priority</label>
           <div class="flex items-center gap-2">
-            <Flag 
-              :class="{
-                'w-4 h-4': true,
-                'text-red-500': task.priority === 'high',
-                'text-yellow-500': task.priority === 'medium',
-                'text-blue-500': task.priority === 'low'
-              }" 
-            />
             <span class="text-sm capitalize text-gray-600 dark:text-gray-300">{{ task.priority }}</span>
           </div>
         </div>
         <div>
           <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Estimated Time</label>
-          <span class="text-sm text-gray-500 dark:text-gray-400">{{ task.estimated_time }}</span>
+          <span class="text-sm text-gray-600 dark:text-gray-300">{{ task.estimated_time }}</span>
         </div>   
         <div>
           <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Progress</label>
-          <span class="text-sm text-gray-500 dark:text-gray-400">?</span>
+          <span class="text-sm text-gray-600 dark:text-gray-300">?</span>
         </div>     
       </div>
 
@@ -163,7 +158,9 @@
           </div>
         </div>
 
-        <p class="ml-2 text-xs text-gray-500 dark:text-gray-400">{{ comment.message }}</p>
+        <p
+          v-html="highlightMentions(comment.message)" 
+          class="ml-2 text-xs text-gray-500 dark:text-gray-400"></p>
         <div class="flex items-center mt-4 ml-2 space-x-4">
           <button 
             type="button"

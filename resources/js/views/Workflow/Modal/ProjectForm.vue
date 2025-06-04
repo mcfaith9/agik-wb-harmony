@@ -2,6 +2,7 @@
 	import { ref, onMounted } from 'vue'
 	import axios from 'axios'
 	import { priorities, privacies } from '@/stores/data.js'
+	import { tags as allTags } from '@/stores/allTags'
 	import Modal from '@/components/common/Modal.vue'
 	import Input from '@/components/common/Input.vue'
 	import SingleSelect from '@/components/common/SingleSelect.vue'
@@ -45,20 +46,8 @@
 	  }
 	}
 
-	async function loadInitialData() {
-	  try {
-	    const [tagRes] = await Promise.all([
-	      axios.get('/api/tags'),
-	    ])
-
-	    tags.value = tagRes.data
-	  } catch (error) {
-	    console.error('Failed to load initial data:', error)
-	  }
-	}
-
 	onMounted(() => {
-	  loadInitialData()
+	  tags.value = allTags
 	})
 </script>
 

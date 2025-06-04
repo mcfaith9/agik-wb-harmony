@@ -7,6 +7,7 @@
 	import CreateTags from "@/views/Workflow/Modal/CreateTags.vue"
 	import ProjectTree from "@/views/Workflow/ProjectTree.vue"
 	import TasklistForm from '@/views/Workflow/Modal/TasklistForm.vue'
+	import { users } from '@/stores/allUsers'
 
 	import { 
 		Settings2, 
@@ -54,7 +55,7 @@
 	    		</div>
     	  </template>
 
-    	  <ProjectTree ref="projectTreeRef" />	    
+    	  <ProjectTree ref="projectTreeRef" :users="users" />	    
     	</ComponentCard>
 	  </div>
 

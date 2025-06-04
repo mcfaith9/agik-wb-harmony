@@ -140,7 +140,7 @@
                 {{ tag.label || 'Uncategorized' }}
               </span>
             </div>
-            <div class="flex absolute bottom-2 right-2 items-center gap-3 text-xs text-gray-500 cursor-pointer dark:text-gray-400">
+            <div class="flex absolute bottom-2 right-2 items-center gap-2 text-xs text-gray-500 cursor-pointer dark:text-gray-400">
               <div class="inline-flex items-center gap-1">
                 <Paperclip class="w-4 h-4" />
                 <span class="leading-none"></span>
@@ -173,7 +173,7 @@
     </template>
   </draggable>
 
-  <Drawer v-model="showDrawer" :title="selectedTask?.name">    
+  <Drawer v-model="showDrawer" :title="selectedTask?.name" :priority="selectedTask?.priority">    
     <template #body v-if="selectedTask">
       <TaskDrawer :task="selectedTask" :comments="comments" @edit-task="$emit('edit-task', $event)" />
     </template>
@@ -188,6 +188,7 @@
           <div class="flex-1">
             <MentionTextarea 
               v-model="newComment" 
+              :placeholder="'Type @ to mention'"
               :users="users" />
           </div>
         </div>

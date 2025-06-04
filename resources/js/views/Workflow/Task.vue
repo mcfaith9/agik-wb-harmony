@@ -6,7 +6,7 @@
   import TaskForm from "@/views/Workflow/Modal/TaskForm.vue"
   import TaskCard from "@/views/Workflow/TaskCard.vue"
   import MentionTextarea from "@/components/common/MentionTextarea.vue"
-  import { users, fetchUsers } from '@/stores/allUsers'
+  import { users } from '@/stores/allUsers'
   import { 
   	Settings2, 
   	CircleFadingPlus,
@@ -25,8 +25,6 @@
     const map = new Map()
     res.data.forEach(task => map.set(task.id, task))
     taskMap.value = map
-
-    await fetchUsers()
   })
 
   const groupedTasks = computed(() => {
@@ -339,22 +337,26 @@
       class="absolute z-50 rounded-2xl border border-gray-200 bg-white p-3 shadow-lg dark:border-gray-700 dark:bg-gray-800 shadow-lg"
       :style="{ top: `${floatingCommentPos.top}px`, left: `${floatingCommentPos.left}px`, width: '', height: '' }">
       <div class="flex justify-between items-center mb-2">
-        <h4 class="flex items-center gap-3 text-sm font-medium text-gray-800 dark:text-white/90">Comments for Task {{ floatingTaskName }}</h4>
+        <h4 class="flex items-center gap-3 text-sm font-medium text-gray-800 dark:text-white/90">Task {{ floatingTaskName }}</h4>
         <button 
           class="text-gray-500 dark:text-gray-400"
           @click="closeFloatingComment">
           <X class="w-4 h-4" />
         </button>
       </div>
-      <!-- comment form -->
 
       <MentionTextarea 
         v-model="commentText" 
+        :placeholder="'Message...'"
         :key="floatingCommentTaskId"
         :users="users" />
-      <button 
-        class="inline-flex right-0 items-center gap-2 rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600"
-        @click="postComment">Post Comment</button>
+      <div class="flex justify-end mt-2">
+        <button
+          class="inline-flex items-center gap-2 rounded-full bg-brand-500 px-3 py-1.5 text-xs font-medium text-white shadow-theme-xs hover:bg-brand-600"
+          @click="postComment">
+          Post Comment
+        </button>
+      </div>
     </div>
   </AdminLayout>
 </template>

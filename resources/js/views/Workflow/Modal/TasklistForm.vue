@@ -2,6 +2,7 @@
 	import { ref, onMounted, watch } from 'vue'
 	import axios from 'axios'
 	import { priorities, privacies } from '@/stores/data.js'
+	import { tags as allTags } from '@/stores/allTags'
 	import Modal from '@/components/common/Modal.vue'
 	import Input from '@/components/common/Input.vue'
 	import SingleSelect from '@/components/common/SingleSelect.vue'
@@ -59,12 +60,10 @@
 
 	async function loadInitialData() {
 	  try {
-	    const [tagRes, projectRes] = await Promise.all([
-	      axios.get('/api/tags'),
+	    const [projectRes] = await Promise.all([
 	      axios.get('/api/projects')
 	    ])
 
-	    tags.value = tagRes.data
 	    projectOptions.value = projectRes.data.map(p => ({ label: p.name, value: p.id }))
 	  } catch (error) {
 	    console.error('Failed to load initial data:', error)
@@ -82,7 +81,8 @@
 
 	onMounted(() => {
 	  loadInitialData()
-
+	  tags.value = allTags
+	  
 	  if (props.project) {
 		 	selectedProject.value = {
 		   	label: props.project.name,

@@ -2,15 +2,19 @@ import { createRouter, createWebHistory } from 'vue-router'
 import axios from 'axios'
 
 const routes = [
+  // {
+  //   path: '/',
+  //   name: 'Dashboard',
+  //   component: () => import('../views/Ecommerce.vue'),
+  //   meta: {
+  //     title: 'Dashboard',
+  //     description: 'Monitor task progress, project performance, and team activity—all in one snapshot.',
+  //     requiresAuth: true,
+  //   },
+  // },
   {
     path: '/',
-    name: 'Dashboard',
-    component: () => import('../views/Ecommerce.vue'),
-    meta: {
-      title: 'Dashboard',
-      description: 'Monitor task progress, project performance, and team activity—all in one snapshot.',
-      requiresAuth: true,
-    },
+    redirect: '/tasks',
   },
   {
     path: '/tasks',
@@ -145,7 +149,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.meta.guestOnly && auth) {
     // If route is guest only but user is logged in → redirect to dashboard
-    return next({ name: 'Dashboard' })
+    return next({ name: 'Tasks' })
   }
 
   next()

@@ -1,9 +1,7 @@
 <template>
   <AdminLayout>
     <PageBreadcrumb :pageTitle="currentPageTitle" />
-    <div
-      class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
-    >
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div class="custom-calendar">
         <FullCalendar ref="calendarRef" class="min-h-screen" :options="calendarOptions" />
       </div>
@@ -11,12 +9,8 @@
       <!-- Modal -->
       <Modal v-if="isOpen" @close="closeModal = false">
         <template #body>
-          <div
-            class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
-          >
-            <h5
-              class="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl"
-            >
+          <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+            <h5 class="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
               {{ selectedEvent ? 'Edit Event' : 'Add Event' }}
             </h5>
             <p class="text-sm text-gray-500 dark:text-gray-400">
@@ -345,7 +339,7 @@ const renderEventContent = (eventInfo) => {
       <div class="event-fc-color flex fc-event-main ${colorClass} p-1 rounded-sm">
         <div class="fc-daygrid-event-dot"></div>
         <div class="fc-event-time">${eventInfo.timeText}</div>
-        <div class="fc-event-title">${eventInfo.event.title}</div>
+        <div class="fc-event-title text-xs">${eventInfo.event.title}</div>
       </div>
     `,
   }
@@ -372,6 +366,15 @@ const calendarOptions = reactive({
   },
   datesSet() {
     setTimeout(() => {
+      const overrideTitle = (selector) => {
+        const title = document.querySelector(selector)
+        if (title) {
+          title.className = 'text-sm'
+        }
+      }
+
+      overrideTitle('.fc-toolbar-title')
+
       const overrideNextBtn = (selector) => {
         const btnEvent = document.querySelector(selector)
         if (btnEvent) {

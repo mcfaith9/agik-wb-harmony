@@ -2,6 +2,7 @@
 	import axios from 'axios'
 	import { ref, nextTick, onMounted } from 'vue'
 	import { tags as staticTags, colorPalette } from '@/stores/data'
+	import { tags as allTags } from '@/stores/allTags'
 	import Modal from '@/components/common/Modal.vue'
 	import { X } from 'lucide-vue-next'
 
@@ -88,12 +89,7 @@
 	}
 
 	onMounted(async () => {
-	  try {
-	    const res = await axios.get('/api/tags')
-	    tags.value = res.data
-	  } catch (error) {
-	    console.error('Failed to load tags:', error)
-	  }
+		tags.value = allTags
 	})
 </script>
 

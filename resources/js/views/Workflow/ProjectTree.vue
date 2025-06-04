@@ -1,7 +1,11 @@
 <script setup lang="ts">
-  import { ref, onMounted } from "vue"
+  import { ref, onMounted, computed } from "vue"
   import axios from "axios"
+  import { userStore } from "@/stores/userStore"
   import TasklistForm from '@/views/Workflow/Modal/TasklistForm.vue'
+  import Drawer from "@/components/common/Drawer.vue"
+  import ProjectDrawer from "@/views/Workflow/ProjectDrawer.vue"
+  import MentionTextarea from "@/components/common/MentionTextarea.vue"
   import { 
     ChevronRight,
     Folder,
@@ -10,11 +14,20 @@
     CircleFadingPlus
   } from "lucide-vue-next"
 
+  const props = defineProps<{
+    users: Users[]
+  }>()
+
+  const newComment = ref<string>("")
+  const user =  computed(() => userStore.user || {})
+
   const badgeClass = 'inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400 rounded-full'
   const projectRefs = {} as Record<number, HTMLElement>
   const projects = ref([])
   const addTasklistModal = ref<Boolean>(false)
   const tasklistParent = ref<{ id: number; name: string } | null>(null)
+  const selectedTaskList = ref<TaskList | null>(null)
+  const showDrawer = ref<boolean>(false)
   
   const fetchTree = async () => {
     const { data } = await axios.get('/api/projects')
@@ -48,6 +61,11 @@
   const onTasklistCreated = async () => {
     addTasklistModal.value = false
     await fetchTree()
+  }
+
+  const openTasklistDrawer = (tasklist: TaskList) => {
+    showDrawer.value = true
+    selectedTaskList.value = tasklist
   }
 
   onMounted(() => {
@@ -128,12 +146,15 @@
 
             <ul v-if="project.expanded" class="ml-2 mt-2 pl-4 space-y-2 border-l border-gray-200 dark:border-white/10">
               <li v-for="list in project.tasklists" :key="list.id" class="mb-3">
-                <div @click="toggle(list)" class="cursor-pointer flex items-center gap-2 text-sm text-gray-800 dark:text-white">
+                <div class="cursor-pointer flex items-center gap-2 text-sm text-gray-800 dark:text-white">
                   <ChevronRight 
+                    @click="toggle(list)"
                     class="w-5 h-5 transition-transform duration-200" 
                     :class="{ 'rotate-90': list.expanded }" />
                   <FolderOpen class="w-4 h-4" />
-                  <span class="font-medium">{{ list.name }}</span>
+                  <span
+                    @click="openTasklistDrawer(list)" 
+                    class="font-medium">{{ list.name }}</span>
                   <span 
                     class="text-xs inline-flex items-center gap-1" 
                     v-show="list.task_counts?.todo">
@@ -190,7 +211,7 @@
                 <div class="flex items-center gap-2 mt-2">
                   <button
                     @click="openAddTasklistModal(project.id, project.name)"
-                    class="w-full inline-flex items-center rounded-lg border border-dashed border-gray-300 px-2 py-1 text-xs font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03]">
+                    class="w-full inline-flex items-center rounded-full border border-dashed border-gray-300 px-2 py-1 text-xs font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03]">
                     <CircleFadingPlus class="w-3 h-3 mr-1" />
                     <span>Create Tasklist</span>
                   </button>
@@ -208,4 +229,36 @@
     @close="addTasklistModal = false"
     @created="onTasklistCreated"
     :project="tasklistParent" />
+
+  <Drawer v-model="showDrawer" :title="selectedTaskList?.name" :priority="selectedTaskList?.priority">    
+    <template #body v-if="selectedTaskList">
+      <ProjectDrawer :list="selectedTaskList" />
+    </template>
+
+    <template #footer>
+      <div class="space-y-2">
+        <div class="flex items-start gap-3">
+          <img 
+            v-if="user.first_name && user.last_name"
+            :src="`https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${user.first_name}+${user.last_name}`"
+            :alt="`${user.first_name} ${user.last_name}`"
+            class="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800" />            
+          <div class="flex-1">
+            <MentionTextarea 
+              v-model="newComment" 
+              :placeholder="'Type @ to mention'"
+              :users="users" />
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button 
+            type="button" 
+            @click="postComment"
+            class="rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
+            Post Comment
+          </button>
+        </div>
+      </div>
+    </template>
+  </Drawer>
 </template>
