@@ -39,7 +39,6 @@ Route::middleware('auth')->group(function () {
 
         // Users
         Route::get('/app/users', [UserController::class, 'index']);
-        Route::get('/users', [UserController::class, 'assignees']);
 
         Route::get('/admin/users/list', function () {
             return \App\Models\User::select('id', 'first_name', 'last_name', 'email', 'phone', 'email_verified_at')

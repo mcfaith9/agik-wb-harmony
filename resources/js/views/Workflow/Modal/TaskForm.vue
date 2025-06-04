@@ -74,7 +74,7 @@
 	  try {
 	    const [projectRes, userRes, tagRes] = await Promise.all([
 	      axios.get('/api/projects'),
-	      axios.get('/api/users'),
+	      axios.get('/api/app/users'),
 	      axios.get('/api/tags'),
 	    ])
 

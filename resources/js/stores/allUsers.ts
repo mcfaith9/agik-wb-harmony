@@ -9,7 +9,7 @@ async function fetchUsers() {
     // Already fetched, just return existing data
     return users
   }
-  const res = await fetch('/api/users')
+  const res = await fetch('/api/app/users')
   const data = await res.json()
   users.splice(0, users.length, ...data)
   fetched = true
