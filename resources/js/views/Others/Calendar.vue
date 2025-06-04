@@ -369,7 +369,7 @@ const calendarOptions = reactive({
       const overrideTitle = (selector) => {
         const title = document.querySelector(selector)
         if (title) {
-          title.className = 'text-sm'
+          title.className = 'text-sm text-gray-800 dark:text-white/90'
         }
       }
 

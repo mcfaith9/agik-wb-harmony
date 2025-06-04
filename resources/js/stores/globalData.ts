@@ -1,20 +1,26 @@
-import { fetchUsers } from '@/stores/allUsers'
-import { fetchTags } from '@/stores/allTags'
-// import { fetchRoles } from '@/stores/allRoles'
-// import { fetchSettings } from '@/stores/settings'
+import { fetchUsers } from './allUsers'
+import { fetchTags } from './allTags'
 
-export default {
-  install: async () => {
-    try {
-      await Promise.all([
-        fetchUsers(),
-        fetchTags(),
-        // fetchRoles(),
-        // fetchSettings()
-      ])
-    } catch (err) {
-      console.error('Failed to preload app data:', err)
-      // Optionally show global error toast or fallback
-    }
+let loaded = false
+
+export async function preloadGlobalData() {
+  if (loaded) return
+
+  try {
+    await Promise.all([
+      fetchUsers(),
+      fetchTags(),
+    ])
+    loaded = true
+  } catch (err) {
+    console.error('Failed to preload global data:', err)
   }
+}
+
+export function isGlobalDataLoaded() {
+  return loaded
+}
+
+export function resetGlobalDataLoadedFlag() {
+  loaded = false
 }

@@ -1,17 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { preloadGlobalData, isGlobalDataLoaded } from '@/stores/globalData'
 import axios from 'axios'
 
 const routes = [
-  // {
-  //   path: '/',
-  //   name: 'Dashboard',
-  //   component: () => import('../views/Ecommerce.vue'),
-  //   meta: {
-  //     title: 'Dashboard',
-  //     description: 'Monitor task progress, project performance, and team activity—all in one snapshot.',
-  //     requiresAuth: true,
-  //   },
-  // },
   {
     path: '/',
     redirect: '/tasks',
@@ -143,13 +134,15 @@ router.beforeEach(async (to, from, next) => {
   const auth = await isAuthenticated()
 
   if (to.meta.requiresAuth && !auth) {
-    // If route requires auth and user not logged in → redirect to signin
     return next({ name: 'Signin' })
   }
 
   if (to.meta.guestOnly && auth) {
-    // If route is guest only but user is logged in → redirect to dashboard
     return next({ name: 'Tasks' })
+  }
+
+  if (auth && !isGlobalDataLoaded()) {
+    await preloadGlobalData()
   }
 
   next()

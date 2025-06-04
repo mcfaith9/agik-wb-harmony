@@ -6,7 +6,6 @@ import 'swiper/css/pagination'
 import 'jsvectormap/dist/jsvectormap.css'
 import 'flatpickr/dist/flatpickr.css'
 import clickOutside from './composables/click-outside'
-import GlobalDataPlugin from './stores/globalData'
 
 import { createApp } from 'vue'
 import App from './App.vue'
@@ -15,8 +14,6 @@ import VueApexCharts from 'vue3-apexcharts'
 import axios from 'axios'
 
 axios.defaults.withCredentials = true
-
-await GlobalDataPlugin.install()
 
 const app = createApp(App)
 

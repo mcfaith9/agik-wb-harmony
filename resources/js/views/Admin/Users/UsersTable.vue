@@ -152,7 +152,7 @@
       <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
         <tr v-for="row in table.getRowModel().rows" :key="row.id" class="border-t border-gray-100 dark:border-gray-800">
           <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-3 py-2 sm:px-6">
-            <span class="text-gray-500 text-theme-sm dark:text-gray-400">
+            <span class="text-sm text-gray-800 dark:text-white/90">
               {{ cell.getValue() }}
             </span>
           </td>
@@ -163,13 +163,15 @@
 
   <div class="mt-4 flex justify-between items-center text-sm">
     <div>
-      Displaying {{ from }}-{{ to }} out of {{ total }} items
+    	<span class="text-gray-500 text-theme-sm dark:text-gray-400">
+    		Displaying {{ from }}-{{ to }} out of {{ total }} items
+    	</span>      
     </div>
     <div class="space-x-1 flex items-center">
       <button
         :class="[
           'flex items-center justify-center text-gray-500 border-gray-200 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:h-8 lg:w-8 lg:border dark:border-gray-800',
-          'disabled:opacity-50 disabled:pointer-events-none'
+          'disabled:opacity-25 disabled:pointer-events-none'
         ]"
         @click="table.previousPage()"
         :disabled="!table.getCanPreviousPage()">
@@ -187,10 +189,10 @@
           v-else
           @click="pageIndex = page - 1"
           :class="[
-            'flex items-center justify-center w-8 h-8 text-gray-500 border-gray-200 rounded-lg dark:text-gray-400 lg:h-8 lg:w-8 lg:border dark:border-gray-800',
+            'flex items-center justify-center w-8 h-8 border-gray-200 rounded-lg dark:text-gray-400 lg:h-8 lg:w-8 lg:border dark:border-gray-800',
             pageIndex === page - 1
-              ? 'bg-blue-500 text-white hover:bg-brand-600'
-              : 'bg-white text-gray-700 hover:bg-gray-100 hover:bg-brand-600'
+              ? 'text-white bg-blue-500 hover:bg-brand-600 dark:text-white'
+              : 'text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:h-8 lg:w-8 lg:border dark:border-gray-800'
           ]">
           {{ page }}
         </button>
@@ -199,7 +201,7 @@
       <button
         :class="[
           'flex items-center justify-center text-gray-500 border-gray-200 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:h-8 lg:w-8 lg:border dark:border-gray-800',
-          'disabled:opacity-50 disabled:pointer-events-none'
+          'disabled:opacity-25 disabled:pointer-events-none'
         ]"
         @click="table.nextPage()"
         :disabled="!table.getCanNextPage()">
