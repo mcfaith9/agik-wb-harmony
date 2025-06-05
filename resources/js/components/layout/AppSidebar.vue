@@ -61,7 +61,7 @@
 				{
 					icon: Settings,
 					name: "Settings",
-					path: "/#",
+					path: "/settings",
 				},
 				// ... Add other menu items here
 			],

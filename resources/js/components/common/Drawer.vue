@@ -53,7 +53,7 @@
   <transition name="slide">
     <aside
       v-if="modelValue"
-      class="cursor-default fixed right-0 top-0 z-[99999] h-full w-full max-w-md bg-white shadow-lg dark:bg-gray-900 flex flex-col">
+      class="cursor-default fixed right-0 top-0 z-[99999] h-full w-full max-w-lg bg-white shadow-lg dark:bg-gray-900 flex flex-col rounded-l-3xl">
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h2 class="flex text-lg font-semibold text-gray-800 dark:text-white">
           <Flag 

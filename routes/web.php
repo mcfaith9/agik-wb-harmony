@@ -8,6 +8,7 @@ use App\Http\Controllers\TaskListController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -40,6 +41,12 @@ Route::middleware('auth')->group(function () {
         // Users
         Route::get('/app/users', [UserController::class, 'index']);
 
+        // Admin
+        Route::get('/roles', [RoleController::class, 'index']);
+        Route::post('/roles', [RoleController::class, 'store']);
+        Route::put('/roles/{role}', [RoleController::class, 'update']);
+        Route::post('/users/{user}/assign-role', [RoleController::class, 'assign']);
+        Route::get('/users/{user}/roles', [RoleController::class, 'userRoles']);
         Route::get('/admin/users/list', function () {
             return \App\Models\User::select('id', 'first_name', 'last_name', 'email', 'phone', 'email_verified_at')
                 ->paginate(request('per_page', 10));

@@ -1,10 +1,19 @@
+<script setup lang="ts">
+  interface Props {
+    title?: string
+    className?: string
+    desc?: string
+  }
+
+  defineProps<Props>()
+</script>
+
 <template>
   <div
     :class="[
       'rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]',
       className,
-    ]"
-  >
+    ]" >
     <!-- Card Header -->
     <div class="px-6 py-5">
       <div class="flex items-center justify-between">
@@ -30,15 +39,3 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { defineProps } from 'vue'
-
-interface Props {
-  title?: string
-  className?: string
-  desc?: string
-}
-
-defineProps<Props>()
-</script>

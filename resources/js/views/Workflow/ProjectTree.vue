@@ -81,6 +81,7 @@
       })
 
       newComment.value = ''
+      await fetchComments()
     } catch (e) {
       console.error("Failed to post comment", e)
     }

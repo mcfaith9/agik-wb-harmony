@@ -1,3 +1,12 @@
+<script setup lang="ts">
+  interface BreadcrumbProps {
+    pageTitle: string,
+    pageDescription?: string, 
+  }
+
+  defineProps<BreadcrumbProps>()
+</script>
+
 <template>
   <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
     <div>
@@ -14,8 +23,7 @@
         <li>
           <router-link
             class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
-            to="/"
-          >
+            to="/">
             Home
             <svg
               class="stroke-current"
@@ -23,15 +31,13 @@
               height="16"
               viewBox="0 0 17 16"
               fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
+              xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366"
                 stroke=""
                 stroke-width="1.2"
                 stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+                stroke-linejoin="round" />
             </svg>
           </router-link>
         </li>
@@ -42,14 +48,3 @@
     </nav>
   </div>
 </template>
-
-<script setup lang="ts">
-import { defineProps } from 'vue'
-
-interface BreadcrumbProps {
-  pageTitle: string,
-  pageDescription?: string, 
-}
-
-defineProps<BreadcrumbProps>()
-</script>

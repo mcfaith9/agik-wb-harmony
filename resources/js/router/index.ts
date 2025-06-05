@@ -50,7 +50,7 @@ const routes = [
   {
     path: '/admin/users',
     name: 'Users',
-    component: () => import('../views/Admin/Users/UserList.vue'),
+    component: () => import('../views/Admin/Users/Users.vue'),
     meta: {
       title: 'User List',
       description: 'Manage platform users—view, edit, and control user access effortlessly.',
@@ -60,7 +60,7 @@ const routes = [
   {
     path: '/admin/roles',
     name: 'Roles',
-    component: () => import('../views/Admin/Roles/RolesList.vue'),
+    component: () => import('../views/Admin/Roles/Roles.vue'),
     meta: {
       title: 'Roles',
       description: 'Define access—assign roles and permissions to control user capabilities.',

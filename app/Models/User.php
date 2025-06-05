@@ -57,4 +57,14 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Task::class);
     }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class)->withTimestamps();
+    }
+
+    public function hasRole($roleName)
+    {
+        return $this->roles->contains('name', $roleName);
+    }
 }
