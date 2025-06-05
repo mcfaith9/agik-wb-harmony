@@ -1,5 +1,5 @@
 <script setup lang="ts">  
-	import { format } from "date-fns"
+	import { useHelpers } from "@/composables/useHelpers"
 	import { 
     CloudUpload,
     MessageCircleReply,
@@ -14,18 +14,7 @@
 	  (e: 'edit-task'): void,
 	}>()
 
-	const formatDate = (date: string, time = false) => {
-    if (!date) return '';
-    return format(new Date(date), time ? 'MMM d, yyyy hh:mm b' : 'MMM d, yyyy');
-  }
-
-  const avatar = (fname: string, lname: string) => {
-    return `https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${fname}+${lname}`
-  }
-
-  const highlightMentions = (message: string) => {
-    return message.replace(/(@[A-Za-z]+(?:\s[A-Za-z]+)?)/g, '<span class="font-medium text-blue-500">$1</span>');
-  }
+	const { formatDate, avatar, highlightMentions } = useHelpers()
 </script>
 
 <template>

@@ -2,25 +2,43 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
 use Illuminate\Http\Request;
+use App\Models\Comment;
+use App\Models\Task;
+use App\Models\TaskList;
 
 class CommentController extends Controller
 {
-    protected $fillable = ['task_id', 'user_id', 'message'];
+    protected $commentables = [
+        'task' => Task::class,
+        'tasklist' => TaskList::class,
+    ];
 
-    public function index(Task $task)
+    protected function resolveCommentable(string $type, int $id)
     {
-        return $task->comments()->with('user')->latest()->get();
+        if (!isset($this->commentables[$type])) {
+            abort(404, 'Invalid commentable type.');
+        }
+
+        $modelClass = $this->commentables[$type];
+        return $modelClass::findOrFail($id);
     }
 
-    public function store(Request $request, Task $task)
+    public function index(string $type, int $id)
     {
+        $commentable = $this->resolveCommentable($type, $id);
+        return $commentable->comments()->with('user')->latest()->get();
+    }
+
+    public function store(Request $request, string $type, int $id)
+    {
+        $commentable = $this->resolveCommentable($type, $id);
+
         $data = $request->validate([
             'message' => 'required|string',
         ]);
 
-        $comment = $task->comments()->create([
+        $comment = $commentable->comments()->create([
             'message' => $data['message'],
             'user_id' => $request->user()->id,
         ]);
@@ -28,3 +46,4 @@ class CommentController extends Controller
         return $comment->load('user');
     }
 }
+

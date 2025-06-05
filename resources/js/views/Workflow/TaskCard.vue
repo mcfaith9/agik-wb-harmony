@@ -1,6 +1,6 @@
 <script setup lang="ts">
 	import { ref, computed, watch, onMounted } from "vue"
-	import { format } from "date-fns"
+	import { useHelpers } from "@/composables/useHelpers"
   import { userStore } from "@/stores/userStore"
   import axios from "axios"
 	import draggable from "vuedraggable"
@@ -40,10 +40,7 @@
     })
   })  
 
-	const formatDateRange = (start: string, end: string) => {
-	  if (!start || !end) return ''
-	  return `${format(new Date(start), 'MMM d')} to ${format(new Date(end), 'MMM d, yyyy')}`
-	}
+	const { avatar, formatDateRange } = useHelpers()
 
 	const onTaskAdd = (evt: any) => {
 	  const task = evt.item?._underlying_vm_
@@ -60,8 +57,7 @@
 
   const postComment = async () => {
     if (!newComment.value.trim() || !selectedTask.value) return;
-
-    const { data } = await axios.post(`/api/tasks/${selectedTask.value.id}/comments`, {
+    const { data } = await axios.post(`/api/comments/task/${selectedTask.value.id}`, {
       message: newComment.value
     });
 
@@ -74,7 +70,7 @@
 
   const fetchComments = async () => {
     if (!selectedTask.value) return
-    const { data } = await axios.get(`/api/tasks/${selectedTask.value.id}/comments`)
+    const { data } = await axios.get(`/api/comments/task/${selectedTask.value.id}`)
     comments.value = data
   }
 
@@ -157,7 +153,7 @@
             <template v-for="user in task.users" :key="user.id">
               <img
                 v-if="user.first_name && user.last_name"
-                :src="`https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${user.first_name}+${user.last_name}`"
+                :src="avatar(user.first_name, user.last_name)"
                 :alt="`${user.first_name} ${user.last_name}`"
                 class="w-6 h-6 border-2 border-white rounded-full dark:border-gray-800"
               />
@@ -182,7 +178,7 @@
         <div class="flex items-start gap-3">
           <img 
             v-if="user.first_name && user.last_name"
-            :src="`https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${user.first_name}+${user.last_name}`"
+            :src="avatar(user.first_name, user.last_name)"
             :alt="`${user.first_name} ${user.last_name}`"
             class="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800" />            
           <div class="flex-1">

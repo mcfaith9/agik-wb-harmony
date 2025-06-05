@@ -34,8 +34,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/tags/{id}', [TagController::class, 'update']);
 
         // Comment
-        Route::get('/tasks/{task}/comments', [CommentController::class, 'index']);
-        Route::post('/tasks/{task}/comments', [CommentController::class, 'store']);
+        Route::get('/comments/{type}/{id}', [CommentController::class, 'index']);
+        Route::post('/comments/{type}/{id}', [CommentController::class, 'store']);
 
         // Users
         Route::get('/app/users', [UserController::class, 'index']);

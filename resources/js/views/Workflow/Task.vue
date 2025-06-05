@@ -188,7 +188,7 @@
 
     try {
       const taskId = floatingCommentTaskId.value
-      await axios.post(`/api/tasks/${taskId}/comments`, {
+      await axios.post(`/api/comments/task/${taskId}`, {
         message: commentText.value
       })
 

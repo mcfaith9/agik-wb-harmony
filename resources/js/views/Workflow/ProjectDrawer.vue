@@ -1,12 +1,18 @@
 <script setup lang="ts">
+  import { format } from "date-fns"
   import { computed } from 'vue'
+  import { useHelpers } from '@/composables/useHelpers'
+  import {
+    MessageCircleReply
+  } from "lucide-vue-next"
 
   const props = defineProps<{
     list: TaskList
+    comments: Comments
   }>()
 
   const tasks = props.list.tasks || []
-
+  const { formatDate, avatar, highlightMentions } = useHelpers()
   const total = computed(() => tasks.length)
   const completed = computed(() => tasks.filter(t => t.status === 'completed').length)
 
@@ -91,6 +97,47 @@
           </div>
         </li>
       </ul>
+    </div>
+  </div>
+
+  <div class="mt-10">
+    <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Comments</label>
+    <div v-if="comments && Object.keys(comments).length">
+      <article 
+        v-for="comment in comments"
+        :key="comment.id"
+        class="py-3 text-base bg-white rounded-lg dark:bg-gray-900">
+        <div class="flex justify-between items-center mb-2">
+          <div class="flex items-center">
+            <p class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white font-semibold">
+              <img
+                class="mr-2 w-6 h-6 rounded-full"
+                :src="avatar(comment.user.first_name, comment.user.last_name)">
+                {{ comment.user.first_name }}
+            </p>
+            <p class="text-xs text-gray-600 dark:text-gray-400">
+              <time 
+                :datetime="formatDate(comment.created_at)"
+                title="February 8th, 2022">{{ formatDate(comment.created_at, true) }}</time>
+            </p>
+          </div>
+        </div>
+
+        <p
+          v-html="highlightMentions(comment.message)" 
+          class="ml-2 text-xs text-gray-500 dark:text-gray-400"></p>
+        <div class="flex items-center mt-4 ml-2 space-x-4">
+          <button 
+            type="button"
+            class="flex items-center text-xs text-gray-500 hover:underline dark:text-gray-400 font-medium">
+            <MessageCircleReply class="mr-1 w-3.5 h-3.5" />
+            Reply
+          </button>
+        </div>
+      </article>
+    </div>
+    <div v-else class="flex">
+      <p class="text-xs text-gray-500 dark:text-gray-400">No comments yet. Be the first to share your thoughts!</p>
     </div>
   </div>
 </template>

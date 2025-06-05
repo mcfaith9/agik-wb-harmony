@@ -34,12 +34,14 @@ class Task extends Model
         return $this->belongsTo(TaskList::class, 'task_list_id');
     }
 
-    public function tags() {
+    public function tags() 
+    {
         return $this->morphToMany(Tag::class, 'taggable');
     }
 
-    public function comments() {
-        return $this->hasMany(Comment::class);
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
     }
 
     public function users()

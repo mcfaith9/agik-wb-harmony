@@ -19,6 +19,7 @@
   }>()
 
   const newComment = ref<string>("")
+  const comments = ref<Comment[]>([])
   const user =  computed(() => userStore.user || {})
 
   const badgeClass = 'inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400 rounded-full'
@@ -63,9 +64,38 @@
     await fetchTree()
   }
 
-  const openTasklistDrawer = (tasklist: TaskList) => {
+  const openTasklistDrawer = async (tasklist: TaskList) => {
     showDrawer.value = true
     selectedTaskList.value = tasklist
+    await fetchComments()
+  }
+
+  // Comment
+  const postComment = async () => {
+    const target = selectedTaskList.value
+    if (!newComment.value.trim() || !target) return
+
+    try {
+      await axios.post(`/api/comments/tasklist/${target.id}`, {
+        message: newComment.value
+      })
+
+      newComment.value = ''
+    } catch (e) {
+      console.error("Failed to post comment", e)
+    }
+  }
+
+  const fetchComments = async () => {
+    const target = selectedTaskList.value
+    if (!target) return
+
+    try {
+      const { data } = await axios.get(`/api/comments/tasklist/${target.id}`)
+      comments.value = data
+    } catch (e) {
+      console.error("Failed to fetch comments", e)
+    }
   }
 
   onMounted(() => {
@@ -232,7 +262,7 @@
 
   <Drawer v-model="showDrawer" :title="selectedTaskList?.name" :priority="selectedTaskList?.priority">    
     <template #body v-if="selectedTaskList">
-      <ProjectDrawer :list="selectedTaskList" />
+      <ProjectDrawer :list="selectedTaskList" :comments="comments" />
     </template>
 
     <template #footer>
