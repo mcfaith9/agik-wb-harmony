@@ -48,6 +48,16 @@ const routes = [
     },
   },
   {
+    path: '/support',
+    name: 'Support',
+    component: () => import('../views/Support/Index.vue'),
+    meta: {
+      title: 'Support',
+      description: '',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/admin/users',
     name: 'Users',
     component: () => import('../views/Admin/Users/Users.vue'),

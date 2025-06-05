@@ -1,6 +1,7 @@
 <script setup>
   import { RouterLink } from 'vue-router'
   import { ref, onMounted, onUnmounted } from 'vue'
+  import { useHelpers } from "@/composables/useHelpers"
   import axios from 'axios'
   import { useRouter } from 'vue-router'
   import { userStore } from '@/stores/userStore'
@@ -15,17 +16,19 @@
   const router = useRouter()
   const dropdownOpen = ref(false)
   const dropdownRef = ref(null)
-
+  const { avatar } = useHelpers()
   const user = ref({
-    name: '',
+    first_name: '',
+    last_name: '',
+    fullname: '',
     email: '',
     avatar: ''
   })
 
   const menuItems = [
     { href: '/profile', icon: UserRoundPen, text: 'Edit profile' },
-    { href: '/#', icon: UserRoundCog, text: 'Account settings' },
-    { href: '/#', icon: HeartHandshake, text: 'Support' },
+    { href: '/', icon: UserRoundCog, text: 'Account settings' },
+    { href: '/support', icon: HeartHandshake, text: 'Support' },
   ]
 
   const toggleDropdown = () => {
@@ -51,7 +54,9 @@
       const response = await axios.get('/login-user')
       const u = response.data.user
 
-      user.value.name = `${u.first_name} ${u.last_name}`
+      user.value.first_name = u.first_name
+      user.value.last_name = u.last_name
+      user.value.fullname = `${u.first_name} ${u.last_name}`
       user.value.email = u.email
       user.value.avatar = '/images/user/owner.jpg'
 
@@ -82,12 +87,15 @@
     <button
       class="flex items-center text-gray-700 dark:text-gray-400"
       @click.prevent="toggleDropdown">
-      <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
-        <img src="@/images/user/owner.jpg" alt="User" />
+      <span class="mr-3 overflow-hidden rounded-full h-8 w-8">
+        <img :src="avatar(user.first_name, user.last_name)" alt="User" />
       </span>
       
-      <span class="block mr-1 font-medium text-theme-sm">{{ user.name }}</span>
-      <ChevronDown :class="{ 'rotate-180': dropdownOpen }" />
+      <span class="block mr-1 font-medium text-sm select-none">{{ user.fullname }}</span>
+      <ChevronDown 
+        width="20"
+        height="20"
+        :class="{ 'rotate-180': dropdownOpen }" />
     </button>
 
     <!-- Dropdown Start -->
@@ -96,7 +104,7 @@
       class="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark">
       <div>
         <span class="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-          {{ user.name }}
+          {{ user.fullname }}
         </span>
         <span class="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
           {{ user.email }}

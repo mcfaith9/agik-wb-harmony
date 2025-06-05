@@ -1,5 +1,6 @@
 <script setup lang="ts">  
 	import { useHelpers } from "@/composables/useHelpers"
+  import DropZone from "@/components/common/DropZone.vue"
 	import { 
     CloudUpload,
     MessageCircleReply,
@@ -112,15 +113,7 @@
   <div>
     <label class="block text-xs font-medium text-gray-700 dark:text-gray-400 mb-1">Files</label>
     <div class="flex items-center justify-center w-full">
-      <label for="dropzone-file" class="flex flex-col items-center justify-center mt-2 w-full h-22 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-800 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
-        <div class="flex flex-col items-center justify-center pt-6 pb-6">
-            <CloudUpload class="w-6 h-6 mb-1 text-gray-500 dark:text-gray-400" />
-            <p class="mb-2 text-xs text-gray-500 dark:text-gray-400">
-              <span class="font-semibold">Click to upload</span> or drag and drop</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
-        </div>
-        <input id="dropzone-file" type="file" class="hidden" />
-      </label>
+      <DropZone />
     </div>
   </div> 
 
