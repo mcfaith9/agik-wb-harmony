@@ -1,17 +1,20 @@
-<script setup>
-	import { ref, watch, onMounted, computed } from 'vue'
+<script setup lang="ts">
+	import { h, ref, watch, onMounted, computed, defineComponent } from 'vue'
 	import axios from 'axios'
+	import RolesTableDropdown from '@/views/Admin/Roles/RolesTableDropdown.vue'
+	import { useRoles } from '@/composables/useRoles'
 	import {
 	  useVueTable,
 	  getCoreRowModel
 	} from '@tanstack/vue-table'
-
 	import {
 		Ellipsis,
 		ChevronLeft,
 		ChevronRight
 	} from "lucide-vue-next"
 
+	const allRoles = ref([])
+	const userRolesMap = ref({})
 	const users = ref([])
 	const loading = ref(true)
 	const pageIndex = ref(0)
@@ -20,6 +23,7 @@
 	const from = ref(0)
 	const to = ref(0)
 	const total = ref(0)
+	const { getRoles, getUserRoles, assignRole } = useRoles()
 
 	const fetchUsers = async () => {
 	  loading.value = true
@@ -32,26 +36,79 @@
 	    })
 	    users.value = response.data.data
 	    pageCount.value = response.data.last_page
-
 	    from.value = response.data.from
 	    to.value = response.data.to
 	    total.value = response.data.total
+
+	    // Fetch roles per user
+	    await Promise.all(users.value.map(async (user) => {
+	      try {
+	        const rolesResp = await getUserRoles(user.id)
+	        userRolesMap.value[user.id] = rolesResp.data
+	      } catch (err) {
+	        userRolesMap.value[user.id] = []
+	      }
+	    }))
 	  } catch (err) {
 	    console.error('Failed to fetch users:', err)
 	  } finally {
 	    loading.value = false
 	  }
-	}
+	}	
 
-	onMounted(fetchUsers)
-	watch([pageIndex, pageSize], fetchUsers)
+	const fetchRoles = async () => {
+	  try {
+	    const response = await getRoles()
+	    allRoles.value = response.data
+	    console.log('Roles fetched:', allRoles.value)
+	  } catch (err) {
+	    console.error('Failed to fetch roles:', err)
+	  }
+	}
 
 	const columns = [
 	  { accessorKey: 'first_name', header: 'First Name' },
 	  { accessorKey: 'last_name', header: 'Last Name' },
 	  { accessorKey: 'email', header: 'Email' },
 	  { accessorKey: 'phone', header: 'Phone', cell: info => info.getValue() || '-' },
-	  // { accessorKey: 'email_verified_at', header: 'Verified', cell: 'info => info.getValue()' ? '✔' : '✘' },
+	  {
+	    accessorKey: 'role',
+	    header: 'Roles',
+	    cell: info => {
+	      const user = info.row.original
+	      const roles = userRolesMap.value[user.id] || []
+	      return roles.map(r => r.name).join(', ') || '-'
+	    }
+	  },
+	  {
+      id: 'actions',
+      header: '',
+      cell: info => {
+        const user = info.row.original
+        return h(
+          defineComponent({
+            setup() {
+              // pass props to RolesTableDropdown
+              return () => h(RolesTableDropdown, {
+                roles: allRoles.value,
+                assignedRoles: userRolesMap.value[user.id] || [],
+                userId: user.id,
+                onAssignRole: async (roleId) => {
+                  try {
+                    await assignRole(user.id, roleId)
+                    // refresh roles for this user
+                    const resp = await getUserRoles(user.id)
+                    userRolesMap.value[user.id] = resp.data
+                  } catch (err) {
+                    console.error('Failed to assign role:', err)
+                  }
+                }
+              })
+            }
+          })
+        )
+      }
+    }
 	]
 
 	const table = useVueTable({
@@ -133,6 +190,12 @@
 	const pagesToShow = computed(() => {
 	  return paginationRange(pageIndex.value + 2, pageCount.value, 2)
 	})
+
+	onMounted(() => {
+	  fetchUsers()
+	  fetchRoles()
+	})
+	watch([pageIndex, pageSize], fetchUsers)
 </script>
 
 <template>
@@ -151,10 +214,15 @@
       </thead>
       <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
         <tr v-for="row in table.getRowModel().rows" :key="row.id" class="border-t border-gray-100 dark:border-gray-800">
-          <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-3 py-2 sm:px-6">
-            <span class="text-sm text-gray-800 dark:text-white/90">
+          <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-3 py-2 sm:px-6 text-sm text-gray-800 dark:text-white/90">
+            <span class="text-sm text-gray-800 dark:text-white/90" v-if="typeof cell.column.columnDef.cell !== 'function'">
               {{ cell.getValue() }}
             </span>
+            <component
+            	class="px-3 py-2 sm:px-6"
+              v-else
+              :is="cell.column.columnDef.cell"
+              v-bind="cell.getContext()" />
           </td>
         </tr>
       </tbody>
