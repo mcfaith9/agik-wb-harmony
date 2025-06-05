@@ -14,7 +14,7 @@
           <CircleCheck
             v-if="isAssigned(role)"
             class="w-4 h-4 text-green-500 shrink-0 mr-1"/>
-          <CircleCheck
+          <Circle
             v-else
             class="w-4 h-4 text-gray-100 shrink-0 mr-1 opacity-25"/>
           <span>{{ role.name }}</span>          
@@ -31,7 +31,7 @@
   import {
     Ellipsis,
     CircleCheck,
-    X
+    Circle
   } from "lucide-vue-next"
 
   const props = defineProps({

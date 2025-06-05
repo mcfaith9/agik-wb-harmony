@@ -1,13 +1,6 @@
 <script setup>
 	import { ref, computed } from "vue"
 	import { useRoute, useRouter } from "vue-router"
-	import {
-		ChatIcon,
-		MailIcon,
-		ChevronDownIcon,
-		HorizontalDots,
-		PlugInIcon,
-	} from "../../icons"
 	import { 
 		Calendar1,
 		Settings,
@@ -18,6 +11,8 @@
 		LayoutDashboard,
 		ScrollText,
 		Scroll,
+		ChevronDown,
+		Ellipsis
 	} from "lucide-vue-next"
 	import { useSidebar } from "@/composables/useSidebar"
 
@@ -178,7 +173,7 @@
 							<template v-if="isExpanded || isHovered || isMobileOpen">
 								{{ menuGroup.title }}
 							</template>
-							<HorizontalDots v-else />
+							<Ellipsis v-else />
 						</h2>
 						<ul class="flex flex-col gap-4">
 							<li v-for="(item, index) in menuGroup.items" :key="item.name">
@@ -208,7 +203,7 @@
 										class="menu-item-text"
 										>{{ item.name }}</span
 									>
-									<ChevronDownIcon
+									<ChevronDown
 										v-if="isExpanded || isHovered || isMobileOpen"
 										:class="[
 											'ml-auto w-5 h-5 transition-transform duration-200',

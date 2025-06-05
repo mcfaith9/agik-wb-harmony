@@ -41,8 +41,8 @@
             <!-- add something here? -->
           </div>
         </div>
-        <button @click="isProfileInfoModal = true" class="edit-button">
-          <Pencil class="w-4 h-4" />
+        <button @click="isProfileInfoModal = true" class="inline-flex items-center gap-2 rounded-full border border-dashed border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03]">
+          <Pencil class="w-3 h-3" />
           Edit
         </button>
       </div>

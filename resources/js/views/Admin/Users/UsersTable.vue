@@ -60,7 +60,6 @@
 	  try {
 	    const response = await getRoles()
 	    allRoles.value = response.data
-	    console.log('Roles fetched:', allRoles.value)
 	  } catch (err) {
 	    console.error('Failed to fetch roles:', err)
 	  }
@@ -70,14 +69,14 @@
 	  { accessorKey: 'first_name', header: 'First Name' },
 	  { accessorKey: 'last_name', header: 'Last Name' },
 	  { accessorKey: 'email', header: 'Email' },
-	  { accessorKey: 'phone', header: 'Phone', cell: info => info.getValue() || '-' },
+	  { accessorKey: 'phone', header: 'Phone', cell: info => info.getValue() || '' },
 	  {
 	    accessorKey: 'role',
 	    header: 'Roles',
 	    cell: info => {
 	      const user = info.row.original
 	      const roles = userRolesMap.value[user.id] || []
-	      return roles.map(r => r.name).join(', ') || '-'
+	      return roles.map(r => r.name).join(', ') || ''
 	    }
 	  },
 	  {
