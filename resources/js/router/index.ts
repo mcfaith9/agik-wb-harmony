@@ -18,6 +18,16 @@ const routes = [
     },
   },
   {
+    path: '/tasks-gantt-chart',
+    name: 'Gantt Chart',
+    component: () => import('../views/Workflow/GanttChart/TaskGanttChart.vue'),
+    meta: {
+      title: 'Gantt Chart',
+      description: 'Organize your work—manage active and archived projects effortlessly.',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/projects',
     name: 'Projects',
     component: () => import('../views/Workflow/Project.vue'),

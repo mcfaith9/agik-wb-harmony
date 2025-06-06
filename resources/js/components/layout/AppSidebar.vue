@@ -10,6 +10,7 @@
 		UserRoundCog,
 		LayoutDashboard,
 		ScrollText,
+		ChartGantt,
 		Scroll,
 		ChevronDown,
 		Ellipsis
@@ -31,6 +32,7 @@
 					subItems: [
 						// { icon: LayoutDashboard, name: "Dashboard", path: "/", pro: false },
 						{ icon: ScrollText, name: "Tasks", path: "/tasks", pro: false },
+						{ icon: ChartGantt, name: "Gantt Chart", path: "/tasks-gantt-chart", pro: false },
 						{ icon: Scroll, name: "Projects", path: "/projects", pro: false },
 					],
 				},
