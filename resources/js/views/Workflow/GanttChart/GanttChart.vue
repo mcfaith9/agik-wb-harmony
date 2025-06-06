@@ -1,286 +1,254 @@
-<script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
-import {
-  format,
-  addDays,
-  differenceInDays,
-  parseISO,
-  isWeekend,
-  isBefore,
-  isAfter,
-  startOfMonth,
-  min,
-  max,
-} from 'date-fns';
-import { GitCommitHorizontal } from 'lucide-vue-next';
+<script setup lang="ts">
+  import { ref, computed, reactive, onMounted, onUnmounted } from 'vue'
+  import {
+    format,
+    addDays,
+    differenceInDays,
+    parseISO,
+    isBefore,
+    isAfter,
+    isWeekend,
+    startOfMonth,
+  } from 'date-fns'
+  import { useHelpers } from '@/composables/useHelpers'
+  import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 
-const tasks = ref([
-  { id: 1, name: 'Design', progress: '60%', start: '2025-06-01', end: '2025-06-05', users: [{ name: 'Alice', avatar: 'https://i.pravatar.cc/20?img=1' }] },
-  { id: 2, name: 'Development', progress: '30%', start: '2025-06-03', end: '2025-06-10', users: [{ name: 'Bob', avatar: 'https://i.pravatar.cc/20?img=2' }] },
-  { id: 3, name: 'Testing', progress: '10%', start: '2025-06-08', end: '2025-06-12', users: [{ name: 'Charlie', avatar: 'https://i.pravatar.cc/20?img=3' }, { name: 'Dana', avatar: 'https://i.pravatar.cc/20?img=4' }] },
-]);
+  const props = defineProps<{
+    tasks: Task[];
+  }>()
 
-const timelineRef = ref(null);
-const initialStart = startOfMonth(new Date('2025-06-01'));
-const initialEnd = addDays(initialStart, 14);
+  const { avatar } = useHelpers()
 
-const visibleStart = ref(initialStart);
-const visibleEnd = ref(initialEnd);
+  // Pre-parse start and end dates for performance
+  const processedTasks = computed(() =>
+    props.tasks.map(task => ({
+      ...task,
+      _start: parseISO(task.start),
+      _end: parseISO(task.end),
+    }))
+  )
 
-const timelineDates = computed(() => {
-  const daysCount = differenceInDays(visibleEnd.value, visibleStart.value);
-  return Array.from({ length: daysCount + 1 }, (_, i) => addDays(visibleStart.value, i));
-});
+  const initialStart = startOfMonth(new Date('2025-06-01'))
+  const initialEnd = addDays(initialStart, 14)
 
-const visibleTasks = computed(() =>
-  tasks.value.filter((task) => {
-    const taskStart = parseISO(task.start);
-    const taskEnd = parseISO(task.end);
-    return !(isAfter(taskStart, visibleEnd.value) || isBefore(taskEnd, visibleStart.value));
+  const visibleStart = ref(initialStart)
+  const visibleEnd = ref(initialEnd)
+  const headerTitle = computed(() => format(visibleStart.value, 'MMMM yyyy'))
+
+  const timelineDates = computed(() => {
+    const daysCount = differenceInDays(visibleEnd.value, visibleStart.value)
+    return Array.from({ length: daysCount + 1 }, (_, i) => addDays(visibleStart.value, i))
   })
-);
 
-const formatDate = (date) => format(date, 'MMM d');
-const isWeekendFn = (date) => isWeekend(date);
+  const timelineLength = computed(() => timelineDates.value.length)
 
-const barStyle = (task) => {
-  const taskStart = parseISO(task.start);
-  const taskEnd = parseISO(task.end);
+  const visibleTasks = computed(() =>
+    processedTasks.value.filter(task =>
+      !(isAfter(task._start, visibleEnd.value) || isBefore(task._end, visibleStart.value))
+    )
+  )
 
-  const clampedStart = isBefore(taskStart, visibleStart.value) ? visibleStart.value : taskStart;
-  const clampedEnd = isAfter(taskEnd, visibleEnd.value) ? visibleEnd.value : taskEnd;
+  const barStyle = (task, draft = null) => {
+    const startDate = draft ? parseISO(draft.start) : task._start;
+    const endDate = draft ? parseISO(draft.end) : task._end;
 
-  const offset = (differenceInDays(clampedStart, visibleStart.value) / timelineDates.value.length) * 100;
-  const width = ((differenceInDays(clampedEnd, clampedStart) + 1) / timelineDates.value.length) * 100;
+    const clampedStart = isBefore(startDate, visibleStart.value) ? visibleStart.value : startDate;
+    const clampedEnd = isAfter(endDate, visibleEnd.value) ? visibleEnd.value : endDate;
 
-  return {
-    left: `${offset}%`,
-    width: `${width}%`,
-    top: '8px',
-  };
-};
+    const offset = (differenceInDays(clampedStart, visibleStart.value) / timelineLength.value) * 100;
+    const width = ((differenceInDays(clampedEnd, clampedStart) + 1) / timelineLength.value) * 100;
 
-const dragState = reactive({
-  task: null,
-  mode: null,
-  initialX: 0,
-});
-
-function startDrag(event, task, mode) {
-  dragState.task = task;
-  dragState.mode = mode;
-  dragState.initialX = event.clientX;
-}
-
-// Extend or shrink timeline bounds if needed, with 2-day increments
-const EXTEND_THRESHOLD = 2;
-
-function extendOrShrinkTimeline(updatedStart, updatedEnd) {
-  let changed = false;
-
-  // Extend right if needed
-  if (
-    isAfter(updatedEnd, visibleEnd.value) &&
-    differenceInDays(updatedEnd, visibleEnd.value) <= EXTEND_THRESHOLD
-  ) {
-    visibleEnd.value = addDays(visibleEnd.value, 2);
-    changed = true;
+    return {
+      left: `${offset}%`,
+      width: `${width}%`,
+      top: '8px',
+    };
   }
 
-  // Extend left if needed
-  if (
-    isBefore(updatedStart, visibleStart.value) &&
-    differenceInDays(visibleStart.value, updatedStart) <= EXTEND_THRESHOLD
-  ) {
-    visibleStart.value = addDays(visibleStart.value, -2);
-    changed = true;
+  // Drag logic
+  const dragState = reactive({
+    original: null,
+    draft: null,
+    mode: null,
+    initialX: 0,
+  })
+
+  function startDrag(event, task, mode) {
+    dragState.original = task
+    dragState.draft = { ...task } // shallow clone
+    dragState.mode = mode
+    dragState.initialX = event.clientX
   }
 
-  // Shrink right if possible
-  if (
-    differenceInDays(visibleEnd.value, visibleStart.value) > 14 && // more than default 15 days
-    updatedEnd < visibleEnd.value
-  ) {
-    // Check if all tasks fit in initial 15-day window
-    const allFitInDefaultRange = tasks.value.every(task => {
-      const taskStart = parseISO(task.start);
-      const taskEnd = parseISO(task.end);
-      return (
-        !isBefore(taskStart, initialStart) &&
-        !isAfter(taskEnd, initialEnd)
-      );
-    });
+  const timelineRef = ref(null)
+  let rafId = null
 
-    if (allFitInDefaultRange) {
-      visibleStart.value = initialStart;
-      visibleEnd.value = initialEnd;
-      changed = true;
+  function onMouseMove(event) {
+    if (!dragState.draft || !dragState.draft.start || !dragState.draft.end || !timelineRef.value) return
+    if (rafId) return
+
+    rafId = requestAnimationFrame(() => {
+      const deltaX = event.clientX - dragState.initialX
+      const deltaPercent = deltaX / timelineRef.value.offsetWidth
+      const deltaDays = Math.round(deltaPercent * timelineDates.value.length)
+      if (deltaDays === 0) {
+        rafId = null
+        return
+      }
+
+      const start = parseISO(dragState.draft.start)
+      const end = parseISO(dragState.draft.end)
+
+      if (dragState.mode === 'move') {
+        dragState.draft.start = format(addDays(start, deltaDays), 'yyyy-MM-dd')
+        dragState.draft.end = format(addDays(end, deltaDays), 'yyyy-MM-dd')
+      } else if (dragState.mode === 'start') {
+        const newStart = addDays(start, deltaDays)
+        if (newStart <= end) {
+          dragState.draft.start = format(newStart, 'yyyy-MM-dd')
+        }
+      } else if (dragState.mode === 'end') {
+        const newEnd = addDays(end, deltaDays)
+        if (newEnd >= start) {
+          dragState.draft.end = format(newEnd, 'yyyy-MM-dd')
+        }
+      }
+
+      dragState.initialX = event.clientX
+      rafId = null
+    })
+  }
+
+  const emit = defineEmits(['update-task'])
+
+  function onMouseUp() {
+    if (dragState.draft) {
+      emit('update-task', {
+        id: dragState.original.id,
+        start: dragState.draft.start,
+        end: dragState.draft.end,
+      })
     }
+    dragState.draft = null
+    dragState.original = null
+    dragState.mode = null
   }
 
-  // Shrink left if possible
-  if (
-    differenceInDays(visibleEnd.value, visibleStart.value) > 14 && // more than default 15 days
-    updatedStart > visibleStart.value
-  ) {
-    const allFitInDefaultRange = tasks.value.every(task => {
-      const taskStart = parseISO(task.start);
-      const taskEnd = parseISO(task.end);
-      return (
-        !isBefore(taskStart, initialStart) &&
-        !isAfter(taskEnd, initialEnd)
-      );
-    });
+  onMounted(() => {
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+  })
 
-    if (allFitInDefaultRange) {
-      visibleStart.value = initialStart;
-      visibleEnd.value = initialEnd;
-      changed = true;
-    }
+  onUnmounted(() => {
+    document.removeEventListener('mousemove', onMouseMove)
+    document.removeEventListener('mouseup', onMouseUp)
+  })
+
+  function prevRange() {
+    visibleStart.value = addDays(visibleStart.value, -15)
+    visibleEnd.value = addDays(visibleEnd.value, -15)
   }
 
-  return changed;
-}
-
-function onMouseMove(event) {
-  const task = dragState.task;
-  const mode = dragState.mode;
-  if (!task || !mode || !timelineRef.value) return;
-
-  const deltaX = event.clientX - dragState.initialX;
-  const deltaPercent = deltaX / timelineRef.value.offsetWidth;
-  const deltaDays = Math.round(deltaPercent * timelineDates.value.length);
-  if (deltaDays === 0) return;
-
-  const start = parseISO(task.start);
-  const end = parseISO(task.end);
-
-  if (mode === 'move') {
-    task.start = format(addDays(start, deltaDays), 'yyyy-MM-dd');
-    task.end = format(addDays(end, deltaDays), 'yyyy-MM-dd');
-  } else if (mode === 'start') {
-    const newStart = addDays(start, deltaDays);
-    if (newStart <= end) {
-      task.start = format(newStart, 'yyyy-MM-dd');
-    }
-  } else if (mode === 'end') {
-    const newEnd = addDays(end, deltaDays);
-    if (newEnd >= start) {
-      task.end = format(newEnd, 'yyyy-MM-dd');
-    }
+  function nextRange() {
+    visibleStart.value = addDays(visibleStart.value, 15)
+    visibleEnd.value = addDays(visibleEnd.value, 15)
   }
 
-  dragState.initialX = event.clientX;
-
-  // Adjust timeline bounds based on updated task
-  const updatedStart = parseISO(task.start);
-  const updatedEnd = parseISO(task.end);
-  extendOrShrinkTimeline(updatedStart, updatedEnd);
-}
-
-function onMouseUp() {
-  dragState.task = null;
-  dragState.mode = null;
-}
-
-onMounted(() => {
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup', onMouseUp);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('mousemove', onMouseMove);
-  document.removeEventListener('mouseup', onMouseUp);
-});
-
-function prevRange() {
-  visibleStart.value = addDays(visibleStart.value, -15);
-  visibleEnd.value = addDays(visibleEnd.value, -15);
-}
-
-function nextRange() {
-  visibleStart.value = addDays(visibleStart.value, 15);
-  visibleEnd.value = addDays(visibleEnd.value, 15);
-}
+  const formatDate = (date) => format(date, 'MMM d')
+  const isWeekendFn = (date) => isWeekend(date)
 </script>
 
 <template>
   <!-- Controls -->
   <div class="sticky top-0 z-20 flex justify-end items-center px-4 py-1 gap-2 h-12">
-    <button class="bg-blue-500 text-white px-3 py-1 rounded text-sm" @click="prevRange">
-      Prev 15d
+    <button
+      class="flex items-center justify-center text-gray-500 border-gray-200 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:h-8 lg:w-8 lg:border dark:border-gray-800"
+      @click="prevRange">
+      <ChevronLeft class="text-xs w-5 h-5" />
     </button>
-    <button class="bg-green-500 text-white px-3 py-1 rounded text-sm" @click="nextRange">
-      Next 15d
+    <button
+      class="flex items-center justify-center text-gray-500 border-gray-200 rounded-lg z-99999 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 lg:h-8 lg:w-8 lg:border dark:border-gray-800"
+      @click="nextRange">
+      <ChevronRight class="text-xs w-5 h-5" />
     </button>
   </div>
 
-  <div class="flex w-full p-4 overflow-hidden">
-    <!-- Sidebar: Task List -->
-    <div class="w-1/7 bg-gray-100 overflow-y-auto custom-scrollbar" ref="sidebarRef">
-      <!-- Spacer to align with controls height -->
-      <div class="h-10"></div>
-      <div
-        v-for="task in visibleTasks"
-        :key="task.id"
-        class="text-sm flex items-center pl-2 h-8 border-b">
-        {{ task.name }}
-        <span>{{ task.start }} - {{ task.end }}</span>
+  <div class="w-full py-3 px-5">
+    <!-- Header -->
+    <div class="flex">
+      <div class="w-1/6 h-12 flex items-center justify-center">
+        <div class="text-lg font-semibold text-center dark:text-white">
+          <span>{{ headerTitle }}</span>
+        </div>
+      </div>
+      <div class="flex-1 flex items-center">
+        <div
+          v-for="(date, index) in timelineDates"
+          :key="index"
+          class="text-xs text-center text-gray-700 dark:text-gray-400 border text-sm flex-1 py-2.5 border-gray-200 dark:border-gray-400"
+          :class="{ 'bg-red-800 font-medium text-white dark:text-gray-100': isWeekendFn(date) }" >
+          {{ formatDate(date) }}
+        </div>
       </div>
     </div>
 
-    <!-- Timeline Area -->
-    <div class="flex-1 overflow-auto relative" ref="timelineRef">
-      <div class="flex flex-col h-full w-full">
-        <!-- Timeline Header -->
-        <div class="flex border-y border-gray-200 dark:border-gray-400 w-full min-w-max">
-          <div
-            v-for="(date, index) in timelineDates"
-            :key="index"
-            class="text-xs text-center text-gray-700 dark:text-gray-400 border-r text-sm flex-1 py-2.5 border-gray-200 dark:border-gray-400"
-            :class="{ 'bg-red-800 font-medium text-white dark:text-gray-100': isWeekendFn(date) }" >
-            {{ formatDate(date) }}
+    <!-- Rows: sidebar + timeline bars per row -->
+    <div
+      v-for="task in visibleTasks"
+      v-memo="[task.start, task.end, visibleStart, visibleEnd]"
+      :key="task.id"
+      class="flex border-b border-gray-200 dark:border-gray-400 h-8">
+      <!-- Sidebar Column -->
+      <div class="w-1/6 pl-2 flex items-center text-xs text-gray-700 dark:text-gray-400">
+        {{ task.name }}
+      </div>
+
+      <!-- Timeline Bar Column -->
+      <div class="flex-1 relative">        
+        <div
+          class="absolute bg-gray-300 shadow px-1 flex items-center h-5"
+          :style="dragState.original?.id === task.id ? barStyle(task, dragState.draft) : barStyle(task)"
+          @mousedown.prevent="(e) => startDrag(e, task, 'move')"
+          :title="`${task.name}: ${task.start} → ${task.end}`">
+          <div class="flex -space-x-2">
+            <img
+              v-if="task.users && task.users.length > 0"
+              v-for="(user, idx) in task.users || []"
+              :key="idx"
+              :src="avatar(user.first_name, user.last_name)"
+              class="w-4 h-4 border-2 border-white rounded-full dark:border-gray-300"
+              :alt="user.first_name" />
+
+            <img v-else src="@/images/user/owner.jpg" class="w-4 h-4 border-2 border-white rounded-full dark:border-gray-300" />
           </div>
-        </div>
-
-        <!-- Task Bars -->
-        <div class="flex-1 overflow-y-auto">
-          <div v-for="task in visibleTasks" :key="task.id" class="relative h-8 group">
-            <div
-              class="absolute bg-gray-300 shadow px-1 cursor-move flex items-center gap-1 h-5"
-              :style="barStyle(task)"
-              @mousedown.prevent="(e) => startDrag(e, task, 'move')"
-              :title="`${task.name}: ${task.start} → ${task.end}`">
-              <div class="flex -space-x-1">
-                <img
-                  v-for="(user, idx) in task.users || []"
-                  :key="idx"
-                  :src="user.avatar"
-                  class="w-4 h-4 rounded-full border border-white"
-                  :alt="user.name"
-                />
-              </div>
-
-              <div class="flex-1 z-20 text-center text-xs whitespace-nowrap overflow-hidden">
-                {{ task.name }} - {{ task.progress || '0%' }}
-              </div>
-              <div
-                class="absolute left-0 top-0 bottom-0 bg-green-500 rounded-l"
-                :style="{ width: task.progress || '0%' }"></div>
-              <div
-                class="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize bg-gray-100"
-                @mousedown.stop.prevent="(e) => startDrag(e, task, 'end')"></div>
-            </div>
+          <div class="flex-1 text-center text-xs z-20 truncate">{{ task.name }}</div>
+          <div
+            class="absolute left-0 top-0 bottom-0 bg-green-600"
+            :style="{ width: task.status === 'completed' ? '100%' : (task.progress || '0%') }">
+          </div>
+          <div
+            class="absolute right-0 top-0 bottom-0 w-2"
+            :class="{
+              'bg-gray-400': task.status === 'todo',
+              'bg-yellow-500': task.status === 'in_progress',
+            }">
           </div>
         </div>
       </div>
+    </div>
+
+    <div v-if="visibleTasks.length === 0" class="text-center text-gray-500 py-10 dark:text-gray-400">
+      No tasks available for this range.
     </div>
   </div>
 </template>
 
 <style scoped>
-.absolute > div:first-child {
-  position: relative;
-  z-index: 10;
-}
+  * {
+    box-sizing: border-box;
+  }
+  .absolute > div:first-child {
+    position: relative;
+    z-index: 10;
+  }
 </style>
