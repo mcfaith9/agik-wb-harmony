@@ -26,6 +26,7 @@
       progress: t.progress || '0%',
       status: t.status,
       users: t.users || [],
+      tasklist: t.tasklist
     }))
     console.log(tasks.value)
   })
