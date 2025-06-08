@@ -9,6 +9,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\LeaderboardController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -51,6 +52,9 @@ Route::middleware('auth')->group(function () {
             return \App\Models\User::select('id', 'first_name', 'last_name', 'email', 'phone', 'email_verified_at')
                 ->paginate(request('per_page', 10));
         });
+
+        // Gamify
+        Route::get('/leaderboard', [LeaderboardController::class, 'index']);
     });
 });
 

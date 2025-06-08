@@ -13,7 +13,8 @@
 		ChartGantt,
 		Scroll,
 		ChevronDown,
-		Ellipsis
+		Ellipsis,
+		Trophy
 	} from "lucide-vue-next"
 	import { useSidebar } from "@/composables/useSidebar"
 
@@ -40,6 +41,11 @@
 					icon: Calendar1,
 					name: "Calendar",
 					path: "/calendar",
+				},
+				{
+					icon: Trophy,
+					name: "Gamify",
+					path: "/gamify",
 				},
 			],
 		},

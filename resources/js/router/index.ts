@@ -48,6 +48,16 @@ const routes = [
     },
   },
   {
+    path: '/gamify',
+    name: 'Gamify',
+    component: () => import('../views/Gamify/Index.vue'),
+    meta: {
+      title: 'Gamify',
+      description: 'Gamify',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/profile',
     name: 'Profile',
     component: () => import('../views/Others/UserProfile.vue'),

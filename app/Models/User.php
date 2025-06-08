@@ -67,4 +67,19 @@ class User extends Authenticatable
     {
         return $this->roles->contains('name', $roleName);
     }
+
+    public function points()
+    {
+        return $this->hasMany(UserPoint::class);
+    }
+
+    public function badges()
+    {
+        return $this->belongsToMany(Badge::class, 'user_badges')->withPivot('awarded_at');
+    }
+
+    public function totalPoints(): int
+    {
+        return $this->points()->sum('points');
+    }
 }

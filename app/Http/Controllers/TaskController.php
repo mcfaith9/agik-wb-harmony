@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\TaskList;
 use App\Models\Task;
+use App\Models\UserPoint;
+use App\Services\GamificationService;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -127,6 +129,20 @@ class TaskController extends Controller
 
         if (!is_null($userIds)) {
             $task->users()->sync($userIds);
+        }
+
+        if (($validated['status'] ?? null) === 'completed') {
+            $gamify = new GamificationService();
+
+            foreach ($task->users as $user) {
+                UserPoint::create([
+                    'user_id' => $user->id,
+                    'action' => 'task_completed',
+                    'points' => 10,
+                ]);
+
+                $gamify->checkForNewBadges($user);
+            }
         }
 
         return response()->json($task);
