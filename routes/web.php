@@ -41,6 +41,9 @@ Route::middleware('auth')->group(function () {
 
         // Users
         Route::get('/app/users', [UserController::class, 'index']);
+        Route::get('/user/badges', function () {
+            return auth()->user()->badges()->get();
+        });
 
         // Admin
         Route::get('/roles', [RoleController::class, 'index']);
@@ -55,6 +58,9 @@ Route::middleware('auth')->group(function () {
 
         // Gamify
         Route::get('/leaderboard', [LeaderboardController::class, 'index']);
+        Route::get('/badges', function () {
+            return App\Models\Badge::all();
+        });
     });
 });
 

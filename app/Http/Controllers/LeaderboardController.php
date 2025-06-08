@@ -13,7 +13,8 @@ class LeaderboardController extends Controller
         // Step 1: Get top 10 users with total points and latest badge
         $leaderboard = User::withSum('points', 'points')
             ->with(['badges' => function ($query) {
-                $query->orderByDesc('user_badges.awarded_at');
+                $query->orderByDesc('user_badges.awarded_at')
+                      ->select('badges.id', 'badges.name', 'badges.icon', 'user_badges.user_id');
             }])
             ->orderByDesc('points_sum_points')
             ->take(10)

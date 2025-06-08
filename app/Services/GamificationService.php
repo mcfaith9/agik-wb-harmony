@@ -13,13 +13,18 @@ class GamificationService
     public function checkForNewBadges(User $user): void
     {
         $totalPoints = $user->points()->sum('points');
-
         $eligibleBadges = Badge::where('required_points', '<=', $totalPoints)->get();
 
-        foreach ($eligibleBadges as $badge) {
-            if (!$user->badges->contains($badge->id)) {
-                $user->badges()->attach($badge->id, ['awarded_at' => now()]);
-            }
+        $currentBadgeIds = $user->badges()->pluck('badges.id')->toArray();
+
+        $newBadges = $eligibleBadges->filter(fn($badge) => !in_array($badge->id, $currentBadgeIds));
+
+        if ($newBadges->isNotEmpty()) {
+            $attachData = $newBadges->mapWithKeys(fn($badge) => [
+                $badge->id => ['awarded_at' => now()]
+            ])->toArray();
+
+            $user->badges()->attach($attachData);
         }
     }
 }

@@ -78,6 +78,19 @@
     if (task) fetchComments()
   })
 
+  watch(
+    () => props.data,
+    (newData) => {
+      if (selectedTask.value) {
+        const updatedTask = newData.find(t => t.id === selectedTask.value?.id)
+        if (updatedTask) {
+          selectedTask.value = updatedTask
+        }
+      }
+    },
+    { deep: true }
+  )
+
 	const onDragStart = () => { dragging.value = true }
 	const onDragEnd = () => { dragging.value = false }
 </script>

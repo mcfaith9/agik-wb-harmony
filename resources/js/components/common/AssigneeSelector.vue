@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
   import { Check } from "lucide-vue-next"
 
@@ -54,8 +54,8 @@
     }
   }
 
-  function getAvatarUrl(user) {
-    return `https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${user.first_name}+${user.last_name}`
+  function avatar(fname: string, lname: string) {
+    return `https://ui-avatars.com/api/?background=4961fe&color=fff&bold=true&name=${fname}+${lname}`
   }
 
   onMounted(() => {
@@ -73,12 +73,12 @@
       <div class="flex -space-x-4 rtl:space-x-reverse">        
         <template v-for="user in visibleSelectedUsers" :key="user.id">
           <img
-            class="w-9 h-9 border-2 border-white rounded-full dark:border-gray-800"
-            :src="getAvatarUrl(user)"
+            class="w-8 h-8 border-2 border-white rounded-full dark:border-gray-800"
+            :src="avatar(user.first_name, user.last_name)"
             :alt="user.first_name + ' ' + user.last_name" />
         </template>
         <a
-          class="flex items-center justify-center w-9 h-9 text-xs font-medium text-white bg-gray-700 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800"
+          class="flex items-center justify-center w-8 h-8 text-xs font-medium text-white bg-gray-700 border-2 border-white rounded-full hover:bg-gray-600 dark:border-gray-800"
           href="#">
           +{{ hiddenCount }}
         </a>
@@ -107,7 +107,7 @@
             :class="{ 'bg-gray-50 dark:bg-white/[0.03]': isSelected(user) }"
             role="option"
             :aria-selected="isSelected(user)">
-            <img :src="user.avatar" alt="avatar" class="w-6 h-6 rounded-full mr-3" />
+            <img :src="avatar(user.first_name, user.last_name)" alt="avatar" class="w-6 h-6 rounded-full mr-3" />
             <span class="grow">{{ user.name }}</span>
             <Check 
               v-if="isSelected(user)"

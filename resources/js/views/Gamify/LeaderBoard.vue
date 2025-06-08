@@ -1,7 +1,8 @@
 <script setup lang="ts">
   import { ref, onMounted, computed } from 'vue'
+  import badgeMap from '@/images/badges/badges'
   import axios from 'axios'
-  import { ArrowUp, ArrowDown, Trophy } from 'lucide-vue-next'
+  import { ArrowUp, ArrowDown, Medal } from 'lucide-vue-next'
 
   interface Badge {
     id: number
@@ -37,6 +38,10 @@
     { label: 'This Month', data: topEarners.value.month },
   ])
 
+  function getBadgeImage(filename: string): string | undefined {
+    return badgeMap[filename]
+  }
+
   async function fetchLeaderboard() {
     try {
       const { data } = await axios.get('/api/leaderboard')
@@ -59,29 +64,28 @@
           :key="user.id"
           class="flex text-xs justify-between items-center px-4 py-3 border-b border-gray-200 dark:border-gray-800">
           <span class="font-semibold text-xs text-gray-500 dark:text-gray-400">
-            <Trophy
+            <Medal
               v-if="index < 3"
               :class="[
                 'w-4 h-4',
                 index === 0 ? 'text-yellow-400' : '',
                 index === 1 ? 'text-gray-400' : '',
                 index === 2 ? 'text-amber-700' : '',
-              ]"
-            />
+              ]" />
             <span v-else>{{ index + 1 }}.</span>
           </span>
           <span class="flex-1 ml-4 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-2">
             {{ user.first_name }} {{ user.last_name }}
             <img
               v-if="user.latest_badge?.icon"
-              :src="user.latest_badge.icon"
+              :src="getBadgeImage(user.latest_badge.icon)"
               :alt="user.latest_badge.name"
-              class="w-4 h-4"
+              class="w-6 h-6 rounded-full"
               loading="lazy" />
           </span>
-          <span class="font-mono text-blue-600">{{ user.points_sum_points ?? 0 }} pts</span>
-          <ArrowUp v-if="user.rank_change && user.rank_change > 0" class="text-green-500" />
-          <ArrowDown v-else-if="user.rank_change && user.rank_change < 0" class="text-red-500" />
+          <span class="font-semibold text-blue-600 dark:text-success-500">{{ user.points_sum_points ?? 0 }} pts</span>
+          <ArrowUp v-if="user.rank_change && user.rank_change > 0" class="text-green-500 w-3 h-3" />
+          <ArrowDown v-else-if="user.rank_change && user.rank_change < 0" class="text-red-500 w-3 h-3" />
         </li>
       </ul>
     </div>
