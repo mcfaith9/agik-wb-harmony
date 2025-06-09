@@ -22,19 +22,15 @@
     <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
         <div class="flex flex-col items-center w-full gap-6 xl:flex-row">
-          <div class="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-            <img src="@/images/user/owner.jpg" alt="user" />
-          </div>
+          <img src="@/images/user/Icon13.png" alt="user" class="w-18 h-18 border-2 border-white rounded-full dark:border-gray-800" />
           <div class="order-3 xl:order-2">
-            <h4 class="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
+            <h4 class="mb-2 text-sm font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
               {{user.first_name }} {{user.last_name }}
             </h4>
-            <div
-              class="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left"
-            >
-              <p class="text-sm text-gray-500 dark:text-gray-400">Team Dev</p>
+            <div class="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
+              <p class="text-xs text-gray-500 dark:text-gray-400">Team Dev</p>
               <div class="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Philippines, Cebu</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Philippines, Cebu</p>
             </div>
           </div>
           <div class="flex items-center order-2 gap-2 grow xl:order-3 xl:justify-end">
@@ -59,22 +55,22 @@
             <X class="w-5 h-5" />
           </button>
           <div class="px-2 pr-14">
-            <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+            <h4 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white/90">
               Edit Personal Information
             </h4>
-            <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
+            <p class="mb-6 text-xs text-gray-500 dark:text-gray-400 lg:mb-7">
               Update your details to keep your profile up-to-date.
             </p>
           </div>
           <form class="flex flex-col">
             <div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
-              <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
+              <h5 class="mb-5 text-md font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                 Personal Information
               </h5>
 
               <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     First Name
                   </label>
                   <input
@@ -84,7 +80,7 @@
                 </div>
 
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     Last Name
                   </label>
                   <input
@@ -94,7 +90,7 @@
                 </div>
 
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     Email Address
                   </label>
                   <input
@@ -104,7 +100,7 @@
                 </div>
 
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     Phone
                   </label>
                   <input
@@ -114,7 +110,7 @@
                 </div>
 
                 <div class="col-span-2">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     Bio
                   </label>
                   <input

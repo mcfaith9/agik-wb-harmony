@@ -55,7 +55,7 @@
                 v-if="badge.icon"
                 :src="getBadgeImage(badge.icon)"
                 alt="Badge Icon"
-                class="max-w-full max-h-full object-contain"
+                class="w-10 h-10 object-contain"
               />
             </div>
           </Tooltip>

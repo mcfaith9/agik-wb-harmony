@@ -91,7 +91,7 @@
         <img :src="avatar(user.first_name, user.last_name)" alt="User" />
       </span>
       
-      <span class="block mr-1 font-medium text-sm select-none">{{ user.fullname }}</span>
+      <span class="block mr-1 font-medium text-xs select-none">{{ user.fullname }}</span>
       <ChevronDown 
         width="20"
         height="20"
@@ -101,7 +101,7 @@
     <!-- Dropdown Start -->
     <div
       v-if="dropdownOpen"
-      class="absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark">
+      class="absolute right-0 mt-[17px] flex w-[245px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark">
       <div>
         <span class="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
           {{ user.fullname }}
@@ -115,11 +115,11 @@
         <li v-for="item in menuItems" :key="item.href">
           <router-link
             :to="item.href"
-            class="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+            class="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-xs hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
             <!-- SVG icon would go here -->
             <component
               :is="item.icon"
-              class="w-5 h-5 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+              class="w-4 h-4 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
             />
             {{ item.text }}
           </router-link>
@@ -128,8 +128,8 @@
       <router-link
         to="/signin"
         @click="signOut"
-        class="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
-        <DoorOpen class="w-5 h-5 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
+        class="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-xs hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+        <DoorOpen class="w-4 h-4 text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300" />
         Sign out
       </router-link>
     </div>

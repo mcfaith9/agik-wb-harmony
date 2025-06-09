@@ -53,7 +53,7 @@
     <div class="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">Address</h4>
+          <h4 class="text-md font-semibold text-gray-800 dark:text-white/90 lg:mb-6">Address</h4>
 
           <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
@@ -99,10 +99,10 @@
             <X class="w-5 h-5" />
           </button>
           <div class="px-2 pr-14">
-            <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+            <h4 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white/90">
               Edit Address
             </h4>
-            <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
+            <p class="mb-6 text-xs text-gray-500 dark:text-gray-400 lg:mb-7">
               Update your details to keep your profile up-to-date.
             </p>
           </div>
@@ -110,7 +110,7 @@
             <div class="px-2 overflow-y-auto custom-scrollbar">
               <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     Country
                   </label>
                   <input
@@ -122,7 +122,7 @@
                 </div>
 
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     City/State
                   </label>
                   <input
@@ -134,7 +134,7 @@
                 </div>
 
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     Postal Code
                   </label>
                   <input
@@ -146,7 +146,7 @@
                 </div>
 
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     TAX ID
                   </label>
                   <input

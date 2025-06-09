@@ -145,7 +145,7 @@
             <li
               v-for="list in project.tasklists"
               :key="list.id"
-              class="flex items-center text-sm text-gray-600 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5 rounded px-1 py-0.5 transition">
+              class="flex items-center text-xs text-gray-600 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5 rounded px-1 py-0.5 transition">
               <FolderOpen class="w-4 h-4 text-gray-400 mr-1 shrink-0" />              
               <span class="flex-1 truncate">
                 {{ list.name }}
@@ -227,7 +227,7 @@
                           v-for="(tag, index) in task.tags"
                           :key="index"
                           :class="[
-                            'px-2 py-0.5 text-xs font-medium inline-flex rounded-full',
+                            'px-2 py-0.5 text-[0.6rem] inline-flex rounded-full',
                             tag.color == null ? 'bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400' : 'text-white'
                           ]"
                           :style="tag.color ? { backgroundColor: tag.color } : null">

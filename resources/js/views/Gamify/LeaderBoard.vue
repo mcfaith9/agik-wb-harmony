@@ -80,7 +80,7 @@
               v-if="user.latest_badge?.icon"
               :src="getBadgeImage(user.latest_badge.icon)"
               :alt="user.latest_badge.name"
-              class="w-6 h-6 rounded-full"
+              class="w-4 h-4 rounded-full"
               loading="lazy" />
           </span>
           <span class="font-semibold text-blue-600 dark:text-success-500">{{ user.points_sum_points ?? 0 }} pts</span>

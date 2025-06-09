@@ -25,7 +25,7 @@
     <div class="p-5 mb-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
+          <h4 class="text-md font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
             Personal Information
           </h4>
 
@@ -69,9 +69,7 @@
     </div>
     <Modal v-if="isProfileInfoModal" @close="isProfileInfoModal = false">
       <template #body>
-        <div
-          class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
-        >
+        <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <!-- close btn -->
           <button
             @click="isProfileInfoModal = false"
@@ -79,22 +77,22 @@
             <X class="w-5 h-5" />
           </button>
           <div class="px-2 pr-14">
-            <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+            <h4 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white/90">
               Edit Personal Information
             </h4>
-            <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
+            <p class="mb-6 text-xs text-gray-500 dark:text-gray-400 lg:mb-7">
               Update your details to keep your profile up-to-date.
             </p>
           </div>
           <form class="flex flex-col">
             <div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
-              <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
+              <h5 class="mb-5 text-md font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                 Personal Information
               </h5>
 
               <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     First Name
                   </label>
                   <input
@@ -104,7 +102,7 @@
                 </div>
 
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     Last Name
                   </label>
                   <input
@@ -115,7 +113,7 @@
                 </div>
 
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     Email Address
                   </label>
                   <input
@@ -125,7 +123,7 @@
                 </div>
 
                 <div class="col-span-2 lg:col-span-1">
-                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  <label class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400">
                     Phone
                   </label>
                   <input
@@ -136,7 +134,7 @@
 
                 <div class="col-span-2">
                   <label
-                    class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+                    class="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-400"
                   >
                     Bio
                   </label>

@@ -224,8 +224,12 @@
         <div
           v-for="(date, index) in timelineDates"
           :key="index"
-          class="text-xs text-center text-gray-700 dark:text-gray-400 border text-sm flex-1 py-2.5 border-gray-200 dark:border-gray-400"
-          :class="{ 'bg-red-800 font-medium text-white dark:text-gray-100': isWeekendFn(date) }" >
+          class="text-xs text-center text-gray-700 dark:text-gray-400 border-r border-dashed text-sm flex-1 py-2.5 border-gray-200 dark:border-gray-400"
+          :class="[
+            isWeekendFn(date) ? 'bg-red-800 font-medium text-white dark:text-gray-100' : '',
+            // index === 0 ? 'rounded-l-3xl' : '',
+            index === timelineDates.length - 1 ? 'border-none' : ''
+          ]">
           {{ formatDate(date) }}
         </div>
       </div>
@@ -265,7 +269,7 @@
         <!-- Timeline Bar Column -->
         <div class="flex-1 relative">        
           <div
-            class="absolute bg-gray-300 shadow px-1 flex items-center h-5"
+            class="absolute bg-gray-300 shadow px-1 flex items-center h-4 rounded-l-xl rounded-r-xl"
             :style="positionState.original?.id === task.id ? barStyle(task, positionState.draft) : barStyle(task)"
             :title="`${task.name}: ${task.start} → ${task.end}`">
             <div class="flex -space-x-2 select-none z-50">
@@ -285,7 +289,7 @@
               :style="{ width: task.status === 'completed' ? '100%' : (task.progress || '0%') }">
             </div>
             <div
-              class="absolute right-0 top-0 bottom-0 w-2"
+              class="absolute right-0 top-0 bottom-0 w-2 rounded-r-xl"
               :class="{
                 'bg-gray-400': task.status === 'todo',
                 'bg-yellow-500': task.status === 'in_progress',
