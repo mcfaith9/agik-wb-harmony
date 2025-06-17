@@ -28,7 +28,6 @@
       users: t.users || [],
       tasklist: t.tasklist
     }))
-    console.log(tasks.value)
   })
 </script>
 

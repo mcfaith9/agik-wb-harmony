@@ -321,7 +321,7 @@
 									<div
 										v-show="!isExpanded && !isHovered && !isMobileOpen"
 										class="mt-2 space-y-2" >
-										<ul class="flex flex-col items-center gap-2">
+										<ul class="flex flex-col items-center gap-2 mr-1">
 											<li v-for="subItem in item.subItems" :key="subItem.name">
 												<router-link
 													:to="subItem.path"

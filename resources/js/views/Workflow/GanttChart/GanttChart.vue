@@ -12,7 +12,8 @@
     endOfMonth, 
     getDate,
     setDate,
-    addMonths
+    addMonths,
+    startOfDay 
   } from 'date-fns'
   import { useHelpers } from '@/composables/useHelpers'
   import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-vue-next'
@@ -24,7 +25,7 @@
   const emit = defineEmits(['update-task'])
   const { avatar } = useHelpers()
   const collapsedGroups = reactive<Record<string, boolean>>({})
-  const viewMode = ref<'month' | 'half-month'>('half-month')
+  const viewMode = ref<'month' | 'half-month'>('month')
   const groupedTasks = computed(() => {
     const groups = {}
 
@@ -53,9 +54,9 @@
     }))
   )
 
-  const initialStart = startOfMonth(new Date('2025-06-01'))
+  const initialStart = startOfMonth(new Date())
   const visibleStart = ref(initialStart)
-  const visibleEnd = ref(calculateVisibleEnd(initialStart))
+  const visibleEnd = ref(viewMode.value === 'month' ? endOfMonth(initialStart) : calculateVisibleEnd(initialStart))
 
   const headerTitle = computed(() => {
     if (viewMode.value === 'month') {
@@ -165,8 +166,14 @@
     visibleEnd.value = calculateVisibleEnd(visibleStart.value)
   }
 
-  const formatDate = (date) => format(date, 'MMM d')
+  const formatDate = (date: Date) => {
+    return `${format(date, 'MMM')}\n${format(date, 'd')}`
+  }
   const isWeekendFn = (date) => isWeekend(date)
+  const isToday = (date: Date) => {
+    const today = startOfDay(new Date())
+    return startOfDay(date).getTime() === today.getTime()
+  }
 
   function toggleCollapse(groupName: string) {
     collapsedGroups[groupName] = !collapsedGroups[groupName]
@@ -224,13 +231,13 @@
         <div
           v-for="(date, index) in timelineDates"
           :key="index"
-          class="text-xs text-center text-gray-700 dark:text-gray-400 border-r border-dashed text-sm flex-1 py-2.5 border-gray-200 dark:border-gray-400"
+          class="text-xs whitespace-pre text-center text-gray-700 dark:text-gray-400 border-r border-dashed text-sm flex-1 py-2 border-gray-300 dark:border-gray-600"
           :class="[
-            isWeekendFn(date) ? 'bg-red-800 font-medium text-white dark:text-gray-100' : '',
-            // index === 0 ? 'rounded-l-3xl' : '',
+            isWeekendFn(date) ? 'bg-red-600 dark:bg-red-900 font-medium text-white dark:text-gray-100' : '',
+            isToday(date) ? 'bg-green-600 dark:bg-green-900 font-medium text-white dark:text-gray-100' : '',
             index === timelineDates.length - 1 ? 'border-none' : ''
           ]">
-          {{ formatDate(date) }}
+          <span class="font-semibold">{{ formatDate(date) }}</span>
         </div>
       </div>
     </div>
@@ -239,7 +246,7 @@
     <div v-for="(tasks, tasklistName) in groupedTasks" :key="tasklistName">
       <!-- Tasklist Header -->
       <div
-        class="bg-gray-100 dark:bg-gray-700 text-xs font-bold px-3 py-2 border-y border-gray-300 dark:border-gray-500 cursor-pointer"
+        class="bg-gray-100 dark:bg-gray-700 text-sm font-bold px-3 py-2 border-y border-gray-300 dark:border-gray-500 cursor-pointer"
         @click="toggleCollapse(tasklistName)">
         <div class="flex items-center space-x-1">
           <component
@@ -256,20 +263,36 @@
         v-memo="[task.start, task.end, visibleStart, visibleEnd]"
         :key="task.id"
         :class="[
-          'flex h-8',
+          'flex h-10',
           index !== tasks.length - 1
             ? 'border-b border-gray-200 dark:border-gray-400'
             : ''
         ]">
         <!-- Sidebar Column -->
-        <div class="w-1/6 pl-2 flex items-center text-xs text-gray-700 dark:text-gray-400">
+        <div class="w-1/6 pl-2 flex items-center text-sm text-gray-700 dark:text-gray-400">
           {{ task.name }}
         </div>
 
         <!-- Timeline Bar Column -->
-        <div class="flex-1 relative">        
+        <div class="flex-1 relative overflow-hidden">
           <div
-            class="absolute bg-gray-300 shadow px-1 flex items-center h-4 rounded-l-xl rounded-r-xl"
+            class="absolute inset-0 z-0 pointer-events-none"
+            :style="{
+              display: 'grid',
+              gridTemplateColumns: `repeat(${timelineLength}, 1fr)`,
+              gridTemplateRows: `repeat(${groupedTasks[tasklistName].length}, 40px)`,
+            }">
+            <template v-for="(date, i) in timelineDates" :key="'v-' + i">
+              <div 
+                :class="{
+                  'border-r border-dashed border-gray-300 dark:border-gray-600': true,
+                  'bg-green-600 dark:bg-green-900': isToday(date)
+                }">
+              </div>
+            </template>
+          </div>        
+          <div
+            class="absolute bg-gray-300 shadow px-1 flex items-center h-6 dark:bg-gray-500"
             :style="positionState.original?.id === task.id ? barStyle(task, positionState.draft) : barStyle(task)"
             :title="`${task.name}: ${task.start} → ${task.end}`">
             <div class="flex -space-x-2 select-none z-50">
@@ -278,18 +301,18 @@
                 v-for="(user, idx) in task.users || []"
                 :key="idx"
                 :src="avatar(user.first_name, user.last_name)"
-                class="w-4 h-4 border-1 border-white rounded-full dark:border-gray-300"
+                class="w-5 h-5 border-1 border-white rounded-full dark:border-gray-500"
                 :alt="user.first_name" />
 
-              <img v-else src="@/images/user/owner.jpg" class="w-4 h-4 border-2 border-white rounded-full dark:border-gray-300" />
+              <img v-else src="@/images/user/owner.jpg" class="w-4 h-4 border-2 border-white rounded-full dark:border-gray-500" />
             </div>
-            <div class="flex-1 text-center text-xs z-20 truncate">{{ task.name }}</div>
+            <div class="flex-1 text-center text-xs z-20 truncate text-gray-800 dark:text-white/90">{{ task.name }}</div>
             <div
               class="absolute left-0 top-0 bottom-0 bg-green-600"
               :style="{ width: task.status === 'completed' ? '100%' : (task.progress || '0%') }">
             </div>
             <div
-              class="absolute right-0 top-0 bottom-0 w-2 rounded-r-xl"
+              class="absolute right-0 top-0 bottom-0 w-2"
               :class="{
                 'bg-gray-400': task.status === 'todo',
                 'bg-yellow-500': task.status === 'in_progress',
