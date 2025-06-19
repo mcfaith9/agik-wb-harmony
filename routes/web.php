@@ -10,6 +10,7 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -44,6 +45,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/user/badges', function () {
             return auth()->user()->badges()->get();
         });
+
+        // Teams
+        Route::resource('teams', TeamController::class);
+        Route::post('/teams/{team}/add-user', [TeamController::class, 'addUser']);
+        Route::post('/teams/{team}/remove-user', [TeamController::class, 'removeUser']);
 
         // Admin
         Route::get('/roles', [RoleController::class, 'index']);

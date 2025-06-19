@@ -98,6 +98,16 @@ const routes = [
     },
   },
   {
+    path: '/admin/teams',
+    name: 'Teams',
+    component: () => import('../views/Admin/Teams/TeamsView.vue'),
+    meta: {
+      title: 'Teams',
+      description: '',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/admin/settings',
     name: 'Admin Settings',
     component: () => import('../views/Admin/Settings/AdminSettings.vue'),

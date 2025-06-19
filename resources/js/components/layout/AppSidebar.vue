@@ -14,7 +14,9 @@
 		Scroll,
 		ChevronDown,
 		Ellipsis,
-		Trophy
+		Trophy,
+		Handshake,
+		SlidersVertical
 	} from "lucide-vue-next"
 	import { useSidebar } from "@/composables/useSidebar"
 
@@ -58,7 +60,8 @@
 					subItems: [
 						{ icon: UsersRound, name: "Users", path: "/admin/users", pro: false },
 						{ icon: UserRoundCog, name: "Roles", path: "/admin/roles", pro: false },
-						{ icon: Settings, name: "Settings", path: "/admin/settings", pro: false },
+						{ icon: Handshake, name: "Teams", path: "/admin/teams", pro: false },
+						{ icon: SlidersVertical, name: "Settings", path: "/admin/settings", pro: false },					
 					],
 				},
 				{
