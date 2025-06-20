@@ -58,6 +58,13 @@
               <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Bio</p>
               <p class="text-sm font-medium text-gray-800 dark:text-white/90">Team Dev</p>
             </div>
+
+            <div>
+              <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Teams</p>
+              <div class="flex text-sm font-medium text-gray-800 dark:text-white/90">
+                <span v-for="team in user.teams">{{ team.name }}</span>
+              </div>
+            </div>
           </div>
         </div>
 

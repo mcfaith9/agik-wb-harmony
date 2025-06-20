@@ -36,13 +36,13 @@
 </script>
 
 <template>
-  <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
+  <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 py-2 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">My Badges</h3>
     </div>
 
-    <div class="max-h-[345px] overflow-y-auto overflow-x-hidden custom-scrollbar items-center">
-      <div class="grid grid-cols-4 gap-2 mt-2 mb-3">
+    <div class="max-h-[345px] px-1 overflow-y-auto overflow-x-hidden custom-scrollbar items-center">
+      <div class="grid grid-cols-4 gap-2">
         <div
           v-for="badge in allBadges"
           :key="badge.id"
@@ -50,12 +50,12 @@
          w-full max-w-[11rem"
           :class="{ 'opacity-40 grayscale': !isUnlocked(badge.id) }">
           <Tooltip :text="badge.description">
-            <div class="w-16 h-16 flex items-center justify-center transition-transform duration-200 hover:scale-110">
+            <div class="w-14 h-14 flex items-center justify-center transition-transform duration-200 hover:scale-130">
               <img
                 v-if="badge.icon"
                 :src="getBadgeImage(badge.icon)"
                 alt="Badge Icon"
-                class="w-10 h-10 object-contain"
+                class="w-8 h-8 object-contain"
               />
             </div>
           </Tooltip>

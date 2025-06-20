@@ -86,7 +86,7 @@ class AuthController extends Controller
     public function profile()
     {
        return response()->json([
-           'user' => Auth::user(),
+           'user' => Auth::user()->load('teams:id,name'),
        ]);
     }
 }

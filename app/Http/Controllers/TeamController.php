@@ -15,14 +15,24 @@ class TeamController extends Controller
      */
     public function index()
     {
-        return Team::with([
+        $teams = Team::with([
             'users' => function ($query) {
                 $query->select('users.id', 'first_name', 'last_name', 'email');
             },
             'users.tasks' => function ($query) {
-                $query->select('tasks.id', 'name');
-            }
+                $query->select('tasks.id', 'name', 'status');
+            },
+            'users.points'
         ])->get();
+
+        // Attach total_points manually (optional if using accessor)
+        $teams->each(function ($team) {
+            $team->users->each(function ($user) {
+                $user->total_points = $user->points->sum('points');
+            });
+        });
+
+        return $teams;
     }
 
     /**

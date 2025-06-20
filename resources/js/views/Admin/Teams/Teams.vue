@@ -12,15 +12,16 @@
   import { useTeams } from '@/composables/useTeams'
   import { users, fetchUsers } from '@/stores/allUsers'
   import { useVueTable, getCoreRowModel } from '@tanstack/vue-table'
-  import { Ellipsis, ChevronLeft, ChevronRight, UserRoundPlus, CircleCheck, Circle } from 'lucide-vue-next'
+  import { Ellipsis, ChevronLeft, ChevronRight, ChevronDown, UserRoundPlus, CircleCheck, Circle } from 'lucide-vue-next'
 
   // State
   const teamsAll = ref<Team[]>([])
   const loading = ref<boolean>(true)
   const pageIndex = ref<number>(0)
-  const pageSize = ref<number>(8)
+  const pageSize = ref<number>(3)
   const openDropdowns = ref<Users<number, boolean>>({})
-
+  const expandedTasks = ref<Record<string, boolean>>({})  
+  
   // Composable
   const { getTeams, addUserToTeam, removeUserFromTeam } = useTeams()
 
@@ -89,6 +90,26 @@
     openDropdowns.value[teamId] = false
   }
 
+  const getTeamUniqueTaskCount = (team: Team) => {
+    const allTasks = team.users.flatMap(user => user.tasks.map(task => task.id))
+    return new Set(allTasks).size
+  }
+
+  const getTeamTotalPoints = (team: Team) => {
+    return team.users.reduce((sum, user) => sum + (user.total_points || 0), 0)
+  }
+
+  const getTaskKey = (teamId: number, userId: number) => `${teamId}-${userId}`
+
+  const toggleUserTasks = (teamId: number, userId: number) => {
+    const key = getTaskKey(teamId, userId)
+    expandedTasks.value[key] = !expandedTasks.value[key]
+  }
+
+  const isUserTasksExpanded = (teamId: number, userId: number) => {
+    return expandedTasks.value[getTaskKey(teamId, userId)]
+  }
+
   const table = useVueTable({
     get data() {
       return paginatedTeams.value
@@ -154,19 +175,19 @@
 </script>
 
 <template>
-  <div class="overflow-y-auto custom-scrollbar h-[400px]">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+  <div class="overflow-y-auto custom-scrollbar h-[400px] px-2">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 auto-rows-fr">
       <div
         v-for="team in table.getRowModel().rows"
         :key="team.id"
-        class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-sm hover:shadow-md transition-shadow">
+        class="p-4 bg-white border border-gray-200 task rounded-xl shadow-theme-sm dark:border-gray-800 dark:bg-white/5">
         <div class="flex items-center">
           <div class="text-lg font-semibold text-gray-800 dark:text-white mb-2">
             {{ team.original.name }}
           </div>          
           <div class="inline-flex ml-auto text-xs font-semibold text-gray-800 dark:text-white space-y-1 gap-x-3">
-            <span>Total Score: 0</span>
-            <span>Total Task: 0</span>
+            <span>Team Score: {{ getTeamTotalPoints(team.original) }}</span>
+            <span>Total Task: {{ getTeamUniqueTaskCount(team.original) }}</span>
           </div>
         </div>
         <div class="text-xs text-gray-500 dark:text-gray-400 mb-3">
@@ -204,20 +225,49 @@
               </div>
             </div>
           </div>
-          <ul class="pl-2">
-            <li v-for="user in team.original.users" :key="user.id" class="mb-2">
-              <span class="font-semibold text-gray-800 dark:text-white">{{ user.full_name }}</span>
-              <ul class="pl-4 list-disc">
+          <ul class="pl-1">
+            <li
+              v-for="user in team.original.users"
+              :key="user.id"
+              class="mb-2">
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-gray-800 dark:text-white">
+                  {{ user.full_name }}
+                </span>
+                <button
+                  @click="toggleUserTasks(team.original.id, user.id)"
+                  class="text-xs text-brand-600 hover:underline">
+                  <component
+                    :is="isUserTasksExpanded(team.original.id, user.id) ? ChevronDown : ChevronRight"
+                    class="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                </button>
+              </div>
+              <ul
+                v-if="isUserTasksExpanded(team.original.id, user.id)"
+                class="pl-1 mt-1">
                 <li v-for="task in user.tasks" :key="task.id">
-                  {{ task.name }}
+                  <div class="flex items-center gap-1">
+                    <span
+                      class="w-2 h-2 rounded-full mr-1"
+                      :class="{
+                        'bg-gray-400': task.status === 'todo',
+                        'bg-yellow-400': task.status === 'in_progress',
+                        'bg-green-500': task.status === 'completed'
+                      }">
+                    </span>
+                    <span :class="{ 'line-through text-gray-400': task.status === 'completed'}">
+                      {{ task.name }}
+                    </span>
+                  </div>
                 </li>
                 <li v-if="user.tasks.length === 0">
                   <em class="text-gray-400">No tasks assigned.</em>
                 </li>
               </ul>
             </li>
+
             <li v-if="!team.original.users || team.original.users.length === 0">
-              <em class="text-gray-400">No users in this team.</em>
+              <em class="text-sm text-gray-400">No users in this team.</em>
             </li>
           </ul>
         </div>

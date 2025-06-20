@@ -30,7 +30,7 @@
             {{ xp }} / {{ maxXp }} XP
           </div>
         </div>
-        <div v-else class="text-sm text-gray-500 dark:text-gray-400 mt-2">No pet yet :'(</div>
+        <div v-else class="text-sm text-gray-500 dark:text-gray-400 mt-2">No Pet</div>
       </div>
     </div>
 

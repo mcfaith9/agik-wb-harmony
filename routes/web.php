@@ -63,7 +63,8 @@ Route::middleware('auth')->group(function () {
         });
 
         // Gamify
-        Route::get('/leaderboard', [LeaderboardController::class, 'index']);
+        Route::get('/leaderboard/teams', [LeaderboardController::class, 'teamsLeaderboard']);
+        Route::get('/leaderboard/users', [LeaderboardController::class, 'index']);        
         Route::get('/badges', function () {
             return App\Models\Badge::all();
         });

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Team;
 use App\Models\LeaderboardRank;
 use Illuminate\Http\JsonResponse;
 
@@ -65,6 +66,24 @@ class LeaderboardController extends Controller
                 'week' => $topWeekUser,
                 'month' => $topMonthUser,
             ],
+        ]);
+    }
+
+    public function teamsLeaderboard(): JsonResponse
+    {
+        // Sum points per team (only users with points)
+        $teams = \DB::table('teams')
+                ->leftJoin('team_user', 'teams.id', '=', 'team_user.team_id')
+                ->leftJoin('user_points', 'team_user.user_id', '=', 'user_points.user_id')
+                ->select('teams.id', 'teams.name')
+                ->selectRaw('COALESCE(SUM(user_points.points), 0) as total_points')
+                ->groupBy('teams.id', 'teams.name')
+                ->orderByDesc('total_points')
+                ->limit(10)
+                ->get();
+
+        return response()->json([
+            'teams' => $teams
         ]);
     }
 }
