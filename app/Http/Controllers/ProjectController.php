@@ -22,6 +22,8 @@ class ProjectController extends Controller
                     'completed' => $tasklist->tasks->where('status', 'completed')->count(),
                 ];
             });
+
+            $project->append(['total_expenses', 'remaining_budget', 'is_over_budget']);
         });
 
         return response()->json($projects);
@@ -43,6 +45,7 @@ class ProjectController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'budget' => 'nullable|numeric|min:0',
             'priority' => 'in:none,low,medium,high',
             'privacy' => 'in:public,private',
             'tags' => 'nullable|array',
@@ -60,7 +63,10 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        return response()->json($project->load('tasklists.tasks'));
+        $project->load('tasklists.tasks');
+        $project->append(['total_expenses', 'remaining_budget', 'is_over_budget']);
+
+        return response()->json($project);
     }
 
     /**
@@ -79,6 +85,7 @@ class ProjectController extends Controller
         $project->update($request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
+            'budget' => 'nullable|numeric|min:0',
             'priority' => 'in:none,low,medium,high',
             'privacy' => 'in:public,private',
             'tags' => 'nullable|array',
@@ -94,5 +101,46 @@ class ProjectController extends Controller
     {
         $project->delete();
         return response()->json(['message' => 'Project deleted']);
+    }
+
+    public function projectBudgetOverview()
+    {
+        $projects = Project::with('tasklists.tasks')->get();
+
+        $data = $projects->map(function ($project) {
+            $used = $project->tasklists->flatMap->tasks->sum('budget');
+            $remaining = $project->budget - $used;
+
+            return [
+                'id' => $project->id,
+                'name' => $project->name,
+                'total_budget' => $project->budget,
+                'used_budget' => $used,
+                'remaining_budget' => $remaining,
+            ];
+        });
+
+        return response()->json($data);
+    }
+
+    public function budgetSummary()
+    {
+        $projects = Project::with('tasklists.tasks')->get();
+
+        $totalBudget = $projects->sum('budget');
+        $totalAllocated = $projects->sum(fn($project) => $project->total_allocated);
+        $totalExpenses = $projects->sum(fn($project) => $project->total_expenses);
+        $remainingBudget = $totalBudget - $totalAllocated;
+
+        return response()->json([
+            'total_budget' => $totalBudget,
+            'allocated_budget' => $totalAllocated,
+            'total_expenses' => $totalExpenses,
+            'remaining_budget' => $remainingBudget,
+            'is_overall_over_budget' => $remainingBudget < 0,
+            'budget_usage_percent' => $totalBudget > 0
+                ? round(($totalAllocated / $totalBudget) * 100, 2)
+                : 0,
+        ]);
     }
 }

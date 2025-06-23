@@ -28,6 +28,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/address/show', [ProfileController::class, 'show']);    
 
     Route::prefix('api')->group(function () {
+        Route::get('/projects/budget', [ProjectController::class, 'projectBudgetOverview']);
+        Route::get('/budget/summary', [ProjectController::class, 'budgetSummary']);
+
         Route::resource('projects', ProjectController::class);
         Route::resource('projects.tasklists', TaskListController::class);
         Route::resource('tasks', TaskController::class);

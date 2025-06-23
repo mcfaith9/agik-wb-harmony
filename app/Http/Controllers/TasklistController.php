@@ -32,12 +32,23 @@ class TasklistController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'budget' => 'nullable|numeric|min:0',
             'priority' => 'in:none,low,medium,high',
             'privacy' => 'in:public,private',
             'tags' => 'nullable|array',
         ]);
 
         $validated['created_by'] = auth()->id();
+
+        $requestedBudget = $validated['budget'] ?? 0;
+        $usedBudget = $project->tasklists()->sum('budget');
+        $remaining = $project->budget - $usedBudget;
+
+        if ($requestedBudget > $remaining) {
+            return response()->json([
+                'message' => 'Budget exceeds the remaining project budget'
+            ], 422);
+        }
 
         $tasklist = $project->tasklists()->create($validated);
 
@@ -68,10 +79,22 @@ class TasklistController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
+            'budget' => 'nullable|numeric|min:0',
             'priority' => 'in:none,low,medium,high',
             'privacy' => 'in:public,private',
             'tags' => 'nullable|array',
         ]);
+
+        if ($request->has('budget')) {
+            $usedBudget = $tasklist->project->tasklists()->where('id', '!=', $tasklist->id)->sum('budget');
+            $remaining = $tasklist->project->budget - $usedBudget;
+
+            if ($request->budget > $remaining) {
+                return response()->json([
+                    'message' => 'Updated budget exceeds the remaining project budget'
+                ], 422);
+            }
+        }
 
         $tasklist->update($validated);
 

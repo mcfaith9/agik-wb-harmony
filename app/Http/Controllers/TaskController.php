@@ -10,9 +10,6 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(TaskList $tasklist)
     {
         $tasks = Task::with([
@@ -25,22 +22,17 @@ class TaskController extends Controller
         return response()->json($tasks);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'budget' => 'nullable|numeric|min:0',
             'priority' => 'in:none,low,medium,high',
             'privacy' => 'in:public,private',
             'tags' => 'nullable|array',
@@ -55,8 +47,20 @@ class TaskController extends Controller
         $validated['tags'] = $validated['tags'] ?? [];
         $validated['created_by'] = auth()->id();
 
+        // Validate task budget against project budget
+        $taskList = TaskList::with('project.tasklists.tasks')->findOrFail($validated['task_list_id']);
+        $requestedTaskBudget = $validated['budget'] ?? 0;
+        $usedBudget = $taskList->project->tasklists->flatMap->tasks->sum('budget');
+        $remaining = $taskList->project->budget - $usedBudget;
+
+        if ($requestedTaskBudget > $remaining) {
+            return response()->json([
+                'message' => 'Task budget exceeds remaining project budget'
+            ], 422);
+        }
+
         $userIds = $validated['user_ids'] ?? [];
-        unset($validated['user_ids']); // remove user_ids from task creation payload
+        unset($validated['user_ids']);
 
         $task = Task::create($validated);
 
@@ -83,30 +87,22 @@ class TaskController extends Controller
         return response()->json($task, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Task $task)
     {
         return response()->json($task);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Task $task)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Task $task)
     {
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
+            'budget' => 'nullable|numeric|min:0',
             'priority' => 'in:none,low,medium,high',
             'privacy' => 'in:public,private',
             'status' => 'in:todo,in_progress,completed',
@@ -117,6 +113,28 @@ class TaskController extends Controller
             'user_ids' => 'array',
             'user_ids.*' => 'exists:users,id',
         ]);
+
+        if ($request->has('budget')) {
+            $taskList = $task->tasklist()->with('project.tasklists.tasks')->first();
+
+            if (!$taskList || !$taskList->project) {
+                return response()->json([
+                    'message' => 'Task is missing a valid task list or project association.'
+                ], 500);
+            }
+
+            $usedBudget = $taskList->project->tasklists->flatMap->tasks->filter(function ($t) use ($task) {
+                return $t->id !== $task->id;
+            })->sum('budget');
+
+            $remaining = $taskList->project->budget - $usedBudget;
+
+            if ($request->budget > $remaining) {
+                return response()->json([
+                    'message' => 'Updated task budget exceeds the remaining project budget'
+                ], 422);
+            }
+        }
 
         if ($request->has('tags')) {
             $validated['tags'] = $request->tags;
@@ -148,9 +166,6 @@ class TaskController extends Controller
         return response()->json($task);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Task $task)
     {
         $task->delete();

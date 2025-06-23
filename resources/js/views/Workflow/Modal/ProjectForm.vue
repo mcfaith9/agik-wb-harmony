@@ -26,12 +26,14 @@
 	const selectedTags = ref<{ id?: string; label: string; color: string }[]>([])
 	const projectName = ref<string>('')
 	const projectDesc = ref<string>('')
+	const projectBudget = ref<number | null>(null)
 
 	const submitForm = async () => {
 	  try {
 	    const payload = {
 	      name: projectName.value,
 	      description: projectDesc.value,
+	      budget: projectBudget.value,
 	      priority: selectedPriority.value,
 	      privacy: selectedPrivacy.value,
 	      tags: selectedTags.value.map(tag => tag.value),
@@ -72,11 +74,24 @@
 	        <div class="px-2 overflow-y-auto custom-scrollbar">
 	          <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
 	            <div class="col-span-full">
-	            	<Input 
-	            		v-model="projectName"
-            		  label="Task Name"
-            		  placeholder="Enter Task Name"
-            		  required />
+	            	<div class="grid grid-cols-12 gap-x-6">
+		            	<div class="col-span-9">
+			            	<Input 
+			            		v-model="projectName"
+		            		  label="Project Name"
+		            		  placeholder="Enter Project Name"
+		            		  required />
+		            	</div>
+
+		        		  <div class="col-span-3">
+		        		    <Input
+		        		      v-model="projectBudget"
+		        		      type="number"
+		        		      label="Project Budget (₱)"
+		        		      placeholder="e.g. 100000"
+		        		      required />
+		        		  </div>
+	            	</div>	            	
 	            </div>
 
 	            <div class="col-span-full">

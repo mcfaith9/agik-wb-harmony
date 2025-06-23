@@ -108,6 +108,16 @@ const routes = [
     },
   },
   {
+    path: '/admin/accounting',
+    name: 'Admin Accounting',
+    component: () => import('../views/Admin/Accounting/Index.vue'),
+    meta: {
+      title: 'Admin Accounting',
+      description: '',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/admin/settings',
     name: 'Admin Settings',
     component: () => import('../views/Admin/Settings/AdminSettings.vue'),

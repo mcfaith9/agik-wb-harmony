@@ -13,6 +13,7 @@ class Task extends Model
         'task_list_id',
         'name',
         'description',
+        'budget',
         'priority',
         'privacy',
         'status',
@@ -52,5 +53,10 @@ class Task extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
     }
 }

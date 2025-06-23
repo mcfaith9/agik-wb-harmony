@@ -43,9 +43,10 @@
 	}>()
 
 	// Reactive form fields
-	const taskName = ref('')
-	const estimated_time = ref('')
-	const taskDesc = ref('')
+	const taskName = ref<string>('')
+	const estimated_time = ref<string>('')
+	const taskDesc = ref<string>('')
+	const taskBudget = ref<number | null>(null)
 	const selectedPriority = ref<string | null>(null)
 	const selectedPrivacy = ref<string | null>(null)
 	const projectOptions = ref<{ label: string; value: string }[]>([])
@@ -120,6 +121,7 @@
 	function resetForm() {
 	  taskName.value = ''
 	  taskDesc.value = ''
+	  taskBudget.value = ''
 	  estimated_time.value = ''
 	  selectedPriority.value = null
 	  selectedPrivacy.value = null
@@ -134,6 +136,7 @@
 	function populateForm(task: Task) {
 	  taskName.value = task.name || ''
 	  taskDesc.value = task.description || ''
+	  taskBudget.value = task.budget || ''
 	  estimated_time.value = task.estimated_time || ''
 	  selectedPriority.value = task.priority || null
 	  selectedPrivacy.value = task.privacy || null
@@ -207,6 +210,7 @@
 	  const payload = {
 	    name: taskName.value,
 	    description: taskDesc.value,
+	    budget: taskBudget.value,
 	    project_id: selectedProject.value,
 	    task_list_id: selectedTasklist.value,
 	    priority: selectedPriority.value,
@@ -284,13 +288,26 @@
 	              </div>
 	            </div>
 
-	            <div class="col-span-full">
-	            	<Input 
-	            		v-model="taskName"
-            		  label="Task Name"
-            		  placeholder="Enter Task Name"
-            		  required />
-	            </div>
+              <div class="col-span-full">
+              	<div class="grid grid-cols-12 gap-x-6">
+  	            	<div class="col-span-9">
+  		            	<Input 
+  		            		v-model="taskName"
+  	            		  label="Task Name"
+  	            		  placeholder="Enter Task Name"
+  	            		  required />
+  	            	</div>
+
+  	        		  <div class="col-span-3">
+  	        		    <Input
+  	        		      v-model="taskBudget"
+  	        		      type="number"
+  	        		      label="Task Budget (₱)"
+  	        		      placeholder="e.g. 100000"
+  	        		      required />
+  	        		  </div>
+              	</div>	            	
+              </div>
 
 	            <div class="col-span-full">
 	            	<div class="grid grid-cols-12 gap-x-6">

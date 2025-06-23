@@ -13,6 +13,7 @@ class TaskList extends Model
         'project_id',
         'name',
         'description',
+        'budget',
         'priority',
         'privacy',
         'tags',
