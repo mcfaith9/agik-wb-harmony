@@ -12,6 +12,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\HealthController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -62,8 +63,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{user}/assign-role', [RoleController::class, 'assign']);
         Route::get('/users/{user}/roles', [RoleController::class, 'userRoles']);
         Route::get('/admin/users/list', function () {
-            return \App\Models\User::select('id', 'first_name', 'last_name', 'email', 'phone', 'email_verified_at')
+            return \App\Models\User::with('roles:id,name')
+                ->select('id', 'first_name', 'last_name', 'email', 'phone', 'email_verified_at')
                 ->paginate(request('per_page', 10));
+        });
+
+
+        Route::prefix('/admin/health')->controller(HealthController::class)->group(function () {
+            Route::get('/burnout', 'burnout');
+            Route::get('/stalled-tasks', 'stalledTasks');
+            Route::get('/productivity-drop', 'productivityDrop');
+            Route::get('/over-assignment', 'overAssignment');
         });
 
         // Settings

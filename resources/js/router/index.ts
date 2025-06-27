@@ -118,6 +118,16 @@ const routes = [
     },
   },
   {
+    path: '/admin/health',
+    name: 'Health',
+    component: () => import('../views/Admin/Health/Index.vue'),
+    meta: {
+      title: 'Health',
+      description: '',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/admin/settings',
     name: 'Admin Settings',
     component: () => import('../views/Admin/Settings/AdminSettings.vue'),

@@ -3,7 +3,6 @@ import { showAlert } from "@/composables/globalAlert"
 
 axios.interceptors.response.use(
   (response) => {
-    console.log("Interceptor: success", response)
     if (response.data?.message) {
       showAlert({
         title: "Success",
@@ -14,7 +13,6 @@ axios.interceptors.response.use(
     return response
   },
   (error) => {
-    console.log("Interceptor: error", error)
     const msg =
       error.response?.data?.message || error.message || "Something went wrong"
     showAlert({
