@@ -11,6 +11,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\TeamController;
+use App\Http\Controllers\Admin\SettingController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -63,6 +64,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/users/list', function () {
             return \App\Models\User::select('id', 'first_name', 'last_name', 'email', 'phone', 'email_verified_at')
                 ->paginate(request('per_page', 10));
+        });
+
+        // Settings
+        Route::prefix('/admin/settings')->group(function () {
+            Route::get('/', [SettingController::class, 'index']);
+            Route::put('/{key}', [SettingController::class, 'update']);
         });
 
         // Gamify

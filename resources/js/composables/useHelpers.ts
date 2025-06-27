@@ -19,10 +19,17 @@ export function useHelpers() {
     return message.replace(/(@[A-Za-z]+(?:\s[A-Za-z]+)?)/g, '<span class="font-medium text-blue-500">$1</span>');
   }
 
+  const formatMoney = (value: number | string) => {
+    const num = Number(value)
+    if (isNaN(num)) return value
+    return num.toLocaleString()
+  }
+
   return {
     formatDate,
     formatDateRange,
     avatar,
-    highlightMentions
+    highlightMentions,
+    formatMoney
   }
 }

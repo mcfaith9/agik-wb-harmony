@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -127,19 +128,26 @@ class ProjectController extends Controller
     {
         $projects = Project::with('tasklists.tasks')->get();
 
-        $totalBudget = $projects->sum('budget');
         $totalAllocated = $projects->sum(fn($project) => $project->total_allocated);
         $totalExpenses = $projects->sum(fn($project) => $project->total_expenses);
-        $remainingBudget = $totalBudget - $totalAllocated;
+
+        // Load global budget from settings
+        $globalBudget = Setting::get('global_total_budget', 0); // defaults to 0 if not found
+
+        // Ensure it's numeric
+        $globalBudget = floatval($globalBudget);
+
+        // Calculate remaining global budget
+        $remainingBudget = $globalBudget - $totalAllocated;
 
         return response()->json([
-            'total_budget' => $totalBudget,
+            'global_budget' => $globalBudget,
             'allocated_budget' => $totalAllocated,
             'total_expenses' => $totalExpenses,
             'remaining_budget' => $remainingBudget,
             'is_overall_over_budget' => $remainingBudget < 0,
-            'budget_usage_percent' => $totalBudget > 0
-                ? round(($totalAllocated / $totalBudget) * 100, 2)
+            'budget_usage_percent' => $globalBudget > 0
+                ? round(($totalAllocated / $globalBudget) * 100, 2)
                 : 0,
         ]);
     }
