@@ -52,7 +52,10 @@ class TasklistController extends Controller
 
         $tasklist = $project->tasklists()->create($validated);
 
-        return response()->json($tasklist, 201);
+        return response()->json([
+            'message' => 'Task list created successfully!',
+            'tasklist' => $tasklist
+        ], 201);
     }
 
     /**
@@ -98,7 +101,10 @@ class TasklistController extends Controller
 
         $tasklist->update($validated);
 
-        return response()->json($tasklist);
+        return response()->json([
+            'message' => 'Task list updated successfully!',
+            'tasklist' => $tasklist
+        ]);
     }
 
     /**

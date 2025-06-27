@@ -10,6 +10,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
+import "@/composables/axios"
 
 axios.defaults.withCredentials = true
 

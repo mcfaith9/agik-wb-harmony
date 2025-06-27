@@ -56,7 +56,10 @@ class ProjectController extends Controller
 
         $project = Project::create($validated);
 
-        return response()->json($project, 201);      
+        return response()->json([
+            'message' => 'Project created successfully!',
+            'project' => $project,
+        ], 201);      
     }
 
     /**
@@ -92,7 +95,10 @@ class ProjectController extends Controller
             'tags' => 'nullable|array',
         ]));
 
-        return response()->json($project);
+        return response()->json([
+            'message' => 'Project updated successfully!',
+            'project' => $project,
+        ]);
     }
 
     /**

@@ -54,18 +54,9 @@
 </script>
 
 <template>
-  <AdminLayout>
+  <AdminLayout>    
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
-      <div
-        v-if="message"
-        :class="[
-          'mt-6 text-sm text-center',
-          messageType === 'success' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
-        ]">
-        {{ message }}
-      </div>
-
       <!-- General Settings -->
       <div>
         <div class="mb-6">

@@ -84,7 +84,10 @@ class TaskController extends Controller
             $task->users()->sync($userIds);
         }
 
-        return response()->json($task, 201);
+        return response()->json([
+            'message' => 'Task created successfully!',
+            'task' => $task
+        ], 201);
     }
 
     public function show(Task $task)
