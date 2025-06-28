@@ -24,7 +24,7 @@
       accessorKey: 'overdue',
       header: 'Overdue',
       meta: { align: 'center' },
-      cell: info => h('span', { class: 'text-xs text-red-600' }, info.getValue())
+      cell: info => h('span', { class: 'text-xs text-red-500' }, info.getValue())
     },
     {
       accessorKey: 'stale_in_progress',
@@ -42,7 +42,7 @@
       accessorKey: 'burnout_score',
       header: 'Burnout Score',
       meta: { align: 'center' },
-      cell: info => h('span', { class: 'text-sm font-semibold text-red-700' }, info.getValue().toFixed(1))
+      cell: info => h('span', { class: 'text-xs font-semibold text-red-500' }, info.getValue().toFixed(1))
     }
   ]
 
@@ -55,7 +55,7 @@
     current_page: response.current_page,
   })
 
-  const rowClass = row => row.burnout_score > 10 ? 'bg-red-50' : ''
+  const rowClass = row => row.burnout_score > 10 ? 'bg-gray-100 dark:bg-gray-700' : ''
 </script>
 
 <template>

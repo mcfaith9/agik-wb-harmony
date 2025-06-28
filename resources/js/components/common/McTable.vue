@@ -140,7 +140,8 @@
             :key="cell.id"
             :class="[
               'px-3 py-2 text-sm text-gray-800 dark:text-white/90',
-              cell.column.columnDef.meta?.align === 'center' ? 'text-center' : ''
+              cell.column.columnDef.meta?.align === 'center' ? 'text-center' : '',
+              cell.column.columnDef.meta?.class
             ]">
             <span v-if="typeof cell.column.columnDef.cell !== 'function'">
               {{ cell.getValue() }}

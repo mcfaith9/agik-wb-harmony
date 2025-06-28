@@ -69,7 +69,6 @@
 
   const isAssigned = (role) => {
     const assigned = props.assignedRoles.some(r => r.id === role.id)
-    console.log(`isAssigned CircleCheck for role ${role.id}:`, assigned)
     return assigned
   }
 

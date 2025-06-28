@@ -24,7 +24,7 @@
     },
     {
       accessorKey: 'delayed_task_avg_age',
-      header: 'Avg Age',
+      header: 'Avg Task Age',
       meta: { align: 'center' },
       cell: info =>
         h('div', { class: 'text-xs' }, `~${Math.round(info.getValue())} days`)

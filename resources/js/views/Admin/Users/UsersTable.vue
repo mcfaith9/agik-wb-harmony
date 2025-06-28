@@ -20,7 +20,12 @@
   const columns = [
     { accessorKey: 'first_name', header: 'First Name' },
     { accessorKey: 'last_name', header: 'Last Name' },
-    { accessorKey: 'email', header: 'Email' },
+    { 
+      accessorKey: 'email', 
+      header: 'Email',
+      cell: info =>
+        h('div', { class: 'text-xs' }, info.getValue())
+    },
     { 
     	accessorKey: 'phone', 
     	header: 'Phone', 
@@ -56,7 +61,7 @@
           defineComponent({
             setup() {
               return () => h(RolesTableDropdown, {
-                roles: allRoles.value,
+                roles: allRoles.value.data || [],
                 assignedRoles: assignedRoles.value,
                 userId: user.id,
                 onAssignRole: async (roleId: number) => {

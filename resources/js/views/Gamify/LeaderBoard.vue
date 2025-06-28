@@ -66,8 +66,6 @@
         { withCredentials: true }
       )
 
-      console.log(`RAW ${type.toUpperCase()} DATA:`, JSON.stringify(data, null, 2))
-
       if (type === 'user') {
         userLeaderboard.value = data.leaderboard
         topEarners.value = data.top_earners

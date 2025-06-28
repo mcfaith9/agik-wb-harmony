@@ -8,11 +8,12 @@ use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Role::all();
+        $perPage = $request->get('per_page', 10);
+        return Role::paginate($perPage);
     }
-
+    
     public function store(Request $request)
     {
         $validated = $request->validate([
