@@ -42,6 +42,17 @@ class RoleController extends Controller
         return response()->json(['message' => 'Role assigned']);
     }
 
+    public function unassign(Request $request, User $user)
+    {
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        $user->roles()->detach($request->role_id);
+
+        return response()->json(['message' => 'Role unassigned successfully.']);
+    }
+
     public function userRoles(User $user)
     {
         return $user->roles;

@@ -34,7 +34,10 @@
           ...props.fetchParams,
         },
       })
-      const responseData = props.transformData ? props.transformData(res.data) : res.data
+      const raw = res.data
+      const responseData = props.transformData
+        ? props.transformData(raw)
+        : (raw.data && raw.total ? raw : { data: raw, total: raw.length || 0, from: 1, to: raw.length, last_page: 1 })
       data.value = responseData.data
       pageCount.value = responseData.last_page
       from.value = responseData.from
@@ -111,7 +114,13 @@
     <table class="min-w-full">
       <thead>
         <tr>
-          <th v-for="header in table.getHeaderGroups()[0].headers" :key="header.id" class="px-5 py-3 text-left">
+          <th
+            v-for="header in table.getHeaderGroups()[0].headers"
+            :key="header.id"
+            :class="[
+              'px-5 py-3',
+              header.column.columnDef.meta?.align === 'center' ? 'text-center' : 'text-left'
+            ]">
             <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
               {{ header.column.columnDef.header }}
             </p>
@@ -126,7 +135,13 @@
             'border-t border-gray-100 dark:border-gray-800',
             props.rowClass?.(row.original)
           ]">
-          <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-3 py-2 text-sm text-gray-800 dark:text-white/90">
+          <td
+            v-for="cell in row.getVisibleCells()"
+            :key="cell.id"
+            :class="[
+              'px-3 py-2 text-sm text-gray-800 dark:text-white/90',
+              cell.column.columnDef.meta?.align === 'center' ? 'text-center' : ''
+            ]">
             <span v-if="typeof cell.column.columnDef.cell !== 'function'">
               {{ cell.getValue() }}
             </span>

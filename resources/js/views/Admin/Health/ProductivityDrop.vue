@@ -14,15 +14,28 @@
 	      ])
 	    }
 	  },
-	  { accessorKey: 'completed_last_week', header: 'Last Week' },
-	  { accessorKey: 'completed_this_week', header: 'This Week' },
+	  { 
+	  	accessorKey: 'completed_last_week', 
+	  	header: 'Last Week',
+	  	meta: { align: 'center' },
+	  	cell: info =>
+	  	  h('div', { class: 'text-xs text-center w-full' }, info.getValue())
+	  },
+	  { 
+	  	accessorKey: 'completed_this_week', 
+	  	header: 'This Week',
+	  	meta: { align: 'center' },
+	  	cell: info =>
+	  	  h('div', { class: 'text-xs text-center w-full' }, info.getValue())
+	  },
 	  {
 	    accessorKey: 'productivity_change_percent',
 	    header: 'Change (%)',
+	    meta: { align: 'center' },
 	    cell: info => {
 	      const val = info.getValue()
 	      const className = val === null
-	        ? ''
+	        ? 'text-xs text-center'
 	        : val < 0
 	        ? 'text-red-500'
 	        : 'text-green-500'
@@ -32,12 +45,13 @@
 	  }
 	]
 
-	const transformData = data => ({
-	  data,
-	  last_page: 1,
-	  from: 1,
-	  to: data.length,
-	  total: data.length
+	const transformData = response => ({
+	  data: response.data,
+	  from: response.from,
+	  to: response.to,
+	  total: response.total,
+	  last_page: response.last_page,
+	  current_page: response.current_page,
 	})
 
 	const rowClass = row =>

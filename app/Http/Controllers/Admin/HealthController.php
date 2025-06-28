@@ -4,16 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use \App\Models\Task;
-use Illuminate\Support\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class HealthController extends Controller
 {
     public function burnout()
     {
-        $users = User::with('tasks')->get();
+        $users = User::with('tasks')
+            ->select('id', 'first_name', 'last_name', 'email')
+            ->paginate(request('per_page', 10));
 
-        $data = $users->map(function ($user) {
+        $data = $users->getCollection()->map(function ($user) {
             $overdue = $user->tasks->where('due_date', '<', now())->where('status', '!=', 'completed')->count();
             $stale = $user->tasks->where('status', 'in_progress')->filter(
                 fn($t) => $t->updated_at->lt(now()->subDays(5))
@@ -33,25 +34,39 @@ class HealthController extends Controller
             ];
         });
 
-        return response()->json($data->sortByDesc('burnout_score')->values());
+        return $this->paginateMappedData($data, $users);
     }
 
-    public function stalledTasks()
+    public function delayedTasks()
     {
-        $users = User::with('tasks')->get();
+        $users = User::with('tasks')
+            ->select('id', 'first_name', 'last_name', 'email')
+            ->paginate(request('per_page', 10));
 
-        $data = $users->map(function ($user) {
-            $stalled = $user->tasks->filter(
+        $data = $users->getCollection()->map(function ($user) {
+            $delayedTasks = $user->tasks->filter(
                 fn($t) => $t->updated_at->lt(now()->subDays(7)) && $t->status !== 'completed'
-            )->count();
+            );
 
             return [
                 'user' => $user->only(['id', 'first_name', 'last_name', 'email']),
-                'stalled_tasks' => $stalled,
+                'delayed_tasks' => $delayedTasks->count(),
+                'delayed_task_titles' => $delayedTasks->pluck('name')->take(5)->values(),
+                'delayed_task_avg_age' => round(
+                    $delayedTasks->avg(fn($t) =>
+                        $t->updated_at->isFuture() ? 0 : $t->updated_at->diffInDays(now())
+                    ) ?? 0,
+                    1
+                ),
+                'delayed_task_max_age' => $delayedTasks->max(fn($t) =>
+                    $t->updated_at->isFuture() ? 0 : $t->updated_at->diffInDays(now())
+                ) ?? 0,
+                'delayed_task_distribution' => $delayedTasks->groupBy('status')->map->count(),
+                'has_high_priority_delayed' => $delayedTasks->contains('priority', 'high'),
             ];
         });
 
-        return response()->json($data->sortByDesc('stalled_tasks')->values());
+        return $this->paginateMappedData($data, $users);
     }
 
     public function productivityDrop()
@@ -60,7 +75,8 @@ class HealthController extends Controller
         $startLastWeek = $now->copy()->subDays(14);
         $endLastWeek = $now->copy()->subDays(7);
 
-        $users = User::get();
+        $users = User::select('id', 'first_name', 'last_name', 'email')
+            ->paginate(request('per_page', 10));
 
         $data = $users->map(function ($user) use ($now, $startLastWeek, $endLastWeek) {
             $completedThisWeek = $user->tasks()
@@ -86,14 +102,16 @@ class HealthController extends Controller
             ];
         });
 
-        return response()->json($data->sortByDesc('productivity_change_percent')->values());
+        return $this->paginateMappedData($data, $users);
     }
 
     public function overAssignment()
     {
-        $users = User::with('tasks')->get();
+        $users = User::with('tasks')
+            ->select('id', 'first_name', 'last_name', 'email')
+            ->paginate(request('per_page', 10));
 
-        $data = $users->map(function ($user) {
+        $data = $users->getCollection()->map(function ($user) {
             $openTasks = $user->tasks->where('status', '!=', 'completed');
             $sameDueDates = $openTasks->groupBy('due_date')->filter(
                 fn($group) => $group->count() > 1
@@ -106,6 +124,17 @@ class HealthController extends Controller
             ];
         });
 
-        return response()->json($data->sortByDesc('open_tasks')->values());
+        return $this->paginateMappedData($data, $users);
+    }
+
+    private function paginateMappedData($mapped, $originalPaginator)
+    {
+        return response()->json(new LengthAwarePaginator(
+            $mapped,
+            $originalPaginator->total(),
+            $originalPaginator->perPage(),
+            $originalPaginator->currentPage(),
+            ['path' => request()->url(), 'query' => request()->query()]
+        ));
     }
 }

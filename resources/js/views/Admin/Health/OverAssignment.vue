@@ -14,16 +14,27 @@
 	      ])
 	    }
 	  },
-	  { accessorKey: 'open_tasks', header: 'Open Tasks' },
-	  { accessorKey: 'conflicting_due_dates', header: 'Conflicting Due Dates' }
+	  { 
+	    accessorKey: 'open_tasks', 
+	    header: 'Open Tasks',
+	    meta: { align: 'center' },
+	    cell: info => h('div', { class: 'text-xs text-center w-full' }, info.getValue())
+	  },
+	  { 
+	    accessorKey: 'conflicting_due_dates', 
+	    header: 'Conflicting Due Dates',
+	    meta: { align: 'center' },
+	    cell: info => h('div', { class: 'text-xs text-center w-full' }, info.getValue())
+	  }
 	]
 
-	const transformData = data => ({
-	  data,
-	  last_page: 1,
-	  from: 1,
-	  to: data.length,
-	  total: data.length
+	const transformData = response => ({
+	  data: response.data,
+	  from: response.from,
+	  to: response.to,
+	  total: response.total,
+	  last_page: response.last_page,
+	  current_page: response.current_page,
 	})
 
 	const rowClass = row =>

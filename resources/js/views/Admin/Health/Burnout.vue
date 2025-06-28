@@ -14,35 +14,45 @@
         ])
       }
     },
-    { accessorKey: 'task_count', header: 'Total Tasks' },
+    { 
+      accessorKey: 'task_count', 
+      header: 'Total Tasks', 
+      meta: { align: 'center' },
+      cell: info => h('span', { class: 'text-xs' }, info.getValue())
+    },
     {
       accessorKey: 'overdue',
       header: 'Overdue',
-      cell: info => h('span', { class: 'text-red-600' }, info.getValue())
+      meta: { align: 'center' },
+      cell: info => h('span', { class: 'text-xs text-red-600' }, info.getValue())
     },
     {
       accessorKey: 'stale_in_progress',
-      header: 'Stale In-Progress',
-      cell: info => h('span', { class: 'text-yellow-600' }, info.getValue())
+      header: 'Aging Tasks',
+      meta: { align: 'center' },
+      cell: info => h('span', { class: 'text-xs text-yellow-600' }, info.getValue())
     },
     {
       accessorKey: 'high_priority',
       header: 'High Priority',
-      cell: info => h('span', { class: 'text-orange-500' }, info.getValue())
+      meta: { align: 'center' },
+      cell: info => h('span', { class: 'text-xs text-orange-500' }, info.getValue())
     },
     {
       accessorKey: 'burnout_score',
       header: 'Burnout Score',
-      cell: info => h('span', { class: 'font-semibold text-red-700' }, info.getValue().toFixed(1))
+      meta: { align: 'center' },
+      cell: info => h('span', { class: 'text-sm font-semibold text-red-700' }, info.getValue().toFixed(1))
     }
   ]
 
-  const transformData = data => ({
-    data,
-    last_page: 1,
-    from: 1,
-    to: data.length,
-    total: data.length
+  const transformData = response => ({
+    data: response.data,
+    from: response.from,
+    to: response.to,
+    total: response.total,
+    last_page: response.last_page,
+    current_page: response.current_page,
   })
 
   const rowClass = row => row.burnout_score > 10 ? 'bg-red-50' : ''

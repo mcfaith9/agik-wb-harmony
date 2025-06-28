@@ -61,6 +61,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/roles', [RoleController::class, 'store']);
         Route::put('/roles/{role}', [RoleController::class, 'update']);
         Route::post('/users/{user}/assign-role', [RoleController::class, 'assign']);
+        Route::post('/users/{user}/unassign-role', [RoleController::class, 'unassign']);
         Route::get('/users/{user}/roles', [RoleController::class, 'userRoles']);
         Route::get('/admin/users/list', function () {
             return \App\Models\User::with('roles:id,name')
@@ -71,7 +72,7 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('/admin/health')->controller(HealthController::class)->group(function () {
             Route::get('/burnout', 'burnout');
-            Route::get('/stalled-tasks', 'stalledTasks');
+            Route::get('/delayed-tasks', 'delayedTasks');
             Route::get('/productivity-drop', 'productivityDrop');
             Route::get('/over-assignment', 'overAssignment');
         });
