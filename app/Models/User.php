@@ -67,6 +67,12 @@ class User extends Authenticatable
         return $this->belongsToMany(Task::class);
     }
 
+    public function activeTasks()
+    {
+        return $this->belongsToMany(Task::class, 'task_user')
+            ->whereIn('status', ['todo', 'in_progress']);
+    }
+
     public function roles()
     {
         return $this->belongsToMany(Role::class)->withTimestamps();

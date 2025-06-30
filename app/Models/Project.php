@@ -15,17 +15,27 @@ class Project extends Model
         'budget',
         'priority',
         'privacy',
+        'health_status',
+        'health_metrics',
         'tags',
         'created_by',
     ];
 
     protected $casts = [
         'tags' => 'array',
+        'health_metrics' => 'array',
     ];
 
     public function tasklists()
     {
         return $this->hasMany(TaskList::class);
+    }
+
+    public function taskUsers()
+    {
+        return User::whereHas('tasks.tasklist.project', function ($query) {
+            $query->where('projects.id', $this->id);
+        });
     }
 
     public function creator()

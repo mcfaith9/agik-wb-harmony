@@ -58,8 +58,8 @@ class HealthController extends Controller
         $mapped = $users->map(function ($user) use ($delayed) {
             $tasks = $delayed[$user->id] ?? collect();
 
-            $avgAge = round($tasks->avg(fn($t) => now()->diffInDays($t->updated_at)) ?? 0, 1);
-            $maxAge = $tasks->max(fn($t) => now()->diffInDays($t->updated_at)) ?? 0;
+            $avgAge = round($tasks->avg(fn($t) => \Carbon\Carbon::parse($t->updated_at)->diffInDays(now())), 1);
+            $maxAge = $tasks->max(fn($t) => \Carbon\Carbon::parse($t->updated_at)->diffInDays(now()));
 
             return [
                 'user' => $user->only(['id', 'first_name', 'last_name', 'email']),
@@ -188,9 +188,10 @@ class HealthController extends Controller
                 'high_priority_tasks' => $userTasks->where('priority', 'high')->count(),
                 'conflicting_due_dates' => $conflicts,
                 'context_switching_risk' => $contextSwitching,
-                'avg_task_age_days' => round($userTasks->avg(fn($t) =>
-                    now()->diffInDays(\Carbon\Carbon::parse($t->updated_at))
-                ) ?? 0, 1),
+                'avg_task_age_days' => round($userTasks
+                    ->filter(fn($t) => \Carbon\Carbon::parse($t->updated_at)->lte(now()))
+                    ->avg(fn($t) => \Carbon\Carbon::parse($t->updated_at)->diffInDays(now()))
+                    ?? 0, 1),
                 'tasks_due_soon' => $userTasks->filter(fn($t) =>
                     optional($t->end_date)->isBetween(now(), now()->addDays(7))
                 )->count(),

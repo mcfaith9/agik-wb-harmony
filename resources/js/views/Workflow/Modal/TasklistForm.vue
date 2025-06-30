@@ -79,8 +79,13 @@
 	  selectedTags.value = []
 	}
 
+	watch(() => props.isOpen, (newVal) => {
+	  if (newVal) {
+	    loadInitialData()
+	  }
+	})
+
 	onMounted(() => {
-	  loadInitialData()
 	  tags.value = allTags
 	  
 	  if (props.project) {

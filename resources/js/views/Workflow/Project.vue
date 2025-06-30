@@ -43,7 +43,7 @@
 			          Tags
 			          <Tags class="w-4 h-4" />
 			        </button>
-			        <button @click="addProjectModal = true" class="inline-flex items-center gap-2 rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
+			        <button @click="addTasklistModal = true" class="inline-flex items-center gap-2 rounded-full bg-brand-500 px-3 py-1.5 text-sm font-medium text-white shadow-theme-xs hover:bg-brand-600">
 			          Tasklist
 			          <CircleFadingPlus class="w-4 h-4" />
 			        </button>

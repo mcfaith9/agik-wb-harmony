@@ -167,12 +167,60 @@
             :key="project.id" 
             :ref="el => projectRefs[project.id] = el"
             class="p-5 bg-white border border-gray-200 rounded-xl shadow-sm dark:border-gray-800 dark:bg-white/5">
-            <div @click="toggle(project)" class="cursor-pointer flex items-center gap-2 text-sm text-gray-800 dark:text-white">
-              <ChevronRight 
-                class="w-5 h-5 transition-transform duration-200" 
-                :class="{ 'rotate-90': project.expanded }" />
-              <Folder class="w-4 h-4" />
-              <span class="font-medium">{{ project.name }}</span>
+            <div @click="toggle(project)" class="cursor-pointer flex items-center justify-between gap-4 text-sm text-gray-800 dark:text-white">
+              <div class="flex items-center gap-2">
+                <ChevronRight 
+                  class="w-5 h-5 transition-transform duration-200" 
+                  :class="{ 'rotate-90': project.expanded }" />
+                <Folder class="w-4 h-4" />
+                <span class="font-medium flex items-center gap-1">
+                  {{ project.name }}
+                </span>
+              </div>
+
+              <div 
+                v-if="project.health_metrics" 
+                class="text-xs text-gray-600 dark:text-white/70 flex items-center flex-col sm:flex-row gap-6">
+
+                <div class="flex items-center gap-1">
+                  <span>Health Status</span>
+                  <div class="w-16 bg-gray-200 rounded h-1 dark:bg-gray-700">
+                    <div
+                      class="h-1 rounded"
+                      :class="{
+                        'bg-green-500': project.health_status === 'green',
+                        'bg-yellow-400': project.health_status === 'yellow',
+                        'bg-red-500': project.health_status === 'red',
+                      }"
+                      :style="{ width: `${project.health_metrics.progress}%` }"
+                    ></div>
+                  </div>
+                  <span class="ml-1 inline-block w-4 text-right">
+                    {{ project.health_metrics.progress }}%
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-1">
+                  <span>Overdue:</span>
+                  <span class="font-medium inline-block w-4 text-right">
+                    {{ project.health_metrics.overdue }}%
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-1">
+                  <span>Budget:</span>
+                  <span class="font-medium inline-block w-4 text-right">
+                    {{ project.health_metrics.budget_usage }}%
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-1">
+                  <span>User Load:</span>
+                  <span class="font-medium inline-block w-4 text-right">
+                    {{ project.health_metrics.team_load }}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <ul v-if="project.expanded" class="ml-2 mt-2 pl-4 space-y-2 border-l border-gray-200 dark:border-white/10">
@@ -185,7 +233,7 @@
                   <FolderOpen class="w-4 h-4" />
                   <span
                     @click="openTasklistDrawer(list)" 
-                    class="font-medium">{{ list.name }}</span>
+                    class="text-sm font-medium">{{ list.name }}</span>
                   <span 
                     class="text-xs inline-flex items-center gap-1" 
                     v-show="list.task_counts?.todo">
@@ -208,7 +256,7 @@
                   </span>
                 </div>
 
-                <ul v-if="list.expanded" class="ml-2 mt-2 space-y-2 text-sm text-gray-800 dark:text-white/90 border-l border-gray-200 dark:border-white/10 pl-4">
+                <ul v-if="list.expanded" class="ml-2 mt-2 space-y-2 text-xs text-gray-800 dark:text-white/90 border-l border-gray-200 dark:border-white/10 pl-4">
                   <li v-for="task in list.tasks" :key="task.id">
                     <div class="flex items-center gap-2">
                       <span

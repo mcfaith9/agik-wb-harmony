@@ -77,7 +77,7 @@
         <ul 
           v-if="filteredRoutes.length && query" 
           class="absolute left-0 top-full z-40 w-full mt-1 min-w-[260px] rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-[#1E2635]">
-          <span class="mb-3 px-4 text-xs uppercase flex text-gray-400 justify-start">Suggestions</span>
+          <span class="mb-3 px-4 text-xs font-medium uppercase flex text-gray-400 justify-start">Suggestions</span>
           <li
             v-for="route in filteredRoutes"
             :key="route.name"

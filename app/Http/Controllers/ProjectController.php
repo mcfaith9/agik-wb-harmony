@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\Setting;
+use App\Services\ProjectHealthService;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -13,7 +14,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::with('tasklists.tasks')->get();
+        $projects = Project::with(['tasklists.tasks'])->get();
 
         $projects->each(function ($project) {
             $project->tasklists->each(function ($tasklist) {
@@ -25,6 +26,16 @@ class ProjectController extends Controller
             });
 
             $project->append(['total_expenses', 'remaining_budget', 'is_over_budget']);
+            
+            $health = app(ProjectHealthService::class)->getStatus($project);
+
+            $project->update([
+                'health_status' => $health['status'],
+                'health_metrics' => $health['metrics'],
+            ]);
+
+            $project->health_status = $health['status'];
+            $project->health_metrics = $health['metrics'];
         });
 
         return response()->json($projects);

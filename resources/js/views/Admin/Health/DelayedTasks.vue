@@ -27,7 +27,7 @@
       header: 'Avg Task Age',
       meta: { align: 'center' },
       cell: info =>
-        h('div', { class: 'text-xs' }, `~${Math.round(info.getValue())} days`)
+        h('div', { class: 'text-xs' }, `${Math.round(info.getValue())} days`)
     },
     {
       accessorKey: 'delayed_task_max_age',
