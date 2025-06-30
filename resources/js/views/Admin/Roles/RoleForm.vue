@@ -1,19 +1,22 @@
 <script setup lang="ts">	
-	import { ref, reactive } from 'vue'
-	import Modal from '@/components/common/Modal.vue'
-	import Input from '@/components/common/Input.vue'
-	import { useRoles } from '@/composables/useRoles'
+	import { ref, reactive, watch } from "vue"
+	import Modal from "@/components/common/Modal.vue"
+	import Input from "@/components/common/Input.vue"
+	import { useRoles } from "@/composables/useRoles"
 	import { 
 	  X
 	} from "lucide-vue-next"
 
 	const props = defineProps<{
 	  isOpen: boolean
+	  mode?: 'create' | 'edit'
+	  roleToEdit?: any
 	}>()
 
 	const emit = defineEmits<{
 	  (e: 'close'): void,
 	  (e: 'created'): void,
+	  (e: 'updated'): void,
 	}>()
 
 	const attributeOptions = [
@@ -25,7 +28,7 @@
 	  { key: 'can_export', label: 'Can Export' },
 	]
 	
-	const { getRoles, createRole } = useRoles()
+	const { getRoles, createRole, updateRole } = useRoles()
 	const roles = ref([])
 	const newRole = ref({ name: '', label: '', attributes: {} })
 	const attributes = reactive<Record<string, boolean>>({})
@@ -34,28 +37,44 @@
 	  attributes[opt.key] = false
 	})
 
-	const addRole = async () => {
+	const addOrUpdateRole = async () => {
 	  try {
-	    await createRole({
+	    const payload = {
 	      name: newRole.value.name,
 	      label: newRole.value.label,
 	      attributes: { ...attributes }
-	    })
+	    }
 
-	    newRole.value = { name: '', label: '', attributes: {} }
-	    
-	    attributeOptions.forEach(opt => {
-	      attributes[opt.key] = false
-	    })
+	    if (props.mode === 'edit' && props.roleToEdit) {
+	      await updateRole(props.roleToEdit.id, payload)
+	      emit('updated', { ...payload, id: props.roleToEdit.id, updated_at: new Date().toISOString() })
+	    } else {
+	      const newCreatedRole = await createRole(payload)
+	      console.log("🔥 Emitting created", newCreatedRole)
+	      emit('created', {
+	        ...newCreatedRole.data,
+	        name: payload.name,
+	        label: payload.label,
+	        attributes: payload.attributes,
+	        updated_at: new Date().toISOString(),
+	      })
+	    }
 
-	    const res = await getRoles()
-	    roles.value = res.data
-	    emit('created')
 	    emit('close')
 	  } catch (err) {
-	    alert('Failed to create role.')
+	    alert(`Failed to ${props.mode === 'edit' ? 'update' : 'create'} role.`)
 	  }
 	}
+
+	watch(() => props.roleToEdit, (role) => {
+	  if (props.mode === 'edit' && role) {
+	    newRole.value.name = role.name
+	    newRole.value.label = role.label
+	    Object.keys(attributes).forEach(key => {
+	      attributes[key] = !!role.attributes?.[key]
+	    })
+	  }
+	})
 </script>
 
 <template>
@@ -69,13 +88,13 @@
 	      </button>
 	      <div class="px-2 pr-14">
 	        <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-	          Add Role
+	          {{ props.mode === 'edit' ? 'Edit Role' : 'Add Role' }}
 	        </h4>
 	        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400 lg:mb-4">
 	          Define a unique role, name it, label it, and pick the permissions that power your users.
 	        </p>
 	      </div>
-	      <form class="flex flex-col" @submit.prevent="addRole">
+	      <form class="flex flex-col" @submit.prevent="addOrUpdateRole">
 	        <div class="px-2 overflow-y-auto custom-scrollbar">
 	          <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
 	            <div class="col-span-full">
@@ -145,7 +164,7 @@
 	          <button
 	            type="submit"
 	            class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto">
-	            Create Role
+	            {{ props.mode === 'edit' ? 'Update Role' : 'Create Role' }}
 	          </button>
 	        </div>
 	      </form>

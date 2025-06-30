@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import McTable from "@/components/common/McTable.vue"
+  import McTable from "@/components/common/Table/McTable.vue"
   import { h } from "vue"
   import { AlertTriangle } from "lucide-vue-next"
 

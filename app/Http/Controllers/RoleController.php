@@ -22,7 +22,8 @@ class RoleController extends Controller
             'attributes' => 'nullable|array'
         ]);
 
-        return Role::create($validated);
+        $role = Role::create($validated);
+        return $role;
     }
 
     public function update(Request $request, Role $role)
@@ -57,5 +58,15 @@ class RoleController extends Controller
     public function userRoles(User $user)
     {
         return $user->roles;
+    }
+
+    public function destroy(Role $role)
+    {
+        // Optional: Detach from all users before deleting to avoid constraint violations
+        $role->users()->detach();
+
+        $role->delete();
+
+        return response()->json(['message' => 'Role deleted successfully.']);
     }
 }

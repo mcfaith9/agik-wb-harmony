@@ -3,7 +3,7 @@
   import { useRoute } from "vue-router"
   import AdminLayout from "@/components/layout/AdminLayout.vue"
   import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue"
-  import CreateRoles from "@/views/Admin/Roles/CreateRoles.vue"
+  import RoleForm from "@/views/Admin/Roles/RoleForm.vue"
   import RolesTable from "@/views/Admin/Roles/RolesTable.vue"
   import { CircleFadingPlus } from "lucide-vue-next"
 
@@ -33,9 +33,11 @@
       </div>
     </div>
 
-    <CreateRoles 
+    <RoleForm 
       :isOpen="addRoleModal" 
       @close="addRoleModal = false"
-      @created="rolesTableRef?.refresh?.()" />
+      @created="(role) => {
+        rolesTableRef?.handleCreated?.(role)
+      }" />
   </AdminLayout>
 </template>

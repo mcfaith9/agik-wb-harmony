@@ -3,7 +3,7 @@
   import axios from 'axios'
   import RolesTableDropdown from '@/views/Admin/Roles/RolesTableDropdown.vue'
   import { useRoles } from '@/composables/useRoles'
-  import McTable from '@/components/common/McTable.vue'
+  import McTable from '@/components/common/Table/McTable.vue'
 
   const allRoles = ref([])
   const { getRoles, assignRole, unassignRole } = useRoles()
@@ -55,32 +55,28 @@
       header: '',
       cell: info => {
         const user = info.row.original
-        const assignedRoles = ref(user.roles || [])
 
         return h(
           defineComponent({
             setup() {
               return () => h(RolesTableDropdown, {
                 roles: allRoles.value.data || [],
-                assignedRoles: assignedRoles.value,
+                assignedRoles: user.roles || [],
                 userId: user.id,
                 onAssignRole: async (roleId: number) => {
                   try {
-                    const exists = assignedRoles.value.some(r => r.id === roleId)
+                    const exists = user.roles?.some(r => r.id === roleId)
 
                     if (exists) {
                       await unassignRole(user.id, roleId)
-                      assignedRoles.value = assignedRoles.value.filter(r => r.id !== roleId)
+                      user.roles = user.roles.filter(r => r.id !== roleId)
                     } else {
                       await assignRole(user.id, roleId)
-                      const role = allRoles.value.find(r => r.id === roleId)
+                      const role = allRoles.value.data.find(r => r.id === roleId)
                       if (role) {
-                        assignedRoles.value = [...assignedRoles.value, role]
+                        user.roles = [...user.roles, role]
                       }
                     }
-
-                    // Sync for table cell display
-                    user.roles = [...assignedRoles.value]
                   } catch (err) {
                     console.error('Failed to toggle role:', err)
                   }

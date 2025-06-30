@@ -115,7 +115,7 @@ Tailor gamification elements based on user roles or goals.
 - Allow tracking and escalation of project risks or issues with notifications.    
 - Link risk status to project timelines and task priority.
     
-### 17. **Budget & Cost Tracking**
+### 17. ~~ **Budget & Cost Tracking** ~~
 - Track budgets for projects with expense logging.    
 - Visualize budget consumption and alerts on overspending.
     
@@ -131,7 +131,7 @@ Tailor gamification elements based on user roles or goals.
 - Create custom reports for productivity, delays, team performance.    
 - Export to Excel, PDF, or dashboard widgets.
 
-### 21. **Project Health Indicators**
+### ~~ 21. **Project Health Indicators** ~~
 - Show visual health statuses (e.g., green/yellow/red) based on task progress, budget usage, overdue items, and team load.
 - Alert users early when risk thresholds are crossed.
 
@@ -187,7 +187,7 @@ Tailor gamification elements based on user roles or goals.
 - Use ML to suggest relevant files or documents when creating tasks based on task title or description.
 - Integrate with Google Drive, Dropbox, etc.
 
-### 34. Mental Load & Burnout Indicators
+### ~~ 34. Mental Load & Burnout Indicators ~~
 - Track cognitive load by analyzing active tasks, overdue items, and user context switching.
 - Alert team leads when someone is at risk of burnout.
 

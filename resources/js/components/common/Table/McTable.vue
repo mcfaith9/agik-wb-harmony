@@ -10,12 +10,17 @@
     perPage: { type: Number, default: 10 },
     transformData: Function,
     fetchParams: { type: Object, default: () => ({}) },
-    rowClass: Function
-  })
+    rowClass: Function,
+    data: {
+      type: Array,
+      required: false,
+      default: () => []
+    }
+  })  
 
   const emits = defineEmits(['loaded'])
 
-  const data = ref([])
+  const internalData = ref(props.data?.length ? props.data : [])
   const loading = ref(true)
   const pageIndex = ref(0)
   const pageSize = ref(props.perPage)
@@ -38,13 +43,13 @@
       const responseData = props.transformData
         ? props.transformData(raw)
         : (raw.data && raw.total ? raw : { data: raw, total: raw.length || 0, from: 1, to: raw.length, last_page: 1 })
-      data.value = responseData.data
+      internalData.value = responseData.data
       pageCount.value = responseData.last_page
       from.value = responseData.from
       to.value = responseData.to
       total.value = responseData.total
 
-      emits('loaded', data.value)
+      emits('loaded', internalData.value)
     } catch (err) {
       console.error('Failed to fetch data:', err)
     } finally {
@@ -54,7 +59,7 @@
 
   const table = useVueTable({
     get data() {
-      return data.value
+      return internalData.value
     },
     columns: props.columns,
     getCoreRowModel: getCoreRowModel(),
@@ -106,7 +111,25 @@
   onMounted(() => {
     setTimeout(fetchData, 0)
   })
+
+  defineExpose({
+    setData(newData) {
+      internalData.value = [...newData]
+    },
+    refresh: fetchData
+  })
+
   watch([pageIndex, pageSize], fetchData)
+
+  watch(
+    () => props.data,
+    (newData) => {
+      if (newData?.length) {
+        internalData.value = [...newData]
+      }
+    },
+    { deep: true }
+  )
 </script>
 
 <template>

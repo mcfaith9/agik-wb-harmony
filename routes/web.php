@@ -68,8 +68,9 @@ Route::middleware('auth')->group(function () {
                 ->select('id', 'first_name', 'last_name', 'email', 'phone', 'email_verified_at')
                 ->paginate(request('per_page', 10));
         });
+        Route::delete('/roles/{role}', [RoleController::class, 'destroy']);
 
-
+        // Project Health Dashboard
         Route::prefix('/admin/health')->controller(HealthController::class)->group(function () {
             Route::get('/burnout', 'burnout');
             Route::get('/delayed-tasks', 'delayedTasks');
